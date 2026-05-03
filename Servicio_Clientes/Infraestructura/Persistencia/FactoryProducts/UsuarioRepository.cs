@@ -102,7 +102,7 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
             return ExecuteNonQuery(command);
 
         }
-        public DataTable GetAll()
+        public List<T> GetAll()
         {
             string query = @"SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci,Complemento, DATE_FORMAT(FechaNacimiento, '%Y-%m-%d') AS FechaNacimiento,Email, DireccionDomicilio,Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso
                     FROM Usuario
@@ -110,12 +110,40 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
                             ORDER BY 2;
                             ";
             MySqlCommand command = new MySqlCommand(query);
-            return ExecuteReturningDataTable(command);
+            return ExecuteList(command, reader => new Usuario
+            {
+                Id = reader.GetInt32("Id"),
+                Nombre = reader.GetString("Nombre"),
+                ApellidoPaterno = reader.GetString("ApellidoPaterno"),
+                ApellidoMaterno = reader.IsDBNull(reader.GetOrdinal("ApellidoMaterno")) ? null : reader.GetString("ApellidoMaterno"),
+                Ci = reader.GetString("Ci"),
+                Complemento = reader.IsDBNull(reader.GetOrdinal("Complemento")) ? null : reader.GetString("Complemento"),
+                FechaNacimiento = DateTime.Parse(reader["FechaNacimiento"].ToString()),
+                Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email"),
+                DireccionDomicilio = reader.IsDBNull(reader.GetOrdinal("DireccionDomicilio")) ? null : reader.GetString("DireccionDomicilio"),
+                Rol = reader.GetString("Rol"),
+                Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono"),
+                FechaIngreso = DateTime.Parse(reader["FechaIngreso"].ToString())
+            });
         }
-        public DataRow GetById(int id)
-        {
-            return new DataTable().NewRow();
-        }
+        //public List<T> GetById(int id)
+        //{
+        //    return ExecuteList(new MySqlCommand("SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci,Complemento, DATE_FORMAT(FechaNacimiento, '%Y-%m-%d') AS FechaNacimiento,Email, DireccionDomicilio,Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso FROM Usuario WHERE Id = @id AND Estado = 1"), reader => new Usuario
+        //    {
+        //        Id = reader.GetInt32("Id"),
+        //        Nombre = reader.GetString("Nombre"),
+        //        ApellidoPaterno = reader.GetString("ApellidoPaterno"),
+        //        ApellidoMaterno = reader.IsDBNull(reader.GetOrdinal("ApellidoMaterno")) ? null : reader.GetString("ApellidoMaterno"),
+        //        Ci = reader.GetString("Ci"),
+        //        Complemento = reader.IsDBNull(reader.GetOrdinal("Complemento")) ? null : reader.GetString("Complemento"),
+        //        FechaNacimiento = DateTime.Parse(reader["FechaNacimiento"].ToString()),
+        //        Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email"),
+        //        DireccionDomicilio = reader.IsDBNull(reader.GetOrdinal("DireccionDomicilio")) ? null : reader.GetString("DireccionDomicilio"),
+        //        Rol = reader.GetString("Rol"),
+        //        Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono"),
+        //        FechaIngreso = DateTime.Parse(reader["FechaIngreso"].ToString())
+        //    });
+        //}
 
         public bool ExisteDuplicado(Usuario empleado)
         {

@@ -131,40 +131,37 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia
             return new MySqlDataAdapter(comando);
         }
 
-        public DataTable ExecuteReturningDataTable(MySqlCommand comando)
+        public List<T> ExecuteList<T>(MySqlCommand comando, Func<MySqlDataReader, T> map)
         {
+            List<T> lista = new List<T>();
+
             if (_activeTransaction.Value != null)
             {
                 comando.Connection = _activeConnection.Value;
                 comando.Transaction = _activeTransaction.Value;
-                using (MySqlDataAdapter dataAdapter = new MySqlDataAdapter(comando))
+                using (var reader = comando.ExecuteReader())
                 {
-                    DataTable dataTable = new DataTable();
-                    dataAdapter.Fill(dataTable);
-                    return dataTable;
+                    while (reader.Read())
+                    {
+                        lista.Add(map(reader));
+                    }
                 }
+                return lista;
             }
 
             using (MySqlConnection con = new MySqlConnection(CatchStringConnection()))
             {
                 con.Open();
                 comando.Connection = con;
-
-                using (MySqlDataAdapter dataAdapter = new MySqlDataAdapter(comando))
+                using (var reader = comando.ExecuteReader())
                 {
-                    DataTable dataTable = new DataTable();
-                    dataAdapter.Fill(dataTable);
-                    return dataTable;
+                    while (reader.Read())
+                    {
+                        lista.Add(map(reader));
+                    }
                 }
             }
-        }
-
-        public DataRow? ExecuteReturningDataRow(MySqlCommand comando)
-        {
-            DataTable dt = ExecuteReturningDataTable(comando);
-            if (dt.Rows.Count > 0)
-                return dt.Rows[0];
-            return null;
+            return lista;
         }
 
         public object? ExecuteScalar(MySqlCommand comando)

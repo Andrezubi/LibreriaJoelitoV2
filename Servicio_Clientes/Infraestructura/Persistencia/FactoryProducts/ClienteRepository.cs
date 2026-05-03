@@ -6,7 +6,7 @@ using LibreriaJoelitoV2.Aplicacion.Interfaces;
 
 namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
 {
-    public class ClienteRepository : RepositorioBD, IClienteRepository
+    public class ClienteRepository : ConexionBD, IClienteRepository
     {
         public int Delete(Cliente t)
         {
@@ -21,7 +21,7 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
             return ExecuteNonQuery(cmd);
         }
 
-        public DataTable GetAll()
+        public List<T> GetAll()
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
@@ -30,23 +30,45 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
                 WHERE Estado = 1
                 ORDER BY ApellidoPaterno, Nombre");
 
-            return ExecuteReturningDataTable(cmd);
+            return ExecuteList(cmd, reader => new Cliente
+            {
+                Id = reader.GetInt32("Id"),
+                Nombre = reader.GetString("Nombre"),
+                ApellidoPaterno = reader.GetString("ApellidoPaterno"),
+                ApellidoMaterno = reader.IsDBNull(reader.GetOrdinal("ApellidoMaterno")) ? null : reader.GetString("ApellidoMaterno"),
+                Ci = reader.GetString("Ci"),
+                Complemento = reader.IsDBNull(reader.GetOrdinal("Complemento")) ? null : reader.GetString("Complemento"),
+                Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email"),
+                ClienteFrecuente = reader.GetBoolean("ClienteFrecuente"),
+                FechaRegistro = reader.GetDateTime("FechaRegistro")
+            });
         }
 
-        public DataRow GetById(int id)
-        {
-            MySqlCommand cmd = new MySqlCommand(@"
-                SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
-                       Ci AS Ci, Complemento, Email, ClienteFrecuente AS ClienteFrecuente, FechaRegistro
-                FROM Cliente
-                WHERE Id = @id AND Estado = 1");
+        //public List<T> GetById(int id)
+        //{
+        //    MySqlCommand cmd = new MySqlCommand(@"
+        //        SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
+        //               Ci AS Ci, Complemento, Email, ClienteFrecuente AS ClienteFrecuente, FechaRegistro
+        //        FROM Cliente
+        //        WHERE Id = @id AND Estado = 1");
 
-            cmd.Parameters.AddWithValue("@id", id);
+        //    cmd.Parameters.AddWithValue("@id", id);
 
-            return ExecuteReturningDataRow(cmd);
-        }
+        //    return ExecuteList(cmd, reader => new Cliente
+            //{
+            //    Id = reader.GetInt32("Id"),
+            //    Nombre = reader.GetString("Nombre"),
+            //    ApellidoPaterno = reader.GetString("ApellidoPaterno"),
+            //    ApellidoMaterno = reader.IsDBNull(reader.GetOrdinal("ApellidoMaterno")) ? null : reader.GetString("ApellidoMaterno"),
+            //    Ci = reader.GetString("Ci"),
+            //    Complemento = reader.IsDBNull(reader.GetOrdinal("Complemento")) ? null : reader.GetString("Complemento"),
+            //    Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email"),
+            //    ClienteFrecuente = reader.GetBoolean("ClienteFrecuente"),
+            //    FechaRegistro = reader.GetDateTime("FechaRegistro")
+            //});
+        //}
 
-        public DataRow GetByCi(string ci)
+        public List<T> GetByCi(string ci)
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
@@ -57,7 +79,18 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
 
             cmd.Parameters.AddWithValue("@ci", ci);
 
-            return ExecuteReturningDataRow(cmd);
+            return ExecuteList(cmd, reader => new Cliente
+            {
+                Id = reader.GetInt32("Id"),
+                Nombre = reader.GetString("Nombre"),
+                ApellidoPaterno = reader.GetString("ApellidoPaterno"),
+                ApellidoMaterno = reader.IsDBNull(reader.GetOrdinal("ApellidoMaterno")) ? null : reader.GetString("ApellidoMaterno"),
+                Ci = reader.GetString("Ci"),
+                Complemento = reader.IsDBNull(reader.GetOrdinal("Complemento")) ? null : reader.GetString("Complemento"),
+                Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email"),
+                ClienteFrecuente = reader.GetBoolean("ClienteFrecuente"),
+                FechaRegistro = reader.GetDateTime("FechaRegistro")
+            });
         }
 
         public int Insert(Cliente t)
@@ -124,7 +157,7 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
             cmd.Parameters.AddWithValue("@idUsuario", cliente.IdUsuario);
         }
 
-        public DataTable GetAllSimilarId(string ci)
+        public List<T> GetAllSimilarId(string ci)
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
@@ -136,7 +169,18 @@ namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
 
             cmd.Parameters.AddWithValue("@ci", "%" + ci + "%");
 
-            return ExecuteReturningDataTable(cmd);
+            return ExecuteList(cmd, reader => new Cliente
+            {
+                Id = reader.GetInt32("Id"),
+                Nombre = reader.GetString("Nombre"),
+                ApellidoPaterno = reader.GetString("ApellidoPaterno"),
+                ApellidoMaterno = reader.IsDBNull(reader.GetOrdinal("ApellidoMaterno")) ? null : reader.GetString("ApellidoMaterno"),
+                Ci = reader.GetString("Ci"),
+                Complemento = reader.IsDBNull(reader.GetOrdinal("Complemento")) ? null : reader.GetString("Complemento"),
+                Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email"),
+                ClienteFrecuente = reader.GetBoolean("ClienteFrecuente"),
+                FechaRegistro = reader.GetDateTime("FechaRegistro")
+            });
         }
 
     }

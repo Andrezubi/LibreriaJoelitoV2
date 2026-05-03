@@ -19,12 +19,12 @@ namespace LibreriaJoelitoV2.Infraestructura.ServiciosExternos
             _env = env;
         }
 
-        public byte[] GenerarComprobanteVenta(DataTable dt)
+        public byte[] GenerarComprobanteVenta<T>(List<T> datosVenta) 
         {
-            if (dt.Rows.Count == 0) return Array.Empty<byte>();
+            if (datosVenta == null || datosVenta.Count == 0) return Array.Empty<byte>();
 
-            DataRow cabecera = dt.Rows[0];
-            decimal total = Convert.ToDecimal(cabecera["Total"]);
+            var cabecera = datosVenta;
+            decimal total = Convert.ToDecimal(cabecera.Total);
 
             var documento = Document.Create(container =>
             {
@@ -34,16 +34,17 @@ namespace LibreriaJoelitoV2.Infraestructura.ServiciosExternos
                     page.Margin(2, Unit.Centimetre);
                     page.DefaultTextStyle(x => x.FontSize(11).FontFamily(Fonts.Arial));
 
-                    // --- DISEÑO VISUAL (Igual al anterior pero encapsulado aquí) ---
+                    // --- CABECERA ---
                     page.Header().Column(col => {
                         col.Item().Row(row => {
                             string logoPath = Path.Combine(_env.WebRootPath, "img", "logo-lib.png");
                             row.ConstantItem(80).Height(80).Border(1).AlignCenter().AlignMiddle().Image(logoPath);
                             row.RelativeItem().PaddingLeft(20).AlignMiddle().Text("COMPROBANTE DE VENTA").FontSize(24).Bold();
                         });
-                        col.Item().PaddingTop(20).Text($"Fecha: {Convert.ToDateTime(cabecera["Fecha"]):dd/MM/yyyy}").Bold();
-                        col.Item().Text($"CI/NIT: {cabecera["Ci"]}").Bold();
-                        col.Item().Text($"Razón Social: {cabecera["ClienteNombre"]} {cabecera["ApellidoPaterno"]}".Trim()).Bold();
+                        // Acceso directo a propiedades del objeto
+                        col.Item().PaddingTop(20).Text($"Fecha: {Convert.ToDateTime(cabecera.Fecha):dd/MM/yyyy}").Bold();
+                        col.Item().Text($"CI/NIT: {cabecera.Ci}").Bold();
+                        col.Item().Text($"Razón Social: {cabecera.ClienteNombre} {cabecera.ApellidoPaterno}".Trim()).Bold();
                     });
 
                     page.Content().PaddingVertical(20).Column(col => {
@@ -57,19 +58,21 @@ namespace LibreriaJoelitoV2.Infraestructura.ServiciosExternos
                                 h.Cell().Border(1).Padding(5).Text("P. Unit Bs.");
                                 h.Cell().Border(1).Padding(5).Text("Importe BS.");
                             });
-                            foreach (DataRow fila in dt.Rows)
+
+                            // Iteramos sobre la lista de objetos T
+                            foreach (var fila in datosVenta)
                             {
-                                tabla.Cell().Border(1).Padding(5).Text(fila["Cantidad"].ToString());
-                                tabla.Cell().Border(1).Padding(5).Text(fila["DescripcionProducto"].ToString());
-                                tabla.Cell().Border(1).Padding(5).Text(Convert.ToDecimal(fila["PrecioUnitario"]).ToString("N2"));
-                                tabla.Cell().Border(1).Padding(5).Text(Convert.ToDecimal(fila["Subtotal"]).ToString("N2"));
+                                tabla.Cell().Border(1).Padding(5).Text(fila.Cantidad.ToString());
+                                tabla.Cell().Border(1).Padding(5).Text(fila.DescripcionProducto.ToString());
+                                tabla.Cell().Border(1).Padding(5).Text(Convert.ToDecimal(fila.PrecioUnitario).ToString("N2"));
+                                tabla.Cell().Border(1).Padding(5).Text(Convert.ToDecimal(fila.Subtotal).ToString("N2"));
                             }
                         });
                         col.Item().AlignRight().PaddingTop(10).Text($"Total Bs: {total:N2}").Bold();
                         col.Item().Text($"Son: {NumeroALetras(total)}").Bold();
                     });
 
-                    string nombreEmpleado = cabecera["NombreEmpleado"].ToString();
+                    string nombreEmpleado = cabecera.NombreEmpleado.ToString();
 
                     page.Footer().AlignRight().Text($"{DateTime.Now:dd/MM/yyyy HH:mm} - {nombreEmpleado}").Italic();
                 });
