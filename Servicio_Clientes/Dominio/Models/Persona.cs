@@ -1,4 +1,4 @@
-namespace LibreriaJoelito.Dominio.Models
+namespace LibreriaJoelitoV2.Dominio.Models
 {
     public class Persona:ModeloBase
     {
