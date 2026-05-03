@@ -1,7 +1,7 @@
-using LibreriaJoelito.Dominio.Models;
+using LibreriaJoelitoV2.Dominio.Models;
 using System.Data;
 
-namespace LibreriaJoelito.Aplicacion.Interfaces
+namespace LibreriaJoelitoV2.Aplicacion.Interfaces
 {
     public interface IUsuarioRepository : IRepository<Usuario>
     {
