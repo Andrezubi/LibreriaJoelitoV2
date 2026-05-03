@@ -36,20 +36,20 @@ namespace LibreriaJoelitoV2V2.Aplicacion.Servicios
             };
         }
 
-        public DataTable GetAllSimilarId(string ci)
-        {
-            return clienteRepository.GetAllSimilarId(ci);
-        }
+        //public List<Cliente> GetAllSimilarId(string ci)
+        //{
+        //    return clienteRepository.GetAllSimilarId(ci);
+        //}
 
-        public DataTable GetAll()
+        public List<Cliente> GetAll()
         {
             return clienteRepository.GetAll();
         }
 
-        public DataRow GetById(int id)
-        {
-            return clienteRepository.GetById(id);
-        }
+        //public List<Cliente> GetById(int id)
+        //{
+        //    return clienteRepository.GetById(id);
+        //}
 
         public Result<int> Insert(Cliente cliente)
         {
