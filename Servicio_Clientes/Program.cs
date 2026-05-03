@@ -36,6 +36,22 @@ builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 // Add services to the container.
 builder.Services.AddControllers();
 
+// Swagger para documentar y probar la API
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// CORS para permitir llamadas desde el Frontend (Razor Pages)
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("https://localhost:7001", "http://localhost:5001")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
+
 // Dependency inyection Token service
 builder.Services.AddScoped<ITokenService, TokenService>();
 
@@ -82,13 +98,15 @@ var connectionString = builder.Configuration.GetConnectionString("ConnectionMySq
 bd.Initiate(connectionString);
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 app.UseRouting();
 

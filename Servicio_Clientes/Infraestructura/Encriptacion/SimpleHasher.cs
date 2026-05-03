@@ -8,15 +8,12 @@ namespace Servicio_Clientes.Infraestructura.Encryptacion
     {
         public string Hash(string password)
         {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
+            return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
         public bool Verify(string password, string hashedPassword)
         {
-            return Hash(password) == hashedPassword;
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
         }
     }
 }

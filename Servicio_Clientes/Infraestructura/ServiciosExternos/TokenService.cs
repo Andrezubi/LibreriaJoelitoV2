@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Servicio_Clientes.Aplicacion.Servicios
+namespace Servicio_Clientes.Infraestructura.ServiciosExternos
 {
     public class TokenService : ITokenService
     {

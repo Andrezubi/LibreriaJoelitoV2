@@ -19,6 +19,11 @@ namespace Servicio_Clientes.Dominio.Models
         public string Rol { get; set; }
         public int IdUsuario { get; set; }
 
+        public bool MustChangePassword { get; set; }
+        public bool Estado { get; set; }
+        public int? IdEmpleadoCambio { get; set; }
+        public DateTime? FechaUltimaActualizacion { get; set; }
+
         public Usuario() { }
         public Usuario(int id) { Id = id; }
 

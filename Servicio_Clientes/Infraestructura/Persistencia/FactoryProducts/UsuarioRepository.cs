@@ -166,7 +166,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 
         public Usuario GetDatosLogin(string username)
         {
-            string query = "SELECT Password, Rol,Id FROM Usuario WHERE Username = @username AND Estado = 1 LIMIT 1";
+            string query = "SELECT Password, Rol, Id, MustChangePassword FROM Usuario WHERE Username = @username AND Estado = 1 LIMIT 1";
             MySqlCommand command = new MySqlCommand(query);
             command.Parameters.AddWithValue("@username", username);
 
@@ -179,7 +179,8 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                         Username = username,
                         Password = reader["Password"].ToString(),
                         Rol = reader["Rol"].ToString(),
-                        Id = int.Parse(reader["Id"].ToString())
+                        Id = int.Parse(reader["Id"].ToString()),
+                        MustChangePassword = Convert.ToBoolean(reader["MustChangePassword"])
                     };
                 }
             }

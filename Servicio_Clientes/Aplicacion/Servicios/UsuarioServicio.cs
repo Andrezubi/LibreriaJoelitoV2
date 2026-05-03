@@ -130,6 +130,8 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 loginResult.Success = true;
                 loginResult.Message = "Acceso concedido.";
                 loginResult.Token = tokenService.GenerarToken(username, user.Rol, user.Id.ToString());
+                loginResult.MustChangePassword = user.MustChangePassword;
+                loginResult.Rol = user.Rol;
             }
             else
             {

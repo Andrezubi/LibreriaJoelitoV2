@@ -1,4 +1,4 @@
-﻿namespace Servicio_Clientes.Dominio.Models
+namespace Servicio_Clientes.Dominio.Models
 {
     public class LoginResult
     {
@@ -7,5 +7,6 @@
         public string Message { get; set; }
 
         public string Rol { get; set; }
+        public bool MustChangePassword { get; set; }
     }
 }
