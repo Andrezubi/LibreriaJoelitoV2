@@ -11,6 +11,7 @@ using Servicio_Clientes.Infraestructura.ServiciosExternos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Servicio_Clientes.Infraestructura.Persistencia.BD;
 
 var builder = WebApplication.CreateBuilder(args);
 

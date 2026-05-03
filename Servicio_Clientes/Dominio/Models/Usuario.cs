@@ -1,6 +1,6 @@
 namespace Servicio_Clientes.Dominio.Models
 {
-    public class Usuario:ModeloBase
+    public class Usuario
     {
         public int Id { get; set; }
         public string Nombre { get; set; }
@@ -17,7 +17,7 @@ namespace Servicio_Clientes.Dominio.Models
         public string Username { get; set; }
         public string Password { get; set; }
         public string Rol { get; set; }
-        
+        public int IdUsuario { get; set; }
 
         public Usuario() { }
         public Usuario(int id) { Id = id; }

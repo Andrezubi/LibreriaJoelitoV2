@@ -2,6 +2,6 @@ namespace Servicio_Clientes.Aplicacion.Interfaces
 {
     public interface IPdfService
     {
-        byte[] GenerarComprobanteVenta<T>(List<T> datosVenta);
+        byte[] GenerarComprobanteVenta(System.Data.DataTable datosVenta);
     }
 }

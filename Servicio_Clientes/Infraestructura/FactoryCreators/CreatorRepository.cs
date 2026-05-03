@@ -1,4 +1,4 @@
-using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Dominio.Interfaces;
 
 namespace Servicio_Clientes.Infraestructura.FactoryCreators
 {

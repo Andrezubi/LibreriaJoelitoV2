@@ -22,15 +22,15 @@ namespace Servicio_Clientes.Aplicacion.Servicios
             this.tokenService = tokenService;
         }
 
-        public List<Usuario> GetAll()
+        public DataTable GetAll()
         {
             return usuarioRepository.GetAll();
         }
 
-        //public List<T> GetById(int id)
-        //{
-        //    return usuarioRepository.GetById(id);
-        //}
+        public DataRow GetById(int id)
+        {
+            return usuarioRepository.GetById(id);
+        }
 
         public Result Insert(Usuario usuario)
         {
@@ -114,23 +114,31 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public Result<string> Login(string username, string password)
+        public LoginResult Login(string username, string password)
         {
+            var loginResult = new LoginResult();
             var user = extraRepo.GetDatosLogin(username);
 
             if (user == null)
             {
-                return Result<string>.Failure("Usuario no encontrado.");
+                loginResult.Success = false;
+                loginResult.Message = "Usuario no encontrado.";
+                loginResult.Token = null;
             }
             else if (passwordHasher.Verify(password, user.Password))
             {
-                var token = tokenService.GenerarToken(username, user.Rol, user.Id.ToString());
-                return Result<string>.Success(token);
+                loginResult.Success = true;
+                loginResult.Message = "Acceso concedido.";
+                loginResult.Token = tokenService.GenerarToken(username, user.Rol, user.Id.ToString());
             }
             else
             {
-                return Result<string>.Failure("Contraseña incorrecta.");
+                loginResult.Success = false;
+                loginResult.Message = "Contraseña incorrecta.";
+                loginResult.Token = null;
             }
+
+            return loginResult;
         }
     }
 }
