@@ -2,9 +2,9 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using Microsoft.Extensions.Configuration;
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
+using Servicio_Clientes.Aplicacion.Interfaces;
 
-namespace LibreriaJoelitoV2.Infraestructura.ServiciosExternos
+namespace Servicio_Clientes.Infraestructura.ServiciosExternos
 {
     public class EmailService : IEmailService
     {

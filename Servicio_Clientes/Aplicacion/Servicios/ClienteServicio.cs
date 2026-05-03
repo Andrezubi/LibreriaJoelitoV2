@@ -1,11 +1,11 @@
-using LibreriaJoelitoV2V2.Aplicacion.Interfaces;
-using LibreriaJoelitoV2V2.Aplicacion.Results;
-using LibreriaJoelitoV2V2.Dominio.Models;
-using LibreriaJoelitoV2V2.Dominio.Validators;
+using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Aplicacion.Results;
+using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Dominio.Validators;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 
-namespace LibreriaJoelitoV2V2.Aplicacion.Servicios
+namespace Servicio_Clientes.Aplicacion.Servicios
 {
     public class ClienteServicio
     {

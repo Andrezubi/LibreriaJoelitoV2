@@ -1,17 +1,17 @@
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
+using Servicio_Clientes.Aplicacion.Interfaces;
 
-namespace LibreriaJoelitoV2.Infraestructura.FactoryCreators
+namespace Servicio_Clientes.Infraestructura.FactoryCreators
 {
     public abstract class CreatorRepository<T>
     {
         public abstract IRepository<T> CreateRepository();
     }
 }
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
-using LibreriaJoelitoV2.Dominio.Models;
-using LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts;
+using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
 
-namespace LibreriaJoelitoV2.Infraestructura.FactoryCreators
+namespace Servicio_Clientes.Infraestructura.FactoryCreators
 {
     public class ClienteCreatorRepository : CreatorRepository<Cliente>
     {

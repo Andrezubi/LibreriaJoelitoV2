@@ -1,13 +1,13 @@
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
-using LibreriaJoelitoV2.Dominio.Models;
-using LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts;
+using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System.Data;
 using System.IO;
 
-namespace LibreriaJoelitoV2.Infraestructura.ServiciosExternos
+namespace Servicio_Clientes.Infraestructura.ServiciosExternos
 {
     public class PdfService : IPdfService
     {

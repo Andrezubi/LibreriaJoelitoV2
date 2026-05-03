@@ -1,10 +1,10 @@
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
-using LibreriaJoelitoV2.Aplicacion.Results;
-using LibreriaJoelitoV2.Dominio.Models;
-using LibreriaJoelitoV2.Dominio.Validators;
+using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Aplicacion.Results;
+using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Dominio.Validators;
 using System.Data;
 
-namespace LibreriaJoelitoV2.Aplicacion.Servicios
+namespace Servicio_Clientes.Aplicacion.Servicios
 {
     public class UsuarioServicio
     {

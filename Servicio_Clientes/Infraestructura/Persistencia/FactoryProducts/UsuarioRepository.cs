@@ -1,11 +1,11 @@
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
-using LibreriaJoelitoV2.Dominio.Models;
+using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Dominio.Models;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace LibreriaJoelitoV2.Infraestructura.Persistencia.FactoryProducts
+namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 {
     public class UsuarioRepository : RepositorioBD, IUsuarioRepository, IRepository<Usuario>
     {

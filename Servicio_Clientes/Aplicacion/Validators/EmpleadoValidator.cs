@@ -1,9 +1,9 @@
-using LibreriaJoelitoV2.Dominio.Models;
+using Servicio_Clientes.Dominio.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
-namespace LibreriaJoelitoV2.Dominio.Validators
+namespace Servicio_Clientes.Dominio.Validators
 {
     public static class EmpleadoValidator
     {

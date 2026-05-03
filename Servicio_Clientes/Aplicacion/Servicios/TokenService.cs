@@ -1,10 +1,10 @@
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
+using Servicio_Clientes.Aplicacion.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace LibreriaJoelitoV2.Aplicacion.Servicios
+namespace Servicio_Clientes.Aplicacion.Servicios
 {
     public class TokenService : ITokenService
     {

@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace LibreriaJoelitoV2.Dominio.Validators
 {
-    public class ClienteValidator
+    public class Servicio_Clientes
     {
         public string NormalizarTexto(string? texto)
         {

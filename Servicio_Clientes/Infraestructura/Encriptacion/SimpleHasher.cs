@@ -1,8 +1,8 @@
-using LibreriaJoelitoV2.Aplicacion.Interfaces;
+using Servicio_Clientes.Aplicacion.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LibreriaJoelitoV2.Infraestructura.Encryptacion
+namespace Servicio_Clientes.Infraestructura.Encryptacion
 {
     public class SimpleHasher : IPasswordHasher
     {

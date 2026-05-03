@@ -1,4 +1,4 @@
-namespace LibreriaJoelitoV2.Aplicacion.Results
+namespace Servicio_Clientes.Aplicacion.Results
 {
     public class Result
     {

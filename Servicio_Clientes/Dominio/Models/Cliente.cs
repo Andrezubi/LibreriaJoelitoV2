@@ -1,4 +1,4 @@
-namespace LibreriaJoelitoV2.Dominio.Models
+namespace Servicio_Clientes.Dominio.Models
 {
     public class Cliente : Persona
     {

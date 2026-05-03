@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 
-namespace LibreriaJoelitoV2.Infraestructura.Persistencia
+namespace Servicio_Clientes.Infraestructura.Persistencia
 {
     public class ConexionBD
     {
