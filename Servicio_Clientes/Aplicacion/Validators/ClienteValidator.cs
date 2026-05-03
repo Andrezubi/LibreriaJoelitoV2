@@ -1,11 +1,11 @@
-using LibreriaJoelitoV2.Dominio.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Servicio_Clientes.Dominio.Models;
 
-namespace LibreriaJoelitoV2.Dominio.Validators
+namespace Servicio_Clientes.Aplicacion.Validators
 {
-    public class Servicio_Clientes
+    public class ClienteValidator
     {
         public string NormalizarTexto(string? texto)
         {

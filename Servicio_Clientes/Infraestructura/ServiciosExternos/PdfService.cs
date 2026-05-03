@@ -22,8 +22,6 @@ namespace Servicio_Clientes.Infraestructura.ServiciosExternos
         public byte[] GenerarComprobanteVenta<T>(List<T> datosVenta) 
         {
             if (datosVenta == null || datosVenta.Count == 0) return Array.Empty<byte>();
-
-            var cabecera = datosVenta;
             decimal total = Convert.ToDecimal(cabecera.Total);
 
             var documento = Document.Create(container =>

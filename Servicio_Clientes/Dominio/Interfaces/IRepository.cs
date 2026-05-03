@@ -1,7 +1,7 @@
 using Servicio_Clientes.Dominio.Models;
 using System.Data;
 
-namespace Servicio_Clientes.Aplicacion.Interfaces
+namespace Servicio_Clientes.Dominio.Interfaces
 {
     public interface IRepository<T>
     {

@@ -1,7 +1,8 @@
 using Servicio_Clientes.Aplicacion.Interfaces;
 using Servicio_Clientes.Aplicacion.Results;
+using Servicio_Clientes.Aplicacion.Validators;
+using Servicio_Clientes.Dominio.Interfaces;
 using Servicio_Clientes.Dominio.Models;
-using Servicio_Clientes.Dominio.Validators;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 
@@ -20,21 +21,11 @@ namespace Servicio_Clientes.Aplicacion.Servicios
 
         public Cliente? BuscarPorCi(string ci)
         {
-            var row = clienteRepository.GetByCi(ci);
-            if (row == null) return null;
+            var rows = clienteRepository.GetByCi(ci);
+            if (rows == null || rows.Count == 0) return null;
 
-            return new Cliente
-            {
-                Id = Convert.ToInt32(row["Id"]),
-                Nombre = row["Nombre"].ToString(),
-                ApellidoPaterno = row["ApellidoPaterno"].ToString(),
-                ApellidoMaterno = row["ApellidoMaterno"]?.ToString(),
-                Ci = row["Ci"].ToString(),
-                Complemento = row["Complemento"]?.ToString(),
-                Email = row["Email"]?.ToString(),
-                ClienteFrecuente = Convert.ToBoolean(row["ClienteFrecuente"])
-            };
-        }
+            var row = rows.First();
+            return row;
 
         //public List<Cliente> GetAllSimilarId(string ci)
         //{

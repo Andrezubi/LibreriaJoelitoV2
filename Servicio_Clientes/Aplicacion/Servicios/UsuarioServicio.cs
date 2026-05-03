@@ -1,7 +1,8 @@
 using Servicio_Clientes.Aplicacion.Interfaces;
 using Servicio_Clientes.Aplicacion.Results;
+using Servicio_Clientes.Aplicacion.Validators;
+using Servicio_Clientes.Dominio.Interfaces;
 using Servicio_Clientes.Dominio.Models;
-using Servicio_Clientes.Dominio.Validators;
 using System.Data;
 
 namespace Servicio_Clientes.Aplicacion.Servicios
@@ -21,7 +22,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
             this.tokenService = tokenService;
         }
 
-        public List<T> GetAll()
+        public List<Usuario> GetAll()
         {
             return usuarioRepository.GetAll();
         }
@@ -113,31 +114,23 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public LoginResult Login(string username, string password)
+        public Result<string> Login(string username, string password)
         {
-            var loginResult = new LoginResult();
             var user = extraRepo.GetDatosLogin(username);
 
             if (user == null)
             {
-                loginResult.Success = false;
-                loginResult.Message = "Usuario no encontrado.";
-                loginResult.Token = null;
+                return Result<string>.Failure("Usuario no encontrado.");
             }
             else if (passwordHasher.Verify(password, user.Password))
             {
-                loginResult.Success = true;
-                loginResult.Message = "Acceso concedido.";
-                loginResult.Token = tokenService.GenerarToken(username, user.Rol, user.Id.ToString());
+                var token = tokenService.GenerarToken(username, user.Rol, user.Id.ToString());
+                return Result<string>.Success(token);
             }
             else
             {
-                loginResult.Success = false;
-                loginResult.Message = "Contraseña incorrecta.";
-                loginResult.Token = null;
+                return Result<string>.Failure("Contraseña incorrecta.");
             }
-
-            return loginResult;
         }
     }
 }

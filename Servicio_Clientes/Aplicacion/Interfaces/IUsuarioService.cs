@@ -1,4 +1,5 @@
 using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Aplicacion.Results;
 using System.Data;
 
 namespace Servicio_Clientes.Aplicacion.Interfaces
@@ -11,14 +12,14 @@ namespace Servicio_Clientes.Aplicacion.Interfaces
 
         int DeleteUsuario(Usuario t);
 
-        List<T> GetAllUsuarios();
+        List<Usuario> GetAllUsuarios();
         // List<T> GetUsuarioById(int id); no getById
 
         bool ExisteUsuarioDuplicado(Usuario usuario);
         string GenerarUsername(string nombre, string apellido);
         string GenerarPassword(int length);
 
-        LoginResult Login(string username, string password);
+        Result<string> Login(string username, string password);
 
     }
 }

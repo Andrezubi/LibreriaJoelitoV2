@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
-namespace Servicio_Clientes.Dominio.Validators
+namespace Servicio_Clientes.Aplicacion.Validators
 {
     public static class EmpleadoValidator
     {

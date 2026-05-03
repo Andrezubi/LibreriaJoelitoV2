@@ -2,7 +2,7 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using System;
 using Servicio_Clientes.Dominio.Models;
-using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Dominio.Interfaces;
 
 namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 {
@@ -21,7 +21,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             return ExecuteNonQuery(cmd);
         }
 
-        public List<T> GetAll()
+        public List<Cliente> GetAll()
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
@@ -68,7 +68,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             //});
         //}
 
-        public List<T> GetByCi(string ci)
+        public List<Cliente> GetByCi(string ci)
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
@@ -157,7 +157,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             cmd.Parameters.AddWithValue("@idUsuario", cliente.IdUsuario);
         }
 
-        public List<T> GetAllSimilarId(string ci)
+        public List<Cliente> GetAllSimilarId(string ci)
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,

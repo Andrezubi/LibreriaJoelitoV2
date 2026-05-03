@@ -1,5 +1,6 @@
-using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Dominio.Interfaces;
 using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Infraestructura.Persistencia;
 using MySql.Data.MySqlClient;
 using System.Configuration;
 using System.Data;
@@ -7,7 +8,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 {
-    public class UsuarioRepository : RepositorioBD, IUsuarioRepository, IRepository<Usuario>
+    public class UsuarioRepository : ConexionBD, IUsuarioRepository, IRepository<Usuario>
     {
         public int Insert(Usuario t)
         {
@@ -102,7 +103,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             return ExecuteNonQuery(command);
 
         }
-        public List<T> GetAll()
+        public List<Usuario> GetAll()
         {
             string query = @"SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci,Complemento, DATE_FORMAT(FechaNacimiento, '%Y-%m-%d') AS FechaNacimiento,Email, DireccionDomicilio,Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso
                     FROM Usuario
