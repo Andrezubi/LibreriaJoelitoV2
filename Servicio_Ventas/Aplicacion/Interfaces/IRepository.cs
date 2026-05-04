@@ -4,11 +4,11 @@ namespace Servicio_Ventas.Aplicacion.Interfaces
 {
     public interface IRepository<T>
     {
-        int Insert(T t);
-        int Update(T t);
-        int Delete(T t);
-        DataTable GetAll();
-        DataRow? GetById(int id);
+        int Insertar(T t);
+        int Actualizar(T t);
+        int Eliminar(T t);
+        DataTable ObtenerTodo();
+        DataRow? ObtenerPorId(int id);
         bool ExisteDuplicado(T t);
     }
 }
