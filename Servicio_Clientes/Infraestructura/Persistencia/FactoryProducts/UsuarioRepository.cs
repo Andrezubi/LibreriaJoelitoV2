@@ -6,7 +6,7 @@ using Servicio_Clientes.Infraestructura.Persistencia.BD;
 
 namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 {
-    public class UsuarioRepository : ConexionBD, IUsuarioRepositorio, IRepositorio<Usuario>
+    public class UsuarioRepository : ConexionBD, IRepositorio<Usuario>
     {
         public int Insertar(Usuario t)
         {
