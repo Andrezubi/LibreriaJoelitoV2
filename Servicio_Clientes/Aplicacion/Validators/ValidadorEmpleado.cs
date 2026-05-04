@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Servicio_Clientes.Aplicacion.Validators
 {
-    public static class EmpleadoValidator
+    public static class ValidadorEmpleado
     {
         public static List<ValidationResult> Validar(Usuario emp)
         {

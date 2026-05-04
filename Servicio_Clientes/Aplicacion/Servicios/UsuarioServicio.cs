@@ -9,36 +9,36 @@ namespace Servicio_Clientes.Aplicacion.Servicios
 {
     public class UsuarioServicio
     {
-        private readonly IRepository<Usuario> usuarioRepository;
-        private readonly IUsuarioRepository extraRepo;
-        private readonly IPasswordHasher passwordHasher;
-        private readonly ITokenService tokenService;
+        private readonly IRepositorio<Usuario> usuarioRepositorio;
+        private readonly IUsuarioRepositorio extraRepo;
+        private readonly IHasherContrasena encriptador;
+        private readonly IServicioToken servicioToken;
 
-        public UsuarioServicio(IRepository<Usuario> usuarioRepository, IUsuarioRepository extraRepo, IPasswordHasher passwordHasher, ITokenService tokenService)
+        public UsuarioServicio(IRepositorio<Usuario> usuarioRepositorio, IUsuarioRepositorio extraRepo, IHasherContrasena encriptador, IServicioToken servicioToken)
         {
-            this.usuarioRepository = usuarioRepository;
+            this.usuarioRepositorio = usuarioRepositorio;
             this.extraRepo = extraRepo;
-            this.passwordHasher = passwordHasher;
-            this.tokenService = tokenService;
+            this.encriptador = encriptador;
+            this.servicioToken = servicioToken;
         }
 
-        public DataTable GetAll()
+        public DataTable ObtenerTodo()
         {
-            return usuarioRepository.GetAll();
+            return usuarioRepositorio.ObtenerTodo();
         }
 
-        public DataRow GetById(int id)
+        public DataRow? ObtenerPorId(int id)
         {
-            return usuarioRepository.GetById(id);
+            return usuarioRepositorio.ObtenerPorId(id);
         }
 
-        public Result Insert(Usuario usuario)
+        public Resultado Insertar(Usuario usuario)
         {
-            var validationResults = EmpleadoValidator.Validar(usuario);
+            var validaciones = ValidadorEmpleado.Validar(usuario);
 
-            if (validationResults.Any())
+            if (validaciones.Any())
             {
-                var errors = validationResults
+                var errores = validaciones
                     .Select(v =>
                     {
                         var field = v.MemberNames.FirstOrDefault() ?? "General";
@@ -46,51 +46,48 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                     })
                     .ToList();
 
-                return Result.Failure(errors);
+                return Resultado.Failure(errores);
             }
 
-            if (usuarioRepository.ExisteDuplicado(usuario))
+            if (usuarioRepositorio.ExisteDuplicado(usuario))
             {
-                return Result.Failure("empleado.Ci: El empleado con ese CI ya existe.");
+                return Resultado.Failure("empleado.Ci: El empleado con ese CI ya existe.");
             }
 
             // Hashear la contraseña antes de guardar en la DB
-            usuario.Password = passwordHasher.Hash(usuario.Password);
-            usuarioRepository.Insert(usuario);
+            usuario.Contrasena = encriptador.Encriptar(usuario.Contrasena);
+            usuarioRepositorio.Insertar(usuario);
 
-            return Result.Success();
+            return Resultado.Success();
         }
 
-        public Result Update(Usuario usuario)
+        public Resultado Actualizar(Usuario usuario)
         {
-            var validationResults = EmpleadoValidator.Validar(usuario);
+            var validaciones = ValidadorEmpleado.Validar(usuario);
 
-            if (validationResults.Any())
+            if (validaciones.Any())
             {
-                var errors = validationResults
+                var errores = validaciones
                     .Select(v =>
                     {
                         return $"{v.ErrorMessage}";
                     })
                     .ToList();
 
-                return Result.Failure(errors);
+                return Resultado.Failure(errores);
             }
 
-            // Permitir actualización aunque el CI exista si es el mismo usuario, 
-            // pero para esta lógica podemos depender de la base de datos o ajustar si es necesario.
-            // Para ser seguros, lo guardamos directo.
-            usuarioRepository.Update(usuario);
+            usuarioRepositorio.Actualizar(usuario);
 
-            return Result.Success();
+            return Resultado.Success();
         }
 
-        public int Delete(Usuario usuario)
+        public int Eliminar(Usuario usuario)
         {
-            return usuarioRepository.Delete(usuario);
+            return usuarioRepositorio.Eliminar(usuario);
         }
 
-        public string GenerarUsername(string nombre, string apellido)
+        public string GenerarNombreUsuario(string nombre, string apellido)
         {
             string baseUsername = $"{nombre}.{apellido}".ToLower().Replace(" ", "");
             string username = baseUsername;
@@ -105,42 +102,42 @@ namespace Servicio_Clientes.Aplicacion.Servicios
             return username;
         }
 
-        public string GenerarPassword(int length)
+        public string GenerarContrasena(int longitud)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
             var random = new Random();
 
-            return new string(Enumerable.Repeat(chars, length)
+            return new string(Enumerable.Repeat(chars, longitud)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
-        public LoginResult Login(string username, string password)
+        public LoginResultado Login(string nombreUsuario, string contrasena)
         {
-            var loginResult = new LoginResult();
-            var user = extraRepo.GetDatosLogin(username);
+            var loginResultado = new LoginResultado();
+            var user = extraRepo.ObtenerDatosLogin(nombreUsuario);
 
             if (user == null)
             {
-                loginResult.Success = false;
-                loginResult.Message = "Usuario no encontrado.";
-                loginResult.Token = null;
+                loginResultado.Exito = false;
+                loginResultado.Mensaje = "Usuario no encontrado.";
+                loginResultado.Token = null;
             }
-            else if (passwordHasher.Verify(password, user.Password))
+            else if (encriptador.Verificar(contrasena, user.Contrasena))
             {
-                loginResult.Success = true;
-                loginResult.Message = "Acceso concedido.";
-                loginResult.Token = tokenService.GenerarToken(username, user.Rol, user.Id.ToString());
-                loginResult.MustChangePassword = user.MustChangePassword;
-                loginResult.Rol = user.Rol;
+                loginResultado.Exito = true;
+                loginResultado.Mensaje = "Acceso concedido.";
+                loginResultado.Token = servicioToken.GenerarToken(nombreUsuario, user.Rol, user.Id.ToString());
+                loginResultado.DebeCambiarContrasena = user.DebeCambiarContrasena;
+                loginResultado.Rol = user.Rol;
             }
             else
             {
-                loginResult.Success = false;
-                loginResult.Message = "Contraseña incorrecta.";
-                loginResult.Token = null;
+                loginResultado.Exito = false;
+                loginResultado.Mensaje = "Contraseña incorrecta.";
+                loginResultado.Token = null;
             }
 
-            return loginResult;
+            return loginResultado;
         }
     }
 }

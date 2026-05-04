@@ -14,12 +14,12 @@ namespace Servicio_Clientes.Dominio.Models
         public DateOnly FechaNacimiento { get; set; }
         public DateOnly FechaIngreso { get; set; }
 
-        public string Username { get; set; }
-        public string Password { get; set; }
+        public string NombreUsuario { get; set; }
+        public string Contrasena { get; set; }
         public string Rol { get; set; }
         public int IdUsuario { get; set; }
 
-        public bool MustChangePassword { get; set; }
+        public bool DebeCambiarContrasena { get; set; }
         public bool Estado { get; set; }
         public int? IdEmpleadoCambio { get; set; }
         public DateTime? FechaUltimaActualizacion { get; set; }
@@ -27,7 +27,7 @@ namespace Servicio_Clientes.Dominio.Models
         public Usuario() { }
         public Usuario(int id) { Id = id; }
 
-        public Usuario(int id, string nombre, string apellidoPaterno, string apellidoMaterno, string ci, string complemento, string direccionDomicilio, string email, string telefono, DateOnly fechaNacimiento, DateOnly fechaIngreso, string username, string password, string rol)
+        public Usuario(int id, string nombre, string apellidoPaterno, string apellidoMaterno, string ci, string complemento, string direccionDomicilio, string email, string telefono, DateOnly fechaNacimiento, DateOnly fechaIngreso, string nombreUsuario, string contrasena, string rol)
         {
             Id = id;
             Nombre = nombre;
@@ -40,13 +40,13 @@ namespace Servicio_Clientes.Dominio.Models
             Telefono = telefono;
             FechaNacimiento = fechaNacimiento;
             FechaIngreso = fechaIngreso;
-            Username = username;
-            Password = password;
+            NombreUsuario = nombreUsuario;
+            Contrasena = contrasena;
             Rol = rol;
 
         }
 
-        public Usuario(string nombre, string apellidoPaterno, string apellidoMaterno, string ci, string complemento, string direccionDomicilio, string email, string telefono, DateOnly fechaNacimiento, DateOnly fechaIngreso, string username, string password, string rol, int idusuario)
+        public Usuario(string nombre, string apellidoPaterno, string apellidoMaterno, string ci, string complemento, string direccionDomicilio, string email, string telefono, DateOnly fechaNacimiento, DateOnly fechaIngreso, string nombreUsuario, string contrasena, string rol, int idusuario)
         {
             Nombre = nombre;
             ApellidoPaterno = apellidoPaterno;
@@ -58,8 +58,8 @@ namespace Servicio_Clientes.Dominio.Models
             Telefono = telefono;
             FechaNacimiento = fechaNacimiento;
             FechaIngreso = fechaIngreso;
-            Username = username;
-            Password = password;
+            NombreUsuario = nombreUsuario;
+            Contrasena = contrasena;
             Rol = rol;
             IdUsuario = idusuario;
         }

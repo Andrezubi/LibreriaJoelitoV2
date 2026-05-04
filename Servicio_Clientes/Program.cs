@@ -18,20 +18,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Licencia para Pdfs
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
-// Registro de IEmailService
-builder.Services.AddTransient<IEmailService, EmailService>();
+// Registro de IServicioEmail
+builder.Services.AddTransient<IServicioEmail, ServicioEmail>();
 
-// Registro de IPdfService
-builder.Services.AddScoped<IPdfService, PdfService>();
+// Registro de IServicioPdf
+builder.Services.AddScoped<IServicioPdf, ServicioPdf>();
 
-// Registro de Password Hasher
-builder.Services.AddTransient<IPasswordHasher, SimpleHasher>();
+// Registro de IHasherContrasena
+builder.Services.AddTransient<IHasherContrasena, HasherSimple>();
 
-// Dependency inyection IRepository Usuarios
-builder.Services.AddScoped<IRepository<Usuario>>(provider => {
-    return new UsuarioCreatorRepository().CreateRepository();
+// Dependency injection IRepositorio Usuarios
+builder.Services.AddScoped<IRepositorio<Usuario>>(provider => {
+    return (IRepositorio<Usuario>)new UsuarioCreatorRepository().CreateRepository();
 });
-builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddTransient<IUsuarioRepositorio, UsuarioRepository>();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -52,8 +52,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Dependency inyection Token service
-builder.Services.AddScoped<ITokenService, TokenService>();
+// Dependency injection Servicio Token
+builder.Services.AddScoped<IServicioToken, ServicioToken>();
 
 builder.Services.AddScoped<UsuarioServicio>();
 
@@ -71,7 +71,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
             )
         };
 
@@ -95,7 +95,7 @@ var app = builder.Build();
 // Inicializar conexión a base de datos
 var bd = ConexionBD.Instancia;
 var connectionString = builder.Configuration.GetConnectionString("ConnectionMySql");
-bd.Initiate(connectionString);
+bd.Initiate(connectionString!);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,16 +1,14 @@
 using Servicio_Clientes.Dominio.Interfaces;
 using Servicio_Clientes.Dominio.Models;
 using MySql.Data.MySqlClient;
-using System.Configuration;
 using System.Data;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Servicio_Clientes.Infraestructura.Persistencia.BD;
 
 namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 {
-    public class UsuarioRepository : ConexionBD, IUsuarioRepository, IRepository<Usuario>
+    public class UsuarioRepository : ConexionBD, IUsuarioRepositorio, IRepositorio<Usuario>
     {
-        public int Insert(Usuario t)
+        public int Insertar(Usuario t)
         {
             string query = @"INSERT INTO Usuario (
                     Nombre,
@@ -56,13 +54,14 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             command.Parameters.AddWithValue("@fechaIngreso", t.FechaIngreso.ToString("yyyy-MM-dd"));
             command.Parameters.AddWithValue("@fechaNacimiento", t.FechaNacimiento.ToString("yyyy-MM-dd"));
             command.Parameters.AddWithValue("@rol", t.Rol);
-            command.Parameters.AddWithValue("@username", t.Username);
-            command.Parameters.AddWithValue("@password", t.Password);
+            command.Parameters.AddWithValue("@username", t.NombreUsuario);
+            command.Parameters.AddWithValue("@password", t.Contrasena);
             command.Parameters.AddWithValue("@idusuario", t.IdUsuario);
 
             return ExecuteNonQuery(command);
         }
-        public int Update(Usuario t)
+
+        public int Actualizar(Usuario t)
         {
             string query = @"UPDATE Usuario
                      SET Nombre = @nombre, 
@@ -91,31 +90,31 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             command.Parameters.AddWithValue("@fechaIngreso", t.FechaIngreso.ToString("yyyy-MM-dd"));
             command.Parameters.AddWithValue("@id", t.Id);
 
-
             return ExecuteNonQuery(command);
         }
-        public int Delete(Usuario t)
+
+        public int Eliminar(Usuario t)
         {
-            string query = "UPDATE Usuario SET Estado = FALSE,FechaUltimaActualizacion = CURRENT_TIMESTAMP, IdUsuario = @idUsuario WHERE Id = @Id;";
+            string query = "UPDATE Usuario SET Estado = FALSE, FechaUltimaActualizacion = CURRENT_TIMESTAMP, IdUsuario = @idUsuario WHERE Id = @Id;";
             MySqlCommand command = new MySqlCommand(query);
             command.Parameters.AddWithValue("@id", t.Id);
             command.Parameters.AddWithValue("@idUsuario", t.IdUsuario);
             return ExecuteNonQuery(command);
-
         }
-        public DataTable GetAll()
+
+        public DataTable ObtenerTodo()
         {
-            string query = @"SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci,Complemento, DATE_FORMAT(FechaNacimiento, '%Y-%m-%d') AS FechaNacimiento,Email, DireccionDomicilio,Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso
+            string query = @"SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci, Complemento, DATE_FORMAT(FechaNacimiento, '%Y-%m-%d') AS FechaNacimiento, Email, DireccionDomicilio, Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso
                     FROM Usuario
                     WHERE estado = 1
-                            ORDER BY 2;
-                            ";
+                    ORDER BY 2;";
             MySqlCommand command = new MySqlCommand(query);
             return ExecuteReturningDataTable(command);
         }
-        public DataRow GetById(int id)
+
+        public DataRow? ObtenerPorId(int id)
         {
-            return new DataTable().NewRow();
+            return null;
         }
 
         public bool ExisteDuplicado(Usuario empleado)
@@ -133,16 +132,18 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 
             return Convert.ToInt32(ExecuteScalar(cmd)) > 0;
         }
-        public bool ExisteUsername(string username)
+
+        public bool ExisteUsername(string nombreUsuario)
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT COUNT(*) FROM Usuario
-                WHERE username =@username
-                AND Estado=1");
-            cmd.Parameters.AddWithValue("@username", username);
+                WHERE username = @username
+                AND Estado = 1");
+            cmd.Parameters.AddWithValue("@username", nombreUsuario);
             return Convert.ToInt32(ExecuteScalar(cmd)) > 0;
         }
-        public string GetPasswordByUsername(string username)
+
+        public string ObtenerContrasenaPorNombreUsuario(string nombreUsuario)
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Password 
@@ -151,7 +152,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                 AND Estado = 1
                 LIMIT 1");
 
-            cmd.Parameters.AddWithValue("@username", username);
+            cmd.Parameters.AddWithValue("@username", nombreUsuario);
 
             using (var reader = ExecuteReader(cmd))
             {
@@ -161,14 +162,14 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                 }
             }
 
-            return null; // o string.Empty si prefieres
+            return null;
         }
 
-        public Usuario GetDatosLogin(string username)
+        public Usuario ObtenerDatosLogin(string nombreUsuario)
         {
             string query = "SELECT Password, Rol, Id, MustChangePassword FROM Usuario WHERE Username = @username AND Estado = 1 LIMIT 1";
             MySqlCommand command = new MySqlCommand(query);
-            command.Parameters.AddWithValue("@username", username);
+            command.Parameters.AddWithValue("@username", nombreUsuario);
 
             using (var reader = ExecuteReader(command))
             {
@@ -176,11 +177,11 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                 {
                     return new Usuario
                     {
-                        Username = username,
-                        Password = reader["Password"].ToString(),
+                        NombreUsuario = nombreUsuario,
+                        Contrasena = reader["Password"].ToString(),
                         Rol = reader["Rol"].ToString(),
                         Id = int.Parse(reader["Id"].ToString()),
-                        MustChangePassword = Convert.ToBoolean(reader["MustChangePassword"])
+                        DebeCambiarContrasena = Convert.ToBoolean(reader["MustChangePassword"])
                     };
                 }
             }

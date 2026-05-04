@@ -6,7 +6,7 @@ namespace Servicio_Clientes.Infraestructura.FactoryCreators
 {
     public class UsuarioCreatorRepository : CreatorRepository<Usuario>
     {
-        public override IRepository<Usuario> CreateRepository()
+        public override IRepositorio<Usuario> CreateRepository()
         {
             return new UsuarioRepository();
         }

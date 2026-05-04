@@ -1,25 +1,31 @@
-using Servicio_Clientes.Aplicacion.Interfaces;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Servicio_Clientes.Aplicacion.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace Servicio_Clientes.Infraestructura.ServiciosExternos
 {
-    public class TokenService : ITokenService
+    public class ServicioToken : IServicioToken
     {
         private readonly IConfiguration _config;
-        public TokenService(IConfiguration config) => _config = config;
 
-        public string GenerarToken(string username, string rol, string userId)
+        public ServicioToken(IConfiguration config)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            _config = config;
+        }
+
+        public string GenerarToken(string nombreUsuario, string rol, string id)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[] {
-                new Claim(ClaimTypes.Name, username),
-                new Claim(ClaimTypes.Role, rol),
-                new Claim(ClaimTypes.NameIdentifier, userId)
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, id),
+                new Claim(ClaimTypes.Name, nombreUsuario),
+                new Claim(ClaimTypes.Role, rol)
             };
 
             var token = new JwtSecurityToken(
@@ -34,4 +40,3 @@ namespace Servicio_Clientes.Infraestructura.ServiciosExternos
         }
     }
 }
-    
