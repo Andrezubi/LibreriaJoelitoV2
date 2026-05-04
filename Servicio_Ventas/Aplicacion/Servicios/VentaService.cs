@@ -1,15 +1,16 @@
+using Microsoft.AspNetCore.Mvc;
+using MySql.Data.MySqlClient;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.Persistencia;
-using Microsoft.AspNetCore.Mvc;
+using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using System.Data;
 using static System.Runtime.InteropServices.JavaScript.JSType;
-using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 
 namespace Servicio_Ventas.Aplicacion.Servicios
 {
-    public class VentaService 
+    public class VentaService : RepositorioBD
     {
         private readonly VentaRepository _ventaRepositorio;
         private readonly DetalleVentaRepository _detalleVentaRepositorio;
@@ -52,7 +53,8 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                 if (detalles == null || !detalles.Any())
                     return Result<int>.Failure("La venta debe tener al menos un producto.");
 
-                var clienteFila = _clienteRepositorio.ObtenerPorId(venta.IdCliente);
+                //var clienteFila = _clienteRepositorio.ObtenerPorId(venta.IdCliente);
+                var clienteFila = ObtenerPorId(venta.IdCliente);
                 if (clienteFila == null)
                     return Result<int>.Failure("El cliente seleccionado no es válido.");
 
@@ -74,12 +76,14 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                         // Insertar Detalle
                         int filasDetalle = _detalleVentaRepositorio.Insertar(detalle);
                         if (filasDetalle <= 0)
-                            throw new Exception($"Error al insertar el detalle para el producto: {_productoRepositorio.ObtenerPorId(detalle.IdProducto)?["Nombre"]}");
+                            //throw new Exception($"Error al insertar el detalle para el producto: {_productoRepositorio.ObtenerPorId(detalle.IdProducto)?["Nombre"]}");
+                            throw new Exception($"Error al insertar el detalle para el producto: {ObtenerPorIdP(detalle.IdProducto)?["Nombre"]}");
 
                         // --- NUEVA LÓGICA DE FACTOR DE CONVERSIÓN ---
 
                         // A) Consultamos la presentación a la base de datos para obtener el factor de forma segura
-                        DataRow presentacionFila = _presentaProdRepositorio.GetByIds(detalle.IdProducto, detalle.IdPresentacion);
+                        //DataRow presentacionFila = _presentaProdRepositorio.GetByIds(detalle.IdProducto, detalle.IdPresentacion);
+                        DataRow presentacionFila = GetByIds(detalle.IdProducto, detalle.IdPresentacion);
                         if (presentacionFila == null)
                             throw new Exception("No se encontró la presentación del producto especificado.");
 
@@ -89,11 +93,13 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                         int cantidadRealADescontar = detalle.Cantidad * factorConversion;
 
                         // C) Descontamos el stock usando la cantidad real multiplicada
-                        int filasStock = _productoRepositorio.DescontarStock(detalle.IdProducto, cantidadRealADescontar);
+                        //int filasStock = _productoRepositorio.DescontarStock(detalle.IdProducto, cantidadRealADescontar);
+                        int filasStock = DescontarStock(detalle.IdProducto, cantidadRealADescontar);
                         if (filasStock <= 0)
                         {
                             // Si no afectó filas es porque el Stock < CantidadReal (validación lógica en el SQL)
-                            throw new Exception($"Stock insuficiente para el producto: {_productoRepositorio.ObtenerPorId(detalle.IdProducto)?["Nombre"]}");
+                            //throw new Exception($"Stock insuficiente para el producto: {_productoRepositorio.ObtenerPorId(detalle.IdProducto)?["Nombre"]}");
+                            throw new Exception($"Stock insuficiente para el producto: {ObtenerPorIdP(detalle.IdProducto)?["Nombre"]}");
                         }
                     }
 
@@ -133,7 +139,8 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                         int idProducto = Convert.ToInt32(fila["IdProducto"]);
                         int cantidad = Convert.ToInt32(fila["Cantidad"]) * Convert.ToInt32(fila["FactorConversion"]);
 
-                        int filasStock = _productoRepositorio.RestaurarStock(idProducto, cantidad);
+                        //int filasStock = _productoRepositorio.RestaurarStock(idProducto, cantidad);
+                        int filasStock = RestaurarStock(idProducto, cantidad);
                         if (filasStock <= 0)
                             return Result<int>.Failure($"Error al restaurar el stock del producto ID {idProducto}.");
                     }
@@ -165,7 +172,8 @@ namespace Servicio_Ventas.Aplicacion.Servicios
 
         public JsonResult getPresentacionProductoByIds(int idProducto, int idPresentacion)
         {
-            DataRow fila = _presentaProdRepositorio.GetByIds(idProducto, idPresentacion);
+            //DataRow fila = _presentaProdRepositorio.GetByIds(idProducto, idPresentacion);
+            DataRow fila = GetByIds(idProducto, idPresentacion);
 
             if (fila != null)
             {
@@ -215,6 +223,99 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             var detalles = _detalleVentaRepositorio.ObtenerDetalleExtraPorIdVenta(idVenta);
 
             return (ventaFila, detalles);
+        }
+
+        // TODO: Mover a ClienteRepository
+        public DataRow ObtenerPorId(int id)
+        {
+            MySqlCommand cmd = new MySqlCommand(@"
+                SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
+                       Ci AS Ci, Complemento, Email, ClienteFrecuente AS ClienteFrecuente, FechaRegistro
+                FROM Cliente
+                WHERE Id = @id AND Estado = 1");
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            return ExecuteReturningDataRow(cmd);
+        }
+
+        // TODO: Mover a PresentacionProductoRepository
+        public DataRow? GetByIds(int idProducto, int idPresentacion)
+        {
+            string query = @"
+                                SELECT 
+                                    pp.IdProducto,
+                                    pp.IdPresentacion,
+                                    pp.Precio,
+                                    pp.FactorConversion AS FactorConversion,
+                                    p.Nombre AS Producto,
+                                    pr.Nombre AS Presentacion,
+                                    m.Nombre AS Marca,
+                                    CONCAT(pr.Nombre, ' de ', p.Nombre, ' ', m.Nombre) AS Descripcion
+                                FROM PresentacionProducto pp
+                                INNER JOIN Producto p ON pp.IdProducto = p.Id
+                                INNER JOIN Presentacion pr ON pp.IdPresentacion = pr.Id
+                                LEFT JOIN Marca m ON p.IdMarca = m.Id
+                                WHERE pp.IdProducto = @idProducto
+                                  AND pp.IdPresentacion = @idPresentacion
+                                  AND pp.Estado = 1
+                                  AND p.Estado = 1
+                                  AND pr.Estado = 1";
+
+            var cmd = new MySqlCommand(query);
+
+            cmd.Parameters.AddWithValue("@idProducto", idProducto);
+            cmd.Parameters.AddWithValue("@idPresentacion", idPresentacion);
+
+            var dt = ExecuteReturningDataTable(cmd);
+
+            if (dt.Rows.Count > 0)
+                return dt.Rows[0];
+
+            return null;
+        }
+
+        // TODO: Mover a ProductoRepository
+        public DataRow ObtenerPorIdP(int id)
+        {
+            string query = @"SELECT  Id, Nombre,IdCategoria,IdMarca,Stock,Estado,FechaRegistro,IdUsuario,FechaUltimaActualizacion
+                            FROM producto
+                            WHERE Estado=1 and Id=@id
+                            ORDER BY 3";
+
+            MySqlCommand command = new MySqlCommand(query);
+            command.Parameters.AddWithValue("@id", id);
+
+            return ExecuteReturningDataRow(command);
+        }
+
+        public int DescontarStock(int idProducto, int cantidad)
+        {
+            string query = @"UPDATE producto 
+                             SET Stock = Stock - @cantidad, 
+                                 FechaUltimaActualizacion = @fechaAhora 
+                             WHERE Id = @idProducto AND Stock >= @cantidad;";
+
+            MySqlCommand command = new MySqlCommand(query);
+            command.Parameters.AddWithValue("@cantidad", cantidad);
+            command.Parameters.AddWithValue("@idProducto", idProducto);
+            command.Parameters.AddWithValue("@fechaAhora", DateTime.Now);
+
+            return ExecuteNonQuery(command);
+        }
+
+        public int RestaurarStock(int idProducto, int cantidad)
+        {
+            string query = @"UPDATE producto 
+                             SET Stock = Stock + @cantidad, 
+                                 FechaUltimaActualizacion = @fechaAhora 
+                             WHERE Id = @idProducto;";
+
+            MySqlCommand command = new MySqlCommand(query);
+            command.Parameters.AddWithValue("@cantidad", cantidad);
+            command.Parameters.AddWithValue("@idProducto", idProducto);
+            command.Parameters.AddWithValue("@fechaAhora", DateTime.Now);
+            return ExecuteNonQuery(command);
         }
     }
 }
