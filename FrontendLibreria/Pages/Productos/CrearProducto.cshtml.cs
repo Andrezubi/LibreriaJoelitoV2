@@ -1,13 +1,8 @@
-using LibreriaJoelito.Aplicacion.Interfaces;
-using LibreriaJoelito.Aplicacion.Servicios;
-using LibreriaJoelito.Dominio.Models;
-using LibreriaJoelito.Dominio.Validators;
-using LibreriaJoelito.Infraestructura.Persistencia;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using MySql.Data.MySqlClient;
-using System.ComponentModel.DataAnnotations;
+
 using System.Data;
 using System.Security.Claims;
 

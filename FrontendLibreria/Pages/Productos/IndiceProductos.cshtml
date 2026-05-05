@@ -1,5 +1,5 @@
 ﻿@page
-@model LibreriaJoelito.Pages.Productos.MostrarProductosModel
+@model FrontendLibreria.Pages.Productos.IndiceProductosModel
 @{
     ViewData["Title"] = "Productos";
 }
@@ -45,42 +45,33 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (System.Data.DataRow row in Model.ProductosDataTable.Rows)
+
+                                @foreach (var producto in Model.Productos)
                                 {
                                     <tr>
-                                        <td>@row["Nombre"]</td>
-                                        <td>@Model.getCategoriaById(Convert.ToInt32(row["IdCategoria"]))</td>
-                                        <td>@Model.getMarcaById(Convert.ToInt32(row["IdMarca"]))</td>
-                                        <td>@row["Stock"]</td>
-                                        <td>@Convert.ToDateTime(row["FechaRegistro"]).ToString("dd/MM/yyyy")</td>
-                                        <td>
-                                            <button class="btn btn-sistema-danger btn-sm text-white"
-                                                    onclick="abrirModalAgregarPresentacion('@row["Id"]', '@row["Nombre"]')">
-                                                Nueva Presentacion
-                                            </button>
+                                        <td>@producto.Nombre</td>
+                                        <td>@producto.NombreCategoria</td>
 
-                                            <a class="btn btn-sistema btn-sm"
-                                               onclick="abrirModalUpdate(
-                                            '@row["Id"]',
-                                            '@row["Nombre"]',
-                                            '@row["IdCategoria"]',
-                                            '@row["IdMarca"]',
-                                            '@row["Stock"]')">Editar</a>
-                                            
-                                            <a data-bs-toggle="modal" data-bs-target="#modalDelete-@row["Id"]" class="btn btn-sistema-danger btn-sm">Eliminar</a>
+                                        <!-- el API ya resuelve el nombre -->
+                                        <td>@producto.NombreMarca</td>
+                                        <td>@producto.Stock</td>
+                                        <td>@producto.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            <button class="btn btn-sistema-danger btn-sm text-white" onclick="abrirModalAgregarPresentacion('@producto.Id', '@producto.Nombre')">Nueva Presentacion</button>
+                                            <a class="btn btn-sistema btn-sm onclick="abrirModalUpdate('@producto.Id','@producto.Nombre','@producto.IdCategoria','@producto.IdMarca','@producto.Stock')">Editar</a>
+                                            <a data-bs-toggle="modal" data-bs-target="#modalDelete-@producto.Id" class="btn btn-sistema-danger btn-sm">Eliminar</a>
                                         </td>
                                     </tr>
-
-                                    <div class="modal fade" id="modalDelete-@row["Id"]" tabindex="-1" aria-hidden="true">
+                                    <div class="modal fade" id="modalDelete-@producto.Id" tabindex="-1" aria-hidden="true">
                                         <div class="modal-dialog">
                                             <div class="modal-content">
-                                                <form method="post" asp-page-handler="Delete" asp-route-id="@row["Id"]">
+                                                <form method="post" asp-page-handler="Delete" asp-route-id="@producto.Id">
                                                     <div class="modal-header modal-header-morado">
                                                         <h5 class="modal-title">Eliminar producto</h5>
                                                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <span>¿Está seguro de eliminar el producto @row["Nombre"]?</span>
+                                                        <span>¿Está seguro de eliminar el producto @producto.Nombre?</span>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="submit" class="btn btn-sistema-danger">Sí</button>
@@ -116,13 +107,11 @@
                         <label class="form-label font-weight-bold">Presentación</label>
                         <select asp-for="IdPresentacionSeleccionada" class="form-select" id="selectPresentacionModal" required>
                             <option value="">Elija una presentación</option>
-                            @if (Model.PresentacionesDataTable != null)
+                            @if (Model.Presentaciones != null)
                             {
-                                @foreach (System.Data.DataRow row in Model.PresentacionesDataTable.Rows)
+                                @foreach (var presentation in Model.Presentaciones)
                                 {
-                                    <option value="@row["Id"]" data-nombre="@row["Nombre"].ToString().ToLower()">
-                                        @row["Nombre"]
-                                    </option>
+                                    <option value="@presentation.Id" data-nombre="@presentation.Nombre.ToString().ToLower()">@presentation.Nombre</option>
                                 }
                             }
                         </select>
@@ -172,18 +161,18 @@
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Categoría</label>
                             <select class="form-select" id="edit_categoria" name="IdCategoria" required>
-                                @foreach (System.Data.DataRow row in Model.CategoriasDataTable.Rows)
+                                @foreach (var cat in Model.Categorias)
                                 {
-                                    <option value="@row["Id"]">@row["Nombre"]</option>
+                                    <option value="@cat.Id">@cat.Nombre</option>
                                 }
                             </select>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Marca</label>
                             <select class="form-select" id="edit_marca" name="IdMarca" required>
-                                @foreach (System.Data.DataRow row in Model.MarcasDataTable.Rows)
+                                @foreach (var marca in Model.Marcas)
                                 {
-                                    <option value="@row["Id"]">@row["Nombre"]</option>
+                                    <option value="@marca.Id">@marca.Nombre</option>
                                 }
                             </select>
                         </div>
