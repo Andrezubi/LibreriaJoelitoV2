@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 {
-    public class VentaRepository : RepositorioBD, IRepository<Venta>
+    public class VentaRepository : RepositorioBD, IRepositorio<Venta>
     {
         public int Insertar(Venta venta)
         {
@@ -35,7 +35,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             return ExecuteNonQuery(comando);
         }
 
-        public DataTable ObtenerTodo()
+        public List<Venta> ObtenerTodo()
         {
             string consulta = @"SELECT  Id, IdCliente, Fecha, Total, FechaRegistro, IdUsuario
                                 FROM venta
@@ -43,7 +43,23 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
                                 ORDER BY 3";
             MySqlCommand comando = new MySqlCommand(consulta);
 
-            return ExecuteReturningDataTable(comando);
+            var result = new List<Venta>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                result.Add(new Venta
+                {
+                    Id = reader.GetInt32("Id"),
+                    IdCliente = reader.GetInt32("IdCliente"),
+                    Fecha = reader.GetDateTime("Fecha"),
+                    Total = reader.GetDecimal("Total"),
+                    FechaRegistro = reader.GetDateTime("FechaRegistro"),
+                    IdUsuario = reader.GetInt32("IdUsuario")
+                });
+            }
+
+            return result;
         }
 
         public DataRow ObtenerPorId(int id)

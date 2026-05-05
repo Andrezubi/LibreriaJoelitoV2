@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using Servicio_Ventas.Aplicacion.DTOs;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
@@ -125,6 +126,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             try
             {
                 var ventaFila = _ventaRepositorio.ObtenerPorId(idVenta);
+
                 if (ventaFila == null)
                     return Result<int>.Failure("La venta ya ha sido anulada antes.");
 
@@ -132,17 +134,26 @@ namespace Servicio_Ventas.Aplicacion.Servicios
 
                 try
                 {
-                    DataTable detallesDt = _detalleVentaRepositorio.ObtenerPorIdVenta(Convert.ToInt32(idVenta));
+                    List<DetalleVentaStockDTO> detalles = _detalleVentaRepositorio.ObtenerPorIdVenta(idVenta);
 
-                    foreach (DataRow fila in detallesDt.Rows)
+                    if (detalles == null || detalles.Count == 0)
                     {
-                        int idProducto = Convert.ToInt32(fila["IdProducto"]);
-                        int cantidad = Convert.ToInt32(fila["Cantidad"]) * Convert.ToInt32(fila["FactorConversion"]);
+                        RepositorioBD.Instancia.Rollback();
+                        return Result<int>.Failure("No se encontraron detalles para la venta.");
+                    }
 
-                        //int filasStock = _productoRepositorio.RestaurarStock(idProducto, cantidad);
+                    foreach (DetalleVentaStockDTO detalle in detalles)
+                    {
+                        int idProducto = detalle.IdProducto;
+                        int cantidad = Convert.ToInt32(detalle.Cantidad * detalle.FactorConversion);
+
                         int filasStock = RestaurarStock(idProducto, cantidad);
+
                         if (filasStock <= 0)
+                        {
+                            RepositorioBD.Instancia.Rollback();
                             return Result<int>.Failure($"Error al restaurar el stock del producto ID {idProducto}.");
+                        }
                     }
 
                     Venta venta = new Venta
@@ -152,10 +163,15 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                     };
 
                     int resultado = _ventaRepositorio.Eliminar(venta);
+
                     if (resultado <= 0)
+                    {
+                        RepositorioBD.Instancia.Rollback();
                         return Result<int>.Failure("No se pudo actualizar el estado de la venta.");
+                    }
 
                     RepositorioBD.Instancia.Commit();
+
                     return Result<int>.Success(venta.Id);
                 }
                 catch (Exception ex)

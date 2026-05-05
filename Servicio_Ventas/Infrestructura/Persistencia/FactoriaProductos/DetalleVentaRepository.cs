@@ -1,11 +1,12 @@
+using MySql.Data.MySqlClient;
+using Servicio_Ventas.Aplicacion.DTOs;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
-using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 {
-    public class DetalleVentaRepository : RepositorioBD, IRepository<DetalleVenta>
+    public class DetalleVentaRepository : RepositorioBD, IRepositorio<DetalleVenta>
     {
         public int Insertar(DetalleVenta detalleVenta)
         {
@@ -19,26 +20,38 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             comando.Parameters.AddWithValue("@cantidad", detalleVenta.Cantidad);
             comando.Parameters.AddWithValue("@precioUnitario", detalleVenta.PrecioUnitario);
             comando.Parameters.AddWithValue("@subtotal", detalleVenta.Subtotal);
-            return RepositorioBD.Instancia.ExecuteNonQuery(comando);
+            return ExecuteNonQuery(comando);
         }
 
         public int Actualizar(DetalleVenta detalleVenta)
         {
-            return 0;
+            throw new NotImplementedException();
         }
 
-        public DataRow ObtenerPorId(int id)
-        {
-            return null;
-        }
-
-        public DataTable ObtenerTodo()
+        public List<DetalleVenta> ObtenerTodo()
         {
             string consulta = @"SELECT * 
                                 FROM detalleventa";
             MySqlCommand comando = new MySqlCommand(consulta);
 
-            return RepositorioBD.Instancia.ExecuteReturningDataTable(comando);
+            var result = new List<DetalleVenta>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                result.Add(
+                    new DetalleVenta
+                    {
+                        IdVenta = reader.GetInt32("IdVenta"),
+                        IdProducto = reader.GetInt32("IdProducto"),
+                        IdPresentacion = reader.GetInt32("IdPresentacion"),
+                        Cantidad = reader.GetInt32("Cantidad"),
+                        PrecioUnitario = reader.GetDecimal("PrecioUnitario")
+                    }
+                    );
+            }
+
+            return result;
         }
 
         public int Eliminar(DetalleVenta detalleVenta)
@@ -53,21 +66,37 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             comando.Parameters.AddWithValue("@idProducto", detalleVenta.IdProducto);
             comando.Parameters.AddWithValue("@idPresentacion", detalleVenta.IdPresentacion);
 
-            return RepositorioBD.Instancia.ExecuteNonQuery(comando);
+            return ExecuteNonQuery(comando);
         }
 
-        public DataTable ObtenerPorIdVenta(int idVenta)
+        public List<DetalleVentaStockDTO> ObtenerPorIdVenta(int idVenta)
         {
-            string consulta = @"SELECT dv.IdVenta AS IdVenta, dv.IdProducto AS IdProducto, dv.IdPresentacion AS IdPresentacion, 
-                                    dv.Cantidad AS Cantidad, dv.PrecioUnitario AS PrecioUnitario, dv.Subtotal AS Subtotal, 
-                                    pp.FactorConversion AS FactorConversion FROM detalleventa dv
-                                INNER JOIN presentacionproducto pp ON dv.IdPresentacion = pp.IdPresentacion AND dv.IdProducto = pp.IdProducto
-                                WHERE dv.IdVenta = @idVenta";
-            MySqlCommand comando = new MySqlCommand(consulta);
+            string consulta = @"SELECT dv.IdProducto AS IdProducto,
+                               dv.Cantidad AS Cantidad,
+                               pp.FactorConversion AS FactorConversion
+                        FROM detalleventa dv
+                        INNER JOIN presentacionproducto pp 
+                            ON dv.IdPresentacion = pp.IdPresentacion 
+                            AND dv.IdProducto = pp.IdProducto
+                        WHERE dv.IdVenta = @idVenta";
 
+            MySqlCommand comando = new MySqlCommand(consulta);
             comando.Parameters.AddWithValue("@idVenta", idVenta);
 
-            return RepositorioBD.Instancia.ExecuteReturningDataTable(comando);
+            var resultado = new List<DetalleVentaStockDTO>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                resultado.Add(new DetalleVentaStockDTO
+                {
+                    IdProducto = reader.GetInt32("IdProducto"),
+                    Cantidad = reader.GetInt32("Cantidad"),
+                    FactorConversion = reader.GetInt32("FactorConversion")
+                });
+            }
+
+            return resultado;
         }
 
         public DataTable ObtenerDetalleExtraPorIdVenta(int idVenta)
@@ -83,7 +112,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             comando.Parameters.AddWithValue("@idVenta", idVenta);
 
-            return RepositorioBD.Instancia.ExecuteReturningDataTable(comando);
+            return ExecuteReturningDataTable(comando);
         }
 
         public int EliminarPorIdVenta(int idVenta)
@@ -94,12 +123,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             comando.Parameters.AddWithValue("@idVenta", idVenta);
 
-            return RepositorioBD.Instancia.ExecuteNonQuery(comando);
-        }
-
-        public bool ExisteDuplicado (DetalleVenta detalleVenta)
-        {
-            return false;
+            return ExecuteNonQuery(comando);
         }
     }
 }
