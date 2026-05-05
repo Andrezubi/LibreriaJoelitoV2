@@ -41,5 +41,25 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
                 };
             }
         }
+
+    public async Task<bool> EsUsuarioEliminado(string nombreUsuario)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"/api/usuarios/estado?nombreUsuario={nombreUsuario}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadFromJsonAsync<bool>();
+                    return result;
+                }
+                _logger.LogWarning("No se pudo verificar el estado del usuario {NombreUsuario}. Código de respuesta: {StatusCode}", nombreUsuario, response.StatusCode);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al verificar el estado del usuario {NombreUsuario}", nombreUsuario);
+                return false;
+            }
+        }
     }
 }

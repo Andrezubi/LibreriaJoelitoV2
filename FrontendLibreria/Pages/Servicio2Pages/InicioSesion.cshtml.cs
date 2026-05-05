@@ -31,6 +31,13 @@ namespace FrontendLibreria.Pages.Servicio2Pages
                 return Page();
             }
 
+            // usuario eliminado (estado = 0) no puede iniciar sesión   
+            if (await _usuarioAdapter.EsUsuarioEliminado(NombreUsuario))
+            {
+                ErrorMessage = "El usuario ha sido eliminado. Contacte al administrador.";
+                return Page();
+            }
+
             var result = await _usuarioAdapter.Login(new SolicitudLoginDto
             {
                 NombreUsuario = NombreUsuario,
