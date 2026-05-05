@@ -9,11 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 builder.Services.AddScoped<IPdfServicio, PdfServicio>();
-builder.Services.AddScoped<VentaRepository>(provider => {
-    return new VentaCreatorRepository().CreateRepository();
+builder.Services.AddScoped<VentaRepositorio>(provider => {
+    return new VentaCreadorRepositorio().CrearRepositorio();
 });
-builder.Services.AddScoped<DetalleVentaRepository>(provider => {
-    return new DetalleVentaCreatorRepository().CreateRepository();
+builder.Services.AddScoped<DetalleVentaRepositorio>(provider => {
+    return new DetalleVentaCreadorRepositorio().CrearRepositorio();
 });
 
 // Add services to the container.

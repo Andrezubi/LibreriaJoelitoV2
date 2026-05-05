@@ -2,8 +2,8 @@
 
 namespace Servicio_Ventas.Infraestructura.FactoriaCreadores
 {
-    public abstract class CreatorRepository<T>
+    public abstract class CreadorRepositorio<T>
     {
-        public abstract IRepositorio<T> CreateRepository();
+        public abstract IRepositorio<T> CrearRepositorio();
     }
 }

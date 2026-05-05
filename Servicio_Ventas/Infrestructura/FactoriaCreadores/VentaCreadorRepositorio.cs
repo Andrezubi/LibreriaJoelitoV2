@@ -5,11 +5,11 @@ using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 
 namespace Servicio_Ventas.Infrestructura.FactoriaCreadores
 {
-    public class DetalleVentaCreatorRepository : CreatorRepository<DetalleVenta>
+    public class VentaCreadorRepositorio : CreadorRepositorio<Venta>
     {
-        public override DetalleVentaRepository CreateRepository()
+        public override VentaRepositorio CrearRepositorio()
         {
-            return new DetalleVentaRepository();
+            return new VentaRepositorio();
         }
     }
 }

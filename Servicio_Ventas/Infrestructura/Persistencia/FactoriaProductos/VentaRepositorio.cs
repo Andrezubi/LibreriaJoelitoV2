@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 {
-    public class VentaRepository : RepositorioBD, IRepositorio<Venta>
+    public class VentaRepositorio : RepositorioBD, IRepositorio<Venta>
     {
         public int Insertar(Venta venta)
         {

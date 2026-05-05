@@ -11,18 +11,18 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Servicio_Ventas.Aplicacion.Servicios
 {
-    public class VentaService : RepositorioBD
+    public class VentaServicio : RepositorioBD
     {
-        private readonly VentaRepository _ventaRepositorio;
-        private readonly DetalleVentaRepository _detalleVentaRepositorio;
+        private readonly VentaRepositorio _ventaRepositorio;
+        private readonly DetalleVentaRepositorio _detalleVentaRepositorio;
         //private readonly IRepository<Producto> _productoRepositorio;
         //private readonly IRepository<Cliente> _clienteRepositorio;
         //private readonly IRepository<PresentacionProducto> _presentaProdRepositorio;
         private readonly IPdfServicio _pdfServicio;
-        public VentaService(
+        public VentaServicio(
             //IRepository<PresentacionProducto> presentProdRepositorio,
-            VentaRepository ventaRepositorio,
-            DetalleVentaRepository detalleVentaRepositorio,
+            VentaRepositorio ventaRepositorio,
+            DetalleVentaRepositorio detalleVentaRepositorio,
             //IRepository<Producto> productoRepositorio,
             IPdfServicio pdfServicio
             //IRepository<Cliente> clienteRepositorio
