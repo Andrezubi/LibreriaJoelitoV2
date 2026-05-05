@@ -1,4 +1,5 @@
 using Servicio_Ventas.Aplicacion.Interfaces;
+using Servicio_Ventas.Aplicacion.Servicios;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.FactoriaCreadores;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
@@ -15,6 +16,12 @@ builder.Services.AddScoped<VentaRepositorio>(provider => {
 builder.Services.AddScoped<DetalleVentaRepositorio>(provider => {
     return new DetalleVentaCreadorRepositorio().CrearRepositorio();
 });
+
+//Inyeccion Servicios
+builder.Services.AddScoped<RealizarVentaServicio>();
+builder.Services.AddScoped<AnularVentaServicio>();
+builder.Services.AddScoped<ConsultaVentaServicio>();
+builder.Services.AddScoped<GestionInventarioServicio>();
 
 // Add services to the container.
 
