@@ -1,35 +1,33 @@
 using Servicio_Clientes.Aplicacion.Interfaces;
 using Servicio_Clientes.Aplicacion.Results;
 using Servicio_Clientes.Aplicacion.Validators;
-using Servicio_Clientes.Dominio.Interfaces;
 using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
 using System.Data;
 
 namespace Servicio_Clientes.Aplicacion.Servicios
 {
     public class UsuarioServicio
     {
-        private readonly IRepositorio<Usuario> usuarioRepositorio;
-        private readonly IUsuarioRepositorio extraRepo;
-        private readonly IHasherContrasena encriptador;
-        private readonly IServicioToken servicioToken;
+        private readonly UsuarioRepository _usuarioRepositorio;
+        private readonly IHasherContrasena _encriptador;
+        private readonly IServicioToken _servicioToken;
 
-        public UsuarioServicio(IRepositorio<Usuario> usuarioRepositorio, IUsuarioRepositorio extraRepo, IHasherContrasena encriptador, IServicioToken servicioToken)
+        public UsuarioServicio(UsuarioRepository usuarioRepositorio, IHasherContrasena encriptador, IServicioToken servicioToken)
         {
-            this.usuarioRepositorio = usuarioRepositorio;
-            this.extraRepo = extraRepo;
-            this.encriptador = encriptador;
-            this.servicioToken = servicioToken;
+            _usuarioRepositorio = usuarioRepositorio;
+            _encriptador = encriptador;
+            _servicioToken = servicioToken;
         }
 
         public DataTable ObtenerTodo()
         {
-            return usuarioRepositorio.ObtenerTodo();
+            return _usuarioRepositorio.ObtenerTodo();
         }
 
         public DataRow? ObtenerPorId(int id)
         {
-            return usuarioRepositorio.ObtenerPorId(id);
+            return _usuarioRepositorio.ObtenerPorId(id);
         }
 
         public Resultado Insertar(Usuario usuario)
@@ -49,14 +47,14 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 return Resultado.Failure(errores);
             }
 
-            if (usuarioRepositorio.ExisteDuplicado(usuario))
+            if (_usuarioRepositorio.ExisteDuplicado(usuario))
             {
                 return Resultado.Failure("empleado.Ci: El empleado con ese CI ya existe.");
             }
 
             // Hashear la contraseña antes de guardar en la DB
-            usuario.Contrasena = encriptador.Encriptar(usuario.Contrasena);
-            usuarioRepositorio.Insertar(usuario);
+            usuario.Contrasena = _encriptador.Encriptar(usuario.Contrasena);
+            _usuarioRepositorio.Insertar(usuario);
 
             return Resultado.Success();
         }
@@ -77,14 +75,14 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 return Resultado.Failure(errores);
             }
 
-            usuarioRepositorio.Actualizar(usuario);
+            _usuarioRepositorio.Actualizar(usuario);
 
             return Resultado.Success();
         }
 
         public int Eliminar(Usuario usuario)
         {
-            return usuarioRepositorio.Eliminar(usuario);
+            return _usuarioRepositorio.Eliminar(usuario);
         }
 
         public string GenerarNombreUsuario(string nombre, string apellido)
@@ -93,7 +91,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
             string username = baseUsername;
             int counter = 1;
 
-            while (extraRepo.ExisteUsername(username))
+            while (_usuarioRepositorio.ExisteUsername(username))
             {
                 username = baseUsername + counter;
                 counter++;
@@ -114,7 +112,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
         public LoginResultado Login(string nombreUsuario, string contrasena)
         {
             var loginResultado = new LoginResultado();
-            var user = extraRepo.ObtenerDatosLogin(nombreUsuario);
+            var user = _usuarioRepositorio.ObtenerDatosLogin(nombreUsuario);
 
             if (user == null)
             {
@@ -122,11 +120,11 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 loginResultado.Mensaje = "Usuario no encontrado.";
                 loginResultado.Token = null;
             }
-            else if (encriptador.Verificar(contrasena, user.Contrasena))
+            else if (_encriptador.Verificar(contrasena, user.Contrasena))
             {
                 loginResultado.Exito = true;
                 loginResultado.Mensaje = "Acceso concedido.";
-                loginResultado.Token = servicioToken.GenerarToken(nombreUsuario, user.Rol, user.Id.ToString());
+                loginResultado.Token = _servicioToken.GenerarToken(nombreUsuario, user.Rol, user.Id.ToString());
                 loginResultado.DebeCambiarContrasena = user.DebeCambiarContrasena;
                 loginResultado.Rol = user.Rol;
             }

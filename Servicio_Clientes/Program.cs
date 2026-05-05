@@ -1,10 +1,6 @@
 using Servicio_Clientes.Aplicacion.Interfaces;
 using Servicio_Clientes.Aplicacion.Servicios;
-using Servicio_Clientes.Aplicacion.Validators;
-using Servicio_Clientes.Dominio.Interfaces;
-using Servicio_Clientes.Dominio.Models;
 using Servicio_Clientes.Infraestructura.FactoryCreators;
-using Servicio_Clientes.Infraestructura.Persistencia;
 using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
 using Servicio_Clientes.Infraestructura.Encryptacion;
 using Servicio_Clientes.Infraestructura.ServiciosExternos;
@@ -27,11 +23,10 @@ builder.Services.AddScoped<IServicioPdf, ServicioPdf>();
 // Registro de IHasherContrasena
 builder.Services.AddTransient<IHasherContrasena, HasherSimple>();
 
-// Dependency injection IRepositorio Usuarios
-builder.Services.AddScoped<IRepositorio<Usuario>>(provider => {
-    return (IRepositorio<Usuario>)new UsuarioCreatorRepository().CreateRepository();
+// Inyección del repositorio concreto via Factory Method (mismo patrón que Servicio_Ventas)
+builder.Services.AddScoped<UsuarioRepository>(provider => {
+    return new UsuarioCreadorRepositorio().CrearRepositorio();
 });
-builder.Services.AddTransient<IUsuarioRepositorio, UsuarioRepository>();
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -52,9 +47,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Dependency injection Servicio Token
+// Inyección del Servicio Token
 builder.Services.AddScoped<IServicioToken, ServicioToken>();
 
+// Inyección del Servicio de Usuario (fachada)
 builder.Services.AddScoped<UsuarioServicio>();
 
 // AGREGAR AUTENTICACION
@@ -75,7 +71,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             )
         };
 
-        // 🔥 CLAVE: leer el token desde la cookie
+        // Leer el token desde la cookie HttpOnly
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>

@@ -2,8 +2,8 @@ using Servicio_Clientes.Dominio.Interfaces;
 
 namespace Servicio_Clientes.Infraestructura.FactoryCreators
 {
-    public abstract class CreatorRepository<T>
+    public abstract class CreadorRepositorio<T>
     {
-        public abstract IRepositorio<T> CreateRepository();
+        public abstract IRepositorio<T> CrearRepositorio();
     }
 }
