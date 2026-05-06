@@ -19,6 +19,7 @@ namespace Servicio_Ventas.Controllers
     {
         private readonly ProductoServicio _productoServicio;
         private readonly PresentacionServicio _presentacionServicio;
+        
 
         public ProductoController(ProductoServicio productoServicio, PresentacionServicio presentacionServicio)
         {
@@ -110,7 +111,6 @@ namespace Servicio_Ventas.Controllers
             var result = _productoServicio.Insertar(producto,idPresentacion,factorConversion,precioVenta);
             if (result.IsFailure) return BadRequest(new { errores = result.Errors });
             return Ok(new {success=true});
-            /* ... */ 
         }
 
         [HttpPut("{id}")]
@@ -121,18 +121,31 @@ namespace Servicio_Ventas.Controllers
             return Ok(new { success = true });
         }
 
+
+
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id, [FromBody] Producto producto)
+        public IActionResult Delete(int id, [FromQuery] int idUsuario)
         {
-            _productoServicio.Eliminar(producto);
+            Console.WriteLine($"Id:{id}   idUsuario:{idUsuario}");
+            var producto = new Producto
+            {
+                Id = id,
+                IdUsuario = idUsuario
+            };
+            var filas = _productoServicio.Eliminar(producto);
+
+            if (filas == 0)
+                return BadRequest("No se eliminó ningún registro");
+
             return Ok();
         }
 
+
         [HttpPost("{id}/presentaciones")]
-        public IActionResult AgregarPresentacion(int id, [FromBody] PresentacionProductoDto dto)
+        public IActionResult AgregarPresentacion(int id, [FromBody] SolicitudAgregarPresentacion dto)
         {
             var result = _productoServicio.AsociarNuevaPresentacion(
-                id, dto.IdPresentacion, dto.FactorConversion, dto.Precio, dto.IdUsuario);
+                id, dto.IdPresentacion, dto.FactorConversion, dto.PrecioVenta, dto.IdUsuario);
             if (result.IsFailure) return BadRequest(new { errores = result.Errors });
             return Ok();
         }

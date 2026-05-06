@@ -67,9 +67,16 @@ namespace FrontendLibreria.Pages.Productos
 
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            int idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
-            await _productoAdapter.DeleteAsync(id, idUsuario);
-            TempData["MensajeExito"] = "El producto fue eliminado correctamente.";
+            int idUsuario = int.Parse(
+                User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+
+            var resultado = await _productoAdapter.DeleteAsync(id, idUsuario);
+
+            if (resultado.Success)
+                TempData["MensajeExito"] = "El producto fue eliminado correctamente.";
+            else
+                TempData["MensajeError"] = "No se pudo eliminar el producto.";
+
             return RedirectToPage();
         }
 

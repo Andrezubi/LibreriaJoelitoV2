@@ -60,18 +60,11 @@ namespace FrontendLibreria.Pages.Productos
             },IdPresentacionSeleccionada,FactorConversion,PrecioVenta);
 
 
-            var result2 = await _productoAdapter.AgregarPresentacionAsync(new SolicitudAgregarPresentacion
-            {
-                IdPresentacion = IdPresentacionSeleccionada,
-                FactorConversion = FactorConversion,
-                PrecioVenta = PrecioVenta,
-                IdUsuario = idUsuario
+            
 
-            });
-
-            if (!result.Success || !result2.Success)
+            if (!result.Success )
             {
-                var errores = result.Errors.Concat(result2.Errors);
+                var errores = result.Errors;
                 ModelState.AddModelError(string.Empty, string.Join(", ", errores));
 
                 await CargarListasAsync();

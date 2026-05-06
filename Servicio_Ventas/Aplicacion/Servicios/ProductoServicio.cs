@@ -89,7 +89,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                 if (idProducto <= 0) return Result.Failure("Producto no válido.");
                 if (idPresentacion <= 0) return Result.Failure("Debe seleccionar una presentación.");
 
-                // 2. 🔥 REVISIÓN DE DUPLICADOS: Consultamos si ya existe la llave compuesta
+                // 2. REVISIÓN DE DUPLICADOS: Consultamos si ya existe la llave compuesta
                 var existente = presentacionProductoRepositorio.ObtenerPorIds(idProducto, idPresentacion);
                 if (existente != null)
                 {

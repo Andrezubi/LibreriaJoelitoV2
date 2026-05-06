@@ -39,12 +39,10 @@ namespace FrontendLibreria.Adapters.Producto
 
         public async Task<ResultadoApi> DeleteAsync(int id, int idUsuario)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/Producto/{id}")
-            {
-                Content = JsonContent.Create(new { IdUsuario = idUsuario })
-            };
-            var response = await _http.SendAsync(request);
-            return response.IsSuccessStatusCode ? ResultadoApi.Ok() : ResultadoApi.Fail(new List<string> { "Error al eliminar" });
+            var response = await _http.DeleteAsync($"api/Producto/{id}?idUsuario={idUsuario}");
+            return response.IsSuccessStatusCode
+                ? ResultadoApi.Ok()
+                : ResultadoApi.Fail(new List<string> { "Error al eliminar" });
         }
 
         public async Task<ResultadoApi> AgregarPresentacionAsync(SolicitudAgregarPresentacion request)
