@@ -62,15 +62,9 @@ namespace Servicio_Ventas.Controllers
         [HttpGet("presentaciones")]
         public IActionResult GetPresentacionProductosByFrase([FromQuery] string frase)
         {
-            try
-            {
-                var resultado = _consultaVentaServicio.getPresentacionProductosByFrase(frase);
-                return Ok(resultado);
-            }
-            catch (NotImplementedException)
-            {
-                return StatusCode(501, "La búsqueda de presentaciones todavía no está implementada.");
-            }
+
+            var resultado = _consultaVentaServicio.getPresentacionProductosByFrase(frase);
+            return Ok(resultado);
         }
 
 

@@ -33,8 +33,8 @@ namespace Servicio_Ventas.Aplicacion.Servicios
 
         public List<PresentacionProductoVentaDTO> getPresentacionProductosByFrase(string frase)
         {
-            //return _presentaProdRepositorio.obtenerPresentacionProductoDetallado(frase);
-            throw new NotImplementedException();
+            //return _presentaProdRepositorio.obtenerPresentacionProductoDetallado(frase); CAMBIAR CUNADO SE PASE A REPOSITORIO DEDICADO
+            return obtenerPresentacionProductoDetallado(frase);
         }
 
         public List<VentaDTO> CargarVentas()
@@ -148,6 +148,53 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                 return dt.Rows[0];
 
             return null;
+        }
+
+
+        // TODO: Mover a PresentacionProductoRepository
+        public List<PresentacionProductoVentaDTO> obtenerPresentacionProductoDetallado(string frase)
+        {
+            string query = @"SELECT 
+                        pp.IdProducto,
+                        pp.IdPresentacion,
+                        pp.Estado AS EstadoPresentacionProducto,
+                        p.Nombre AS Producto,
+                        pr.Nombre AS Presentacion,
+                        m.Nombre AS Marca,
+                        CONCAT(pr.Nombre, ' de ', p.Nombre, ' ', m.Nombre) AS Descripcion,
+                        pp.Precio
+                    FROM PresentacionProducto pp
+                    INNER JOIN Producto p 
+                        ON pp.IdProducto = p.Id
+                    INNER JOIN Presentacion pr 
+                        ON pp.IdPresentacion = pr.Id
+                    LEFT JOIN Marca m 
+                        ON p.IdMarca = m.Id
+                    WHERE CONCAT(pr.Nombre, ' de ', p.Nombre, ' ', m.Nombre) 
+                          LIKE CONCAT('%', @frase, '%')
+                      AND pp.Estado = TRUE
+                      AND p.Estado = TRUE
+                      AND pr.Estado = TRUE
+                      AND (m.Estado = TRUE OR m.Id IS NULL);";
+            MySqlCommand cmd = new MySqlCommand(query);
+            cmd.Parameters.AddWithValue("@frase", frase);
+            var resultado = new List<PresentacionProductoVentaDTO>();
+            var reader = RepositorioBD.Instancia.ExecuteReader(cmd);
+            while (reader.Read()) {
+                var dto = new PresentacionProductoVentaDTO
+                {
+                    IdProducto = reader.GetInt32("IdProducto"),
+                    IdPresentacion = reader.GetInt32("IdPresentacion"),
+                    EstadoPresentacionProducto = reader.GetBoolean("EstadoPresentacionProducto"),
+                    Producto = reader.GetString("Producto"),
+                    Presentacion = reader.GetString("Presentacion"),
+                    Marca = reader.IsDBNull("Marca") ? null : reader.GetString("Marca"),
+                    Descripcion = reader.GetString("Descripcion"),
+                    Precio = reader.GetDecimal("Precio")
+                };
+                resultado.Add(dto);
+            }
+            return resultado;
         }
     }
 }
