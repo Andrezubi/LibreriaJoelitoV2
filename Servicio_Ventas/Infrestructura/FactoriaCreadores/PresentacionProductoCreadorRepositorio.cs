@@ -2,6 +2,7 @@
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infraestructura.FactoriaCreadores;
+using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 
 namespace Servicio_Ventas.Infrestructura.FactoriaCreadores
 {
@@ -9,7 +10,7 @@ namespace Servicio_Ventas.Infrestructura.FactoriaCreadores
     {
         public override IRepositorio<PresentacionProducto> CrearRepositorio()
         {
-            return new PresentacionProductoRepository();
+            return new PresentacionProductoRepositorio();
         }
     }
 }

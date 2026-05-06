@@ -38,7 +38,7 @@ namespace LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts
             MySqlCommand command = new MySqlCommand(query);
             command.Parameters.AddWithValue("@id", id);
             Producto result= new Producto();
-            var reader = command.ExecuteReader();
+            var reader = ExecuteReader(command);
 ;            while (reader.Read())
             {
 
@@ -179,7 +179,7 @@ namespace LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts
                             ORDER BY 3";
             MySqlCommand command = new MySqlCommand(query);
             var result = new List<Producto>();
-            var  reader = command.ExecuteReader();
+            var  reader = ExecuteReader(command);
             while (reader.Read())
             {
 

@@ -32,7 +32,7 @@ namespace LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts
             MySqlCommand cmd = new MySqlCommand(query);
             //return ExecuteReturningDataTable(cmd);
 
-            var reader = cmd.ExecuteReader();
+            var reader = ExecuteReader(cmd);
             List<Presentacion> result = new List<Presentacion>();
 
             while (reader.Read())

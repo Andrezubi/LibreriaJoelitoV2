@@ -1,8 +1,10 @@
 ﻿
 using MySql.Data.MySqlClient;
+using Servicio_Ventas.Aplicacion.DTOs;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using System.Data;
+using System.Reflection.PortableExecutable;
 
 namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 {
@@ -29,14 +31,14 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
         }
 
 
-        public PresentacionProducto? ObtenerPorIds(int idProducto, int idPresentacion)
+        public PresentacionProductoDto? ObtenerPorIds(int idProducto, int idPresentacion)
         {
             string query = @"
                                 SELECT 
                                     pp.IdProducto,
                                     pp.IdPresentacion,
                                     pp.Precio,
-                                    pp.FactorConversion AS FactSorConversion,
+                                    pp.FactorConversion AS FactorConversion,
                                     p.Nombre AS Producto,
                                     pr.Nombre AS Presentacion,
                                     m.Nombre AS Marca,
@@ -55,16 +57,29 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             cmd.Parameters.AddWithValue("@idProducto", idProducto);
             cmd.Parameters.AddWithValue("@idPresentacion", idPresentacion);
+            var result = new PresentacionProductoDto();
 
-            var dt = ExecuteReturningDataTable(cmd);
+            var reader = ExecuteReader(cmd);
 
-            if (dt.Rows.Count > 0)
-                return dt.Rows[0];
+            while (reader.Read())
+            {
 
-            return null;
+                result = new PresentacionProductoDto
+                {
+                    IdProducto = reader.GetInt32("IdProducto"),
+                    IdPresentacion = reader.GetInt32("IdPresentacion"),
+                    Precio = reader.GetDecimal("Precio"),
+                    FactorConversion = reader.GetInt32("FactorConversion"),
+                    Producto = reader["Producto"].ToString(),
+                    Presentacion = reader["Presentacion"].ToString(),
+                    Marca = reader["Marca"].ToString(),
+                    Descripcion = reader["Descripcion"].ToString()
+                };
+            }
+            return result;
         }
 
-        public DataTable obtenerPresentacionProductoDetallado(string frase)
+        public List<PresentacionProductoDto> obtenerPresentacionProductoDetallado(string frase)
         {
             string query = @"SELECT 
                                 pp.IdProducto,
@@ -90,8 +105,27 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
                               AND (m.Estado = TRUE OR m.Id IS NULL);";
             MySqlCommand cmd = new MySqlCommand(query);
             cmd.Parameters.AddWithValue("@frase", frase);
-            return ExecuteReturningDataTable(cmd);
 
+            List<PresentacionProductoDto> result= new List<PresentacionProductoDto>();
+
+            var reader = ExecuteReader(cmd);
+
+            while (reader.Read())
+            {
+
+                result.Add(new PresentacionProductoDto
+                {
+                    IdProducto = reader.GetInt32("IdProducto"),
+                    IdPresentacion = reader.GetInt32("IdPresentacion"),
+                    Precio = reader.GetDecimal("Precio"),
+                    FactorConversion = reader.GetInt32("FactorConversion"),
+                    Producto = reader["Producto"].ToString(),
+                    Presentacion = reader["Presentacion"].ToString(),
+                    Marca = reader["Marca"].ToString(),
+                    Descripcion = reader["Descripcion"].ToString()
+                });
+            }
+            return result;
         }
 
 
@@ -115,5 +149,5 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
         
 
         
-    }
+    
 }
