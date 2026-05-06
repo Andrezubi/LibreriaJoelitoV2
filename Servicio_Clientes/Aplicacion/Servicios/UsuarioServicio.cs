@@ -195,5 +195,13 @@ namespace Servicio_Clientes.Aplicacion.Servicios
 
             return loginResultado;
         }
+
+        public bool EstadoUsuario(string nombreUsuario)
+        {
+            if (string.IsNullOrWhiteSpace(nombreUsuario)) return false;
+            var usuario = _usuarioRepositorio.ObtenerDatosLogin(nombreUsuario);
+            // Si usuario es null -> no existe o está inactivo -> considerarlo eliminado = true
+            return usuario == null;
+        }
     }
 }

@@ -5,7 +5,6 @@ VisualStudioVersion = 18.4.11626.88
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontendLibreria", "FrontendLibreria\FrontendLibreria.csproj", "{8CBB50EE-ABA9-47F9-8CB5-06C6D8EBD565}"
 	ProjectSection(ProjectDependencies) = postProject
-		{24968642-4D4D-A392-20B1-7CBADE3469E0} = {24968642-4D4D-A392-20B1-7CBADE3469E0}
 		{8C9476F3-268C-4223-4CAE-63857AE605F1} = {8C9476F3-268C-4223-4CAE-63857AE605F1}
 	EndProjectSection
 EndProject

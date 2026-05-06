@@ -87,5 +87,13 @@ namespace Servicio_Clientes.Controllers
 
             return BadRequest(new { mensaje = "No se pudo eliminar el usuario." });
         }
+
+        [HttpGet("estado")]
+        public ActionResult<bool> EstadoUsuario([FromQuery] string nombreUsuario)
+        {
+            if (string.IsNullOrWhiteSpace(nombreUsuario)) return BadRequest(false);
+            bool eliminado = _usuarioServicio.EstadoUsuario(nombreUsuario);
+            return Ok(eliminado);
+        }
     }
 }

@@ -146,7 +146,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             return Convert.ToInt32(ExecuteScalar(cmd)) > 0;
         }
 
-        public string ObtenerContrasenaPorNombreUsuario(string nombreUsuario)
+        public string? ObtenerContrasenaPorNombreUsuario(string nombreUsuario)
         {
             MySqlCommand cmd = new MySqlCommand(@"
                 SELECT Password 
@@ -168,7 +168,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             return null;
         }
 
-        public Usuario ObtenerDatosLogin(string nombreUsuario)
+        public Usuario? ObtenerDatosLogin(string nombreUsuario)
         {
             string query = "SELECT Password, Rol, Id, MustChangePassword FROM Usuario WHERE Username = @username AND Estado = 1 LIMIT 1";
             MySqlCommand command = new MySqlCommand(query);
@@ -183,7 +183,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                         NombreUsuario = nombreUsuario,
                         Contrasena = reader["Password"].ToString(),
                         Rol = reader["Rol"].ToString(),
-                        Id = int.Parse(reader["Id"].ToString()),
+                        Id = int.Parse(reader["Id"].ToString() ?? ""),
                         DebeCambiarContrasena = Convert.ToBoolean(reader["MustChangePassword"])
                     };
                 }
