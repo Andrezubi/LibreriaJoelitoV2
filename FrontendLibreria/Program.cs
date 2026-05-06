@@ -1,9 +1,23 @@
 using FrontendLibreria.Adapters.Producto;
+using FrontendLibreria.Adapters.Venta;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+
+//Inyectar el servicio de HttpClient para consumir la API
+builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
+
 
 var app = builder.Build();
 

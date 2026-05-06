@@ -1,31 +1,27 @@
-using Microsoft.AspNetCore.Mvc;
-using MySql.Data.MySqlClient;
-using Servicio_Ventas.Aplicacion.DTOs;
+﻿using MySql.Data.MySqlClient;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using System.Data;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Servicio_Ventas.Aplicacion.Servicios
 {
-    public class VentaServicio : RepositorioBD
+    public class RealizarVentaServicio 
     {
         private readonly VentaRepositorio _ventaRepositorio;
         private readonly DetalleVentaRepositorio _detalleVentaRepositorio;
         //private readonly IRepository<Producto> _productoRepositorio;
         //private readonly IRepository<Cliente> _clienteRepositorio;
         //private readonly IRepository<PresentacionProducto> _presentaProdRepositorio;
-        private readonly IPdfServicio _pdfServicio;
-        public VentaServicio(
+
+        public RealizarVentaServicio(
             //IRepository<PresentacionProducto> presentProdRepositorio,
             VentaRepositorio ventaRepositorio,
-            DetalleVentaRepositorio detalleVentaRepositorio,
-            //IRepository<Producto> productoRepositorio,
-            IPdfServicio pdfServicio
-            //IRepository<Cliente> clienteRepositorio
+            DetalleVentaRepositorio detalleVentaRepositorio
+        //IRepository<Producto> productoRepositorio,
+        //IRepository<Cliente> clienteRepositorio
         )
         {
             _ventaRepositorio = ventaRepositorio;
@@ -33,17 +29,6 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             //_productoRepositorio = productoRepositorio;
             //_clienteRepositorio = clienteRepositorio;
             //_presentaProdRepositorio = presentProdRepositorio;
-            _pdfServicio = pdfServicio;
-        }
-        public DataTable getPresentacionProductosByFrase(string frase)
-        {
-            //return _presentaProdRepositorio.obtenerPresentacionProductoDetallado(frase);
-            throw new NotImplementedException();
-        }
-
-        public DataTable CargarVentas()
-        {
-            return _ventaRepositorio.CargarVentas();
         }
 
         public Result<int> RegistrarVenta(Venta venta, List<DetalleVenta> detalles)
@@ -121,126 +106,6 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             }
         }
 
-        public Result<int> AnularVenta(int idVenta, int idEmpleado)
-        {
-            try
-            {
-                var ventaFila = _ventaRepositorio.ObtenerPorId(idVenta);
-
-                if (ventaFila == null)
-                    return Result<int>.Failure("La venta ya ha sido anulada antes.");
-
-                RepositorioBD.Instancia.BeginTransaction();
-
-                try
-                {
-                    List<DetalleVentaStockDTO> detalles = _detalleVentaRepositorio.ObtenerPorIdVenta(idVenta);
-
-                    if (detalles == null || detalles.Count == 0)
-                    {
-                        RepositorioBD.Instancia.Rollback();
-                        return Result<int>.Failure("No se encontraron detalles para la venta.");
-                    }
-
-                    foreach (DetalleVentaStockDTO detalle in detalles)
-                    {
-                        int idProducto = detalle.IdProducto;
-                        int cantidad = Convert.ToInt32(detalle.Cantidad * detalle.FactorConversion);
-
-                        int filasStock = RestaurarStock(idProducto, cantidad);
-
-                        if (filasStock <= 0)
-                        {
-                            RepositorioBD.Instancia.Rollback();
-                            return Result<int>.Failure($"Error al restaurar el stock del producto ID {idProducto}.");
-                        }
-                    }
-
-                    Venta venta = new Venta
-                    {
-                        Id = idVenta,
-                        IdUsuario = idEmpleado
-                    };
-
-                    int resultado = _ventaRepositorio.Eliminar(venta);
-
-                    if (resultado <= 0)
-                    {
-                        RepositorioBD.Instancia.Rollback();
-                        return Result<int>.Failure("No se pudo actualizar el estado de la venta.");
-                    }
-
-                    RepositorioBD.Instancia.Commit();
-
-                    return Result<int>.Success(venta.Id);
-                }
-                catch (Exception ex)
-                {
-                    RepositorioBD.Instancia.Rollback();
-                    return Result<int>.Failure($"Transacción revertida. Error: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                return Result<int>.Failure($"Error inesperado al anular: {ex.Message}");
-            }
-        }
-
-        public JsonResult getPresentacionProductoByIds(int idProducto, int idPresentacion)
-        {
-            //DataRow fila = _presentaProdRepositorio.GetByIds(idProducto, idPresentacion);
-            DataRow fila = GetByIds(idProducto, idPresentacion);
-
-            if (fila != null)
-            {
-                return new JsonResult(new
-                {
-                    success = true,
-                    producto = new
-                    {
-                        idProducto = idProducto,
-                        idPresentacion=idPresentacion,
-                        nombre = fila["Descripcion"].ToString(),
-                        precioUnitario = Convert.ToDecimal(fila["Precio"])
-                    }
-                });
-            }
-
-            return new JsonResult(new { success = false });
-        }
-
-        public Result<byte[]> GenerarComprobantePdf(int idVenta)
-        {
-            try
-            {
-                // 1. Pedimos los datos al repositorio (La consulta de los Joins)
-                DataTable dt = _ventaRepositorio.ObtenerDatosComprobante(idVenta);
-
-                if (dt == null || dt.Rows.Count == 0)
-                    return Result<byte[]>.Failure("No se encontró la venta.");
-
-                // 2. Delegamos la creación del archivo al servicio especializado
-                byte[] pdf = _pdfServicio.GenerarComprobanteVenta(dt);
-
-                return Result<byte[]>.Success(pdf);
-            }
-            catch (Exception ex)
-            {
-                return Result<byte[]>.Failure($"Error en fachada de PDF: {ex.Message}");
-            }
-        }
-
-        public (DataRow venta, DataTable detalles) ObtenerVentaCompleta(int idVenta)
-        {
-            var ventaFila = _ventaRepositorio.ObtenerCabeceraVentaPorId(idVenta);
-            if (ventaFila == null)
-                throw new Exception("No se encontró la venta.");
-
-            var detalles = _detalleVentaRepositorio.ObtenerDetalleExtraPorIdVenta(idVenta);
-
-            return (ventaFila, detalles);
-        }
-
         // TODO: Mover a ClienteRepository
         public DataRow ObtenerPorId(int id)
         {
@@ -252,7 +117,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
 
             cmd.Parameters.AddWithValue("@id", id);
 
-            return ExecuteReturningDataRow(cmd);
+            return RepositorioBD.Instancia.ExecuteReturningDataRow(cmd);
         }
 
         // TODO: Mover a PresentacionProductoRepository
@@ -283,7 +148,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             cmd.Parameters.AddWithValue("@idProducto", idProducto);
             cmd.Parameters.AddWithValue("@idPresentacion", idPresentacion);
 
-            var dt = ExecuteReturningDataTable(cmd);
+            var dt = RepositorioBD.Instancia.ExecuteReturningDataTable(cmd);
 
             if (dt.Rows.Count > 0)
                 return dt.Rows[0];
@@ -302,9 +167,10 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             MySqlCommand command = new MySqlCommand(query);
             command.Parameters.AddWithValue("@id", id);
 
-            return ExecuteReturningDataRow(command);
+            return RepositorioBD.Instancia.ExecuteReturningDataRow(command);
         }
-
+            
+        // TODO: Mover a ProductoRepository
         public int DescontarStock(int idProducto, int cantidad)
         {
             string query = @"UPDATE producto 
@@ -317,21 +183,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             command.Parameters.AddWithValue("@idProducto", idProducto);
             command.Parameters.AddWithValue("@fechaAhora", DateTime.Now);
 
-            return ExecuteNonQuery(command);
-        }
-
-        public int RestaurarStock(int idProducto, int cantidad)
-        {
-            string query = @"UPDATE producto 
-                             SET Stock = Stock + @cantidad, 
-                                 FechaUltimaActualizacion = @fechaAhora 
-                             WHERE Id = @idProducto;";
-
-            MySqlCommand command = new MySqlCommand(query);
-            command.Parameters.AddWithValue("@cantidad", cantidad);
-            command.Parameters.AddWithValue("@idProducto", idProducto);
-            command.Parameters.AddWithValue("@fechaAhora", DateTime.Now);
-            return ExecuteNonQuery(command);
+            return RepositorioBD.Instancia.ExecuteNonQuery(command);
         }
     }
 }
