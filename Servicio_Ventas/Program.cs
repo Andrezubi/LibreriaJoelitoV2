@@ -66,9 +66,13 @@ bd.Initiate(connectionString);
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
-}
 
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Servicio Ventas API V1");
+        c.RoutePrefix = "swagger"; // optional but explicit
+    });
+}
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

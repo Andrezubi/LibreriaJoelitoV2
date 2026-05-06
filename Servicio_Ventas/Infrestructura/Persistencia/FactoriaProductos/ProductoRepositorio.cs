@@ -194,7 +194,9 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
                         Estado = (bool)reader["Estado"],
                         FechaRegistro = (DateTime)reader["FechaRegistro"],
                         IdUsuario = reader.GetInt32("IdUsuario"),
-                        FechaUltimaActualizacion = (DateTime)reader["FechaUltimaActualizacion"]
+                        FechaUltimaActualizacion = reader.IsDBNull(reader.GetOrdinal("FechaUltimaActualizacion"))
+                            ? (DateTime?)null
+                            : reader.GetDateTime("FechaUltimaActualizacion")
                     }
 
 
