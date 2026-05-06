@@ -1,6 +1,8 @@
+
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Servicios;
 using Servicio_Ventas.Dominio.Modelos;
+using Servicio_Ventas.Dominio.Validadores;
 using Servicio_Ventas.Infrestructura.FactoriaCreadores;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
@@ -22,12 +24,30 @@ builder.Services.AddScoped<VentaRepositorio>(provider => {
 builder.Services.AddScoped<DetalleVentaRepositorio>(provider => {
     return new DetalleVentaCreadorRepositorio().CrearRepositorio();
 });
+builder.Services.AddScoped<ProductoRepositorio>(provider => {
+    return new ProductoCreadorRepositorio().CrearRepositorio();
+});
+builder.Services.AddScoped<PresentacionRepositorio>(provider => {
+    return new PresentacionCreadorRepositorio().CrearRepositorio();
+});
+builder.Services.AddScoped<PresentacionProductoRepositorio>(provider => {
+    return new PresentacionProductoCreadorRepositorio().CrearRepositorio();
+});
+
 
 //Inyeccion Servicios
 builder.Services.AddScoped<RealizarVentaServicio>();
 builder.Services.AddScoped<AnularVentaServicio>();
 builder.Services.AddScoped<ConsultaVentaServicio>();
 builder.Services.AddScoped<GestionInventarioServicio>();
+builder.Services.AddScoped<PresentacionServicio>();
+builder.Services.AddScoped<ProductoServicio>();
+
+
+
+//Inyeccion Validadores
+builder.Services.AddScoped<ProductoValidador>();
+
 
 // Add services to the container.
 

@@ -8,7 +8,7 @@ namespace Servicio_Ventas.Infrestructura.FactoriaCreadores
 {
     public class PresentacionProductoCreadorRepositorio:CreadorRepositorio<PresentacionProducto>
     {
-        public override IRepositorio<PresentacionProducto> CrearRepositorio()
+        public override PresentacionProductoRepositorio CrearRepositorio()
         {
             return new PresentacionProductoRepositorio();
         }

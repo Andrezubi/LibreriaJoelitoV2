@@ -17,7 +17,15 @@ builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
 
     client.BaseAddress = new Uri(baseUrl);
 });
+builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
 
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
 
 var app = builder.Build();
 
@@ -30,10 +38,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 
-builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:VentaServiceUrl"]!);
-});
+
 
 if (app.Environment.IsDevelopment())
 {

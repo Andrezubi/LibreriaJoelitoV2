@@ -1,5 +1,4 @@
 ﻿
-using LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Dominio.Validadores;

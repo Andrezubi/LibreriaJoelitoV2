@@ -1,6 +1,6 @@
 ﻿
-using LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts;
 using Servicio_Ventas.Dominio.Modelos;
+using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using System.Data;
 
 namespace Servicio_Ventas.Aplicacion.Servicios

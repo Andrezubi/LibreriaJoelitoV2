@@ -1,15 +1,16 @@
 ﻿
 
-using LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts;
+
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infraestructura.FactoriaCreadores;
+using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 
 namespace Servicio_Ventas.Infrestructura.FactoriaCreadores 
 { 
     public class ProductoCreadorRepositorio:CreadorRepositorio<Producto>
     {
-        public override IRepositorio<Producto> CrearRepositorio()
+        public override ProductoRepositorio CrearRepositorio()
         {
             return new ProductoRepositorio();
         }

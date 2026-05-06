@@ -1,4 +1,4 @@
-﻿using LibreriaJoelito.Infraestructura.Persistencia;
+﻿
 using MySql.Data.MySqlClient;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using System.ComponentModel.DataAnnotations;

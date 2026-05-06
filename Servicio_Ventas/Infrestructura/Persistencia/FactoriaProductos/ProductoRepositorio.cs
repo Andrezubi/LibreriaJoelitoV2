@@ -8,7 +8,7 @@ using System.Data;
 using System.Reflection.PortableExecutable;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts
+namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 {
     public class ProductoRepositorio : RepositorioBD, IRepositorio<Producto>
     {

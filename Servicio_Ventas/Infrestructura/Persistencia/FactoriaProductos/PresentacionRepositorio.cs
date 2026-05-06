@@ -6,7 +6,7 @@ using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using System.Data;
 
-namespace LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts
+namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 {
     public class PresentacionRepositorio: RepositorioBD, IRepositorio<Presentacion>
     {
