@@ -24,6 +24,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                     Rol,
                     Username,
                     Password,
+                    MustChangePassword,
                     IdUsuario
                 ) VALUES (
                     @nombre,
@@ -39,6 +40,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                     @rol,
                     @username,
                     @password,
+                    @mustChangePassword,
                     @idusuario
                 );";
 
@@ -56,6 +58,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             command.Parameters.AddWithValue("@rol", t.Rol);
             command.Parameters.AddWithValue("@username", t.NombreUsuario);
             command.Parameters.AddWithValue("@password", t.Contrasena);
+            command.Parameters.AddWithValue("@mustChangePassword", t.DebeCambiarContrasena);
             command.Parameters.AddWithValue("@idusuario", t.IdUsuario);
 
             return ExecuteNonQuery(command);

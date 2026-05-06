@@ -12,12 +12,14 @@ namespace Servicio_Clientes.Aplicacion.Servicios
         private readonly UsuarioRepository _usuarioRepositorio;
         private readonly IHasherContrasena _encriptador;
         private readonly IServicioToken _servicioToken;
+        private readonly IServicioEmail _servicioEmail;
 
-        public UsuarioServicio(UsuarioRepository usuarioRepositorio, IHasherContrasena encriptador, IServicioToken servicioToken)
+        public UsuarioServicio(UsuarioRepository usuarioRepositorio, IHasherContrasena encriptador, IServicioToken servicioToken, IServicioEmail servicioEmail)
         {
             _usuarioRepositorio = usuarioRepositorio;
             _encriptador = encriptador;
             _servicioToken = servicioToken;
+            _servicioEmail = servicioEmail;
         }
 
         public DataTable ObtenerTodo()
@@ -30,7 +32,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
             return _usuarioRepositorio.ObtenerPorId(id);
         }
 
-        public Resultado Insertar(Usuario usuario)
+        public async Task<Resultado> InsertarAsync(Usuario usuario)
         {
             var validaciones = ValidadorEmpleado.Validar(usuario);
 
@@ -52,9 +54,38 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 return Resultado.Failure("empleado.Ci: El empleado con ese CI ya existe.");
             }
 
+            // Generar credenciales
+            string nombreUsuarioPlano = GenerarNombreUsuario(usuario.Nombre, usuario.ApellidoPaterno);
+            string contrasenaPlana = GenerarContrasena(10); // Generar contraseña de 10 caracteres
+            
+            usuario.NombreUsuario = nombreUsuarioPlano;
+            usuario.DebeCambiarContrasena = true;
+
             // Hashear la contraseña antes de guardar en la DB
-            usuario.Contrasena = _encriptador.Encriptar(usuario.Contrasena);
+            usuario.Contrasena = _encriptador.Encriptar(contrasenaPlana);
+            
             _usuarioRepositorio.Insertar(usuario);
+
+            // Enviar credenciales por correo de forma asíncrona (fire and forget o awaited)
+            string asunto = "Bienvenido a Librería Joelito - Sus Credenciales";
+            string cuerpo = $@"
+                <h3>Bienvenido/a {usuario.Nombre} {usuario.ApellidoPaterno}</h3>
+                <p>Se ha creado su cuenta en el sistema de Librería Joelito.</p>
+                <p><strong>Usuario:</strong> {nombreUsuarioPlano}</p>
+                <p><strong>Contraseña Temporal:</strong> {contrasenaPlana}</p>
+                <p><em>Por motivos de seguridad, el sistema le pedirá cambiar esta contraseña en su primer inicio de sesión.</em></p>
+            ";
+
+            try
+            {
+                await _servicioEmail.EnviarCorreoAsync(usuario.Email, asunto, cuerpo);
+            }
+            catch (Exception ex)
+            {
+                // Aquí se podría registrar el log del error de envío de correo
+                Console.WriteLine($"Error al enviar correo: {ex.Message}");
+                // No detenemos la creación del usuario si el correo falla, o podríamos retornar un warning.
+            }
 
             return Resultado.Success();
         }
@@ -85,28 +116,55 @@ namespace Servicio_Clientes.Aplicacion.Servicios
             return _usuarioRepositorio.Eliminar(usuario);
         }
 
-        public string GenerarNombreUsuario(string nombre, string apellido)
+        public string GenerarNombreUsuario(string nombre, string apellidoPaterno)
         {
-            string baseUsername = $"{nombre}.{apellido}".ToLower().Replace(" ", "");
+            if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(apellidoPaterno))
+                return string.Empty;
+
+            string primeraLetra = nombre.Trim().Substring(0, 1).ToLower();
+            string apellidoLimpio = apellidoPaterno.Trim().ToLower().Replace(" ", "");
+            
+            string baseUsername = $"{primeraLetra}{apellidoLimpio}";
             string username = baseUsername;
             int counter = 1;
 
             while (_usuarioRepositorio.ExisteUsername(username))
             {
-                username = baseUsername + counter;
+                username = $"{baseUsername}{counter}";
                 counter++;
             }
 
             return username;
         }
 
-        public string GenerarContrasena(int longitud)
+        public string GenerarContrasena(int longitud = 8)
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%";
-            var random = new Random();
+            if (longitud < 8) longitud = 8; // Mínimo 8 caracteres
 
-            return new string(Enumerable.Repeat(chars, longitud)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+            const string uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string lowercase = "abcdefghijklmnopqrstuvwxyz";
+            const string numbers = "0123456789";
+            const string symbols = "!@#$%^&*";
+
+            var random = new Random();
+            var password = new char[longitud];
+
+            // Garantizar al menos un carácter de cada tipo
+            password[0] = uppercase[random.Next(uppercase.Length)];
+            password[1] = lowercase[random.Next(lowercase.Length)];
+            password[2] = numbers[random.Next(numbers.Length)];
+            password[3] = symbols[random.Next(symbols.Length)];
+
+            string allChars = uppercase + lowercase + numbers + symbols;
+
+            // Rellenar el resto de forma aleatoria
+            for (int i = 4; i < longitud; i++)
+            {
+                password[i] = allChars[random.Next(allChars.Length)];
+            }
+
+            // Mezclar los caracteres
+            return new string(password.OrderBy(x => random.Next()).ToArray());
         }
 
         public LoginResultado Login(string nombreUsuario, string contrasena)
