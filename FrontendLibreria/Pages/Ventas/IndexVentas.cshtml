@@ -62,34 +62,41 @@
                                             <td>@venta.NombreCliente</td>
                                             <td>@venta.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
                                             <td>
-                                                @if (venta.Estado == 1)
-                                                {
-                                                    <span class="badge bg-success">Activa</span>
-                                                }
-                                                else
+                                                @if (venta.Estado == 0)
                                                 {
                                                     <span class="badge bg-secondary">Anulada</span>
                                                 }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">Activa</span>
+                                                }
                                             </td>
                                             <td class="text-center">
-                                                <a asp-page-handler="ExportarPdf"
-                                                       asp-route-idVenta="@venta.Id"
-                                                       class="btn btn-sm btn-primary"
-                                                       target="_blank">
-                                                    PDF
-                                                </a>
+                                                @if (venta.Estado == 0)
+                                                {
+                                                    <span class="text-muted small">Sin acciones disponibles</span>
+                                                }
+                                                else
+                                                {
+                                                    <a asp-page-handler="ExportarPdf"
+                                                           asp-route-idVenta="@venta.Id"
+                                                           class="btn btn-sm btn-primary"
+                                                           target="_blank">
+                                                        PDF
+                                                    </a>
 
-                                                <button type="button"
-                                                        class="btn btn-sm btn-info btn-ver-detalle"
-                                                        data-idventa="@venta.Id">
-                                                    Ver
-                                                </button>
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-info btn-ver-detalle"
+                                                            data-idventa="@venta.Id">
+                                                        Ver
+                                                    </button>
 
-                                                <button type="button"
-                                                        class="btn btn-sm btn-danger btn-preparar-anulacion"
-                                                        data-idventa="@venta.Id">
-                                                    Anular
-                                                </button>
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-danger btn-preparar-anulacion"
+                                                            data-idventa="@venta.Id">
+                                                        Anular
+                                                    </button>
+                                                }
                                             </td>
                                         </tr>
                                     }
