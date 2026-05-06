@@ -1,4 +1,6 @@
-﻿namespace FrontendLibreria.DTOs
+using Microsoft.AspNetCore.Http;
+
+namespace FrontendLibreria.DTOs
 {
     public class ResultadoApi
     {

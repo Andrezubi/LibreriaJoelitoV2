@@ -1,3 +1,4 @@
+using FrontendLibreria.Adapters.Producto;
 using FrontendLibreria.Adapters.Cliente;
 using FrontendLibreria.Adapters.Venta;
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,15 @@ builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
 
     client.BaseAddress = new Uri(baseUrl);
 });
+builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
 
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
 
 var app = builder.Build();
 
@@ -31,6 +40,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 
