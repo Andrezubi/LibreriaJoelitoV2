@@ -24,6 +24,8 @@ namespace Servicio_Clientes.Dominio.Models
         public int? IdEmpleadoCambio { get; set; }
         public DateTime? FechaUltimaActualizacion { get; set; }
 
+
+
         public Usuario() { }
         public Usuario(int id) { Id = id; }
 

@@ -170,9 +170,9 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 
         public Usuario? ObtenerDatosLogin(string nombreUsuario)
         {
-            string query = "SELECT Password, Rol, Id, MustChangePassword FROM Usuario WHERE Username = @username AND Estado = 1 LIMIT 1";
+            string query = "SELECT Password, Rol, Id, MustChangePassword FROM Usuario WHERE Username = @NombreUsuario AND Estado = 1 LIMIT 1";
             MySqlCommand command = new MySqlCommand(query);
-            command.Parameters.AddWithValue("@username", nombreUsuario);
+            command.Parameters.AddWithValue("@NombreUsuario", nombreUsuario);
 
             using (var reader = ExecuteReader(command))
             {
