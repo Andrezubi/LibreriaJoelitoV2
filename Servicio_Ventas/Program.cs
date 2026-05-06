@@ -1,4 +1,3 @@
-using FrontendLibreria.Adapters.Cliente;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Servicios;
 using Servicio_Ventas.Dominio.Modelos;
@@ -24,10 +23,7 @@ builder.Services.AddScoped<VentaRepositorio>(provider => {
 builder.Services.AddScoped<DetalleVentaRepositorio>(provider => {
     return new DetalleVentaCreadorRepositorio().CrearRepositorio();
 });
-builder.Services.AddHttpClient<IAdaptadorCliente, AdaptadorCliente>(client =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:VentaServiceUrl"]!);
-});
+
 
 //Inyeccion Servicios
 builder.Services.AddScoped<RealizarVentaServicio>();
