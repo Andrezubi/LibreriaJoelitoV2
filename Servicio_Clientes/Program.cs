@@ -2,7 +2,7 @@ using Servicio_Clientes.Aplicacion.Interfaces;
 using Servicio_Clientes.Aplicacion.Servicios;
 using Servicio_Clientes.Infraestructura.FactoryCreators;
 using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
-using Servicio_Clientes.Infraestructura.Encryptacion;
+using Servicio_Clientes.Infraestructura.Encriptacion;
 using Servicio_Clientes.Infraestructura.ServiciosExternos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;

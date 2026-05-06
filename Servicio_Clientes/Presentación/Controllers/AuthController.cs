@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
 using Servicio_Clientes.Aplicacion.Interfaces;
+using Servicio_Clientes.Aplicacion.Servicios;
 using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Infraestructura.Encriptacion;
+using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
 
 namespace Servicio_Clientes.Controllers
 {
@@ -12,50 +14,40 @@ namespace Servicio_Clientes.Controllers
         private readonly UsuarioRepository _usuarioRepo;
         private readonly IServicioToken _servicioToken; 
         private readonly ILogger<AuthController> _logger;
+        private readonly UsuarioServicio _usuarioServicio;
 
-        public AuthController(UsuarioRepository usuarioRepo, IServicioToken servicioToken, ILogger<AuthController> logger)
+        public AuthController(UsuarioRepository usuarioRepo, IServicioToken servicioToken, ILogger<AuthController> logger, UsuarioServicio usuarioServicio)
         {
             _usuarioRepo = usuarioRepo;
             _servicioToken = servicioToken;
             _logger = logger;
+            _usuarioServicio = usuarioServicio;
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<LoginResultado>> Login([FromBody] LoginPeticion request)
+        public IActionResult Login([FromBody] LoginPeticion request)
         {
-            if (request == null || string.IsNullOrWhiteSpace(request.NombreUsuario) || string.IsNullOrWhiteSpace(request.Contrasena))
-                return BadRequest(new LoginResultado { Exito = false, Mensaje = "Usuario y contraseña son requeridos." });
-            var usuario = await Task.Run(() => _usuarioRepo.ObtenerDatosLogin(request.NombreUsuario));
-            if (usuario == null)
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.NombreUsuario) ||
+                string.IsNullOrWhiteSpace(request.Contrasena))
+                return BadRequest(new LoginResultado
+                {
+                    Exito = false,
+                    Mensaje = "Usuario y contraseña son requeridos."
+                });
+
+            // ← Ahora sí usa BCrypt internamente
+            var resultado = _usuarioServicio.Login(request.NombreUsuario, request.Contrasena);
+
+            if (!resultado.Exito)
             {
-                _logger.LogInformation("Login fallido: usuario no encontrado {Usuario}", request.NombreUsuario);
-                return Unauthorized(new LoginResultado { Exito = false, Mensaje = "Credenciales incorrectas." });
+                _logger.LogInformation("Login fallido para {Usuario}: {Mensaje}",
+                    request.NombreUsuario, resultado.Mensaje);
+                return Unauthorized(resultado);
             }
 
-            // Comparación de contraseña (temporal en texto plano)
-            bool passwordOk = !string.IsNullOrEmpty(usuario.Contrasena) && request.Contrasena == usuario.Contrasena;
-            // Recomendado: passwordOk = BCrypt.Net.BCrypt.Verify(request.Contrasena, usuario.Contrasena);
-
-            if (!passwordOk)
-            {
-                _logger.LogInformation("Login fallido: contraseña incorrecta {Usuario}", request.NombreUsuario);
-                return Unauthorized(new LoginResultado { Exito = false, Mensaje = "Credenciales incorrectas." });
-            }
-
-            // Generar token con IServicioToken o devolver token de prueba
-            var token = _servicioToken != null ? _servicioToken.GenerarToken(Convert.ToString(usuario.Id), usuario.NombreUsuario, usuario.Rol) : "token-de-prueba";
-
-            var result = new LoginResultado
-            {
-                Exito = true,
-                Token = token,
-                Rol = usuario.Rol ?? string.Empty,
-                DebeCambiarContrasena = usuario.DebeCambiarContrasena,
-                Mensaje = "Login exitoso"
-            };
-
-            // Opcional: setear cookie HttpOnly para que JwtBearer la lea
-            Response.Cookies.Append("AuthToken", token, new CookieOptions
+            // Setear cookie HttpOnly
+            Response.Cookies.Append("AuthToken", resultado.Token!, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -63,7 +55,8 @@ namespace Servicio_Clientes.Controllers
                 Expires = DateTimeOffset.UtcNow.AddHours(8)
             });
 
-            return Ok(result);
+            _logger.LogInformation("Login exitoso para {Usuario}", request.NombreUsuario);
+            return Ok(resultado);
         }
 
         [HttpGet("estado")]
