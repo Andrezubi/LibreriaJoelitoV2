@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Adapters\" />
     <Folder Include="DTOs\" />
+    <ProjectReference Include="..\Servicio_Clientes\Servicio_Clientes.csproj" />
+    <ProjectReference Include="..\Servicio_Ventas\Servicio_Ventas.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8" />
@@ -49,7 +49,7 @@
                         @User.Identity?.Name
                     </span>
 
-                    <form method="get" action="/Usuarios/Logout">
+                    <form method="get" action="/Servicio2Pages/CerradoSesion">
                         <button type="submit" class="btn-logout">Cerrar sesión</button>
                     </form>
                 </div>
@@ -163,7 +163,7 @@
     }
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 </html>

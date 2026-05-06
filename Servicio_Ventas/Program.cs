@@ -1,4 +1,20 @@
+using Servicio_Ventas.Aplicacion.Interfaces;
+using Servicio_Ventas.Dominio.Modelos;
+using Servicio_Ventas.Infrestructura.FactoriaCreadores;
+using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
+using Servicio_Ventas.Infrestructura.ServiciosExternos;
+
 var builder = WebApplication.CreateBuilder(args);
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
+builder.Services.AddScoped<IPdfServicio, PdfServicio>();
+builder.Services.AddScoped<VentaRepositorio>(provider => {
+    return new VentaCreadorRepositorio().CrearRepositorio();
+});
+builder.Services.AddScoped<DetalleVentaRepositorio>(provider => {
+    return new DetalleVentaCreadorRepositorio().CrearRepositorio();
+});
 
 // Add services to the container.
 

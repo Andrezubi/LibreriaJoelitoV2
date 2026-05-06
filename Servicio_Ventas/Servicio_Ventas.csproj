@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Aplicacion\Servicios\" />
-    <Folder Include="Dominio\Modelos\" />
     <Folder Include="Dominio\Validadores\" />
-    <Folder Include="Infrestructura\Persistencia\FactoriaProductos\" />
-    <Folder Include="Infrestructura\ServiciosExternos\" />
   </ItemGroup>
 
   <ItemGroup>

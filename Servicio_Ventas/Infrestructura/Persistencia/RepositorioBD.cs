@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Threading;
 
-namespace Servicio_Ventas.Infraestructura.Persistencia
+namespace Servicio_Ventas.Infrestructura.Persistencia
 {
     public class RepositorioBD
     {
