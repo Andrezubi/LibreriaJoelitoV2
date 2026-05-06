@@ -23,8 +23,31 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpClient<IUsuarioServicioAdapter, UsuarioServicioAdapter>(client =>
 {
     // URL del Servicio 2 (puerto 7002 HTTPS / 5002 HTTP)
-    client.BaseAddress = new Uri(builder.Configuration["UsuarioService:BaseUrl"]
-                                 ?? "https://localhost:7002");
+    string baseUrl = builder.Configuration["UsuarioService:BaseUrl"] ?? "https://localhost:7002";
+
+    // En desarrollo, permitir usar HTTP si está configurado
+    if (builder.Environment.IsDevelopment() && baseUrl.Contains("localhost"))
+    {
+        // Intentar HTTPS primero, pero permite certificados autofirmados
+        if (baseUrl.StartsWith("https"))
+        {
+            baseUrl = baseUrl; // Mantener HTTPS con validación personalizada
+        }
+    }
+
+    client.BaseAddress = new Uri(baseUrl);
+    client.Timeout = TimeSpan.FromSeconds(30); // Aumentar timeout para desarrollo
+})
+.ConfigureHttpMessageHandlerBuilder(httpBuilder =>
+{
+    // En desarrollo, permitir certificados autofirmados
+    if (builder.Environment.IsDevelopment())
+    {
+        httpBuilder.PrimaryHandler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+    }
 });
 
 var app = builder.Build();
