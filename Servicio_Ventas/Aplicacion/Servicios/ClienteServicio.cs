@@ -1,9 +1,9 @@
 using Servicio_Ventas.Dominio.Validadores;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
-using Servicio_Ventas.Infraestructura.Persistencia.FactoriaProductos;
+using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 
-namespace LibreriaJoelito.Aplicacion.Servicios
+namespace Servicio_Ventas.Aplicacion.Servicios
 {
     public class ClienteServicio
     {

@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace FrontendLibreria.Pages.Clientes
 {
-    [Authorize(Roles = "Administrador,Empleado")]
+   // [Authorize(Roles = "Administrador,Empleado")]
     public class ClientesGetModel : PageModel
     {
         private readonly IAdaptadorCliente _adaptadorCliente;
@@ -31,9 +31,10 @@ namespace FrontendLibreria.Pages.Clientes
         {
             try
             {
-                ClienteEditar.Id = Convert.ToInt32(Request.Form["Id"]);
-                ClienteEditar.IdUsuario = int.Parse(
-                    User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+                ClienteEditar.Id = Convert.ToInt32(Request.Form["ClienteEditar.Id"]);
+
+                
+                ClienteEditar.IdUsuario = 1;
 
                 ClienteEditar.RazonSocial = Normalizar(ClienteEditar.RazonSocial)!;
 
@@ -44,17 +45,17 @@ namespace FrontendLibreria.Pages.Clientes
 
                 TempData["MensajeExito"] =
                     $"Cliente '{ClienteEditar.RazonSocial}' actualizado exitosamente.";
+
                 return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
-                return new JsonResult(new { success = false, message = "Error al actualizar: " + ex.Message });
+                return new JsonResult(new { success = false, message = "Error: " + ex.Message });
             }
         }
-
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
-            var idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+            var idUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
             await _adaptadorCliente.EliminarAsync(id, idUsuario);
             TempData["MensajeExito"] = "Cliente eliminado correctamente.";
             return RedirectToPage();

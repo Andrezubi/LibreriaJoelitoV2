@@ -12,21 +12,21 @@ namespace FrontendLibreria.Adapters.Cliente
         }
         public async Task<ResultadoApi> InsertarAsync(ClienteDto cliente)
         {
-            var response = await _http.PostAsJsonAsync("api/clientes", cliente);
+            var response = await _http.PostAsJsonAsync("api/Cliente", cliente);
             if (response.IsSuccessStatusCode) return ResultadoApi.Ok();
             var error = await response.Content.ReadFromJsonAsync<RespuestaErrorApi>();
             return ResultadoApi.Fail(error?.Errores ?? new List<string> { "Error desconocido" });
         }
         public async Task<List<ClienteDto>> ObtenerTodoAsync()
         {
-            var response = await _http.GetAsync("api/clientes");
+            var response = await _http.GetAsync("api/Cliente");
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<List<ClienteDto>>() ?? new();
         }
 
         public async Task<ResultadoApi> ActualizarAsync(ClienteDto cliente)
         {
-            var response = await _http.PutAsJsonAsync($"api/clientes/{cliente.Id}", cliente);
+            var response = await _http.PutAsJsonAsync($"api/Cliente/{cliente.Id}", cliente);
             if (response.IsSuccessStatusCode) return ResultadoApi.Ok();
             var error = await response.Content.ReadFromJsonAsync<RespuestaErrorApi>();
             return ResultadoApi.Fail(error?.Errores ?? new List<string> { "Error desconocido" });
@@ -34,7 +34,7 @@ namespace FrontendLibreria.Adapters.Cliente
 
         public async Task<ResultadoApi> EliminarAsync(int id, int idUsuario)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/clientes/{id}")
+            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/Cliente/{id}")
             {
                 Content = JsonContent.Create(new { IdUsuario = idUsuario })
             };

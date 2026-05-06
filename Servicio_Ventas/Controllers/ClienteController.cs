@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using LibreriaJoelito.Aplicacion.Servicios;
+using Servicio_Ventas.Aplicacion.Servicios;
 using Servicio_Ventas.Dominio.Modelos;
 
 namespace Servicio_Ventas.Controllers

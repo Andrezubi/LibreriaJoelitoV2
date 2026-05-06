@@ -4,7 +4,7 @@ using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using System.Data;
 
-namespace Servicio_Ventas.Infraestructura.Persistencia.FactoriaProductos
+namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 {
     public class ClienteRepositorio : RepositorioBD, IRepositorio<Cliente>
     {
@@ -42,7 +42,7 @@ namespace Servicio_Ventas.Infraestructura.Persistencia.FactoriaProductos
                     Ci = reader["Ci"].ToString()!,
                     Complemento = reader["Complemento"] == DBNull.Value ? null : reader["Complemento"].ToString(),
                     Email = reader["Email"] == DBNull.Value ? null : reader["Email"].ToString(),
-                    ClienteFrecuente = (bool)reader["ClienteFrecuente"],
+                    ClienteFrecuente = reader["ClienteFrecuente"] != DBNull.Value && Convert.ToBoolean(reader["ClienteFrecuente"]),
                     FechaRegistro = (DateTime)reader["FechaRegistro"]
                 });
             }

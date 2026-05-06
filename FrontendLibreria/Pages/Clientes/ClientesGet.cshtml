@@ -121,43 +121,53 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form id="formEditarCliente">
-                <input type="hidden" name="Id" id="edit_id" />
+                <input type="hidden" name="ClienteEditar.Id" id="edit_id" />
+
                 <div class="modal-header modal-header-morado">
                     <h5 class="modal-title" id="modalEditarLabel">Editar Datos del Cliente</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
                     <div id="alertaErrorModal" class="alert alert-danger" style="display:none;"></div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Razón Social</label>
-                            <input type="text" name="_cliente.RazonSocial" id="edit_razonSocial" class="form-control" placeholder="Ej: Juan" required />
+                            <input type="text" name="ClienteEditar.RazonSocial" id="edit_razonSocial"
+                                   class="form-control" placeholder="Ej: Juan" required />
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Carnet de Identidad</label>
-                            <input type="text" name="_cliente.Ci" id="edit_ci" class="form-control" placeholder="Ej: 1234567" required />
+                            <input type="text" name="ClienteEditar.Ci" id="edit_ci"
+                                   class="form-control" placeholder="Ej: 1234567" required />
                         </div>
+
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Complemento</label>
-                            <input type="text" name="_cliente.Complemento" id="edit_complemento" class="form-control" placeholder="Ej: 1A" />
+                            <input type="text" name="ClienteEditar.Complemento" id="edit_complemento"
+                                   class="form-control" placeholder="Ej: 1A" />
                         </div>
+
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" name="_cliente.Email" id="edit_email" class="form-control" placeholder="juan@ejemplo.com" />
+                            <input type="email" name="ClienteEditar.Email" id="edit_email"
+                                   class="form-control" placeholder="juan@ejemplo.com" />
                         </div>
                     </div>
 
                     <div class="mb-3">
                         <div class="form-check">
-                            <input type="checkbox" name="_cliente.ClienteFrecuente" class="form-check-input" id="edit_frecuente" value="true" />
+                            <input type="checkbox" name="ClienteEditar.ClienteFrecuente"
+                                   class="form-check-input" id="edit_frecuente" value="true" />
                             <label class="form-check-label" for="edit_frecuente">Cliente Frecuente</label>
                         </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
                     <button type="button" class="btn btn-sistema" onclick="enviarUpdate()">Guardar Cambios</button>
@@ -174,21 +184,32 @@
         document.getElementById('edit_id').value = id;
         document.getElementById('edit_razonSocial').value = razonSocial;
         document.getElementById('edit_ci').value = ci;
-        document.getElementById('edit_complemento').value = complemento;
-        document.getElementById('edit_email').value = email;
-        document.getElementById('edit_frecuente').checked = (frecuente === 'true');
+        document.getElementById('edit_complemento').value = complemento ?? '';
+        document.getElementById('edit_email').value = email ?? '';
+
+        document.getElementById('edit_frecuente').checked =
+            (frecuente === true || frecuente === 'true');
 
         new bootstrap.Modal(document.getElementById('modalEditarCliente')).show();
     }
 
     function enviarUpdate() {
-        const formData = new FormData(document.querySelector('#formEditarCliente'));
+        const form = document.querySelector('#formEditarCliente');
+
+        // Validación HTML5 (IMPORTANTE)
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const formData = new FormData(form);
 
         fetch('?handler=Update', {
             method: 'POST',
             body: formData,
             headers: {
-                "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]').value
+                "RequestVerificationToken":
+                    document.querySelector('input[name="__RequestVerificationToken"]').value
             }
         })
         .then(response => response.json())
