@@ -27,18 +27,19 @@ namespace Servicio_Clientes.Controllers
             {
                 usuarios.Add(new
                 {
-                    Id = row["Id"],
-                    Nombre = row["Nombre"],
-                    ApellidoPaterno = row["ApellidoPaterno"],
-                    ApellidoMaterno = row["ApellidoMaterno"],
-                    Ci = row["Ci"],
-                    Complemento = row["Complemento"],
-                    FechaNacimiento = row["FechaNacimiento"],
-                    Email = row["Email"],
-                    DireccionDomicilio = row["DireccionDomicilio"],
-                    Rol = row["Rol"],
-                    Telefono = row["Telefono"],
-                    FechaIngreso = row["FechaIngreso"]
+                    Id = row["Id"]?.ToString(),
+                    Nombre = row["Nombre"]?.ToString(),
+                    ApellidoPaterno = row["ApellidoPaterno"]?.ToString(),
+                    ApellidoMaterno = row["ApellidoMaterno"] == DBNull.Value ? null : row["ApellidoMaterno"]?.ToString(),
+                    Ci = row["Ci"]?.ToString(),
+                    Complemento = row["Complemento"] == DBNull.Value ? null : row["Complemento"]?.ToString(),
+                    FechaNacimiento = row["FechaNacimiento"]?.ToString(),
+                    Email = row["Email"]?.ToString(),
+                    DireccionDomicilio = row["DireccionDomicilio"] == DBNull.Value ? null : row["DireccionDomicilio"]?.ToString(),
+                    Rol = row["Rol"]?.ToString(),
+                    Telefono = row["Telefono"] == DBNull.Value ? null : row["Telefono"]?.ToString(),
+                    FechaIngreso = row["FechaIngreso"]?.ToString(),
+                    NombreUsuario = row["Username"]?.ToString()
                 });
             }
 
