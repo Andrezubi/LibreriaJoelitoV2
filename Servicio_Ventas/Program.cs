@@ -1,14 +1,17 @@
 
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Servicios;
+using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Dominio.Validadores;
 using Servicio_Ventas.Infrestructura.FactoriaCreadores;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using Servicio_Ventas.Infrestructura.ServiciosExternos;
+using Servicio_Ventas.Dominio.Validadores;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -32,6 +35,8 @@ builder.Services.AddScoped<PresentacionRepositorio>(provider => {
 });
 builder.Services.AddScoped<PresentacionProductoRepositorio>(provider => {
     return new PresentacionProductoCreadorRepositorio().CrearRepositorio();
+builder.Services.AddScoped<ClienteRepositorio>(provider => {
+    return new ClienteCreadorRepositorio().CrearRepositorio();
 });
 
 
@@ -49,6 +54,8 @@ builder.Services.AddScoped<ProductoServicio>();
 builder.Services.AddScoped<ProductoValidador>();
 
 
+builder.Services.AddScoped<ClienteServicio>();
+builder.Services.AddScoped<ClienteValidador>(); 
 // Add services to the container.
 
 builder.Services.AddControllers();
