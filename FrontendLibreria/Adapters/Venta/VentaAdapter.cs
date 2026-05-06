@@ -1,4 +1,5 @@
 ﻿using FrontendLibreria.DTOs.VentaDTOs;
+using System.Net.Http.Json;
 
 namespace FrontendLibreria.Adapters.Venta
 {
@@ -13,30 +14,30 @@ namespace FrontendLibreria.Adapters.Venta
 
         public async Task<List<VentaDTO>> CargarVentasAsync()
         {
-            var ventas = await _httpClient.GetFromJsonAsync<List<VentaDTO>>("api/venta");
+            var ventas = await _httpClient.GetFromJsonAsync<List<VentaDTO>>("api/Venta");
             return ventas ?? new List<VentaDTO>();
         }
 
-        public async Task<bool> RegistrarVentaAsync(RegistrarVentaRequestDTO request)
+        public async Task<ApiResultDTO<int>?> RegistrarVentaAsync(RegistrarVentaRequestDTO request)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/venta", request);
-            return response.IsSuccessStatusCode;
+            var response = await _httpClient.PostAsJsonAsync("api/Venta", request);
+            return await response.Content.ReadFromJsonAsync<ApiResultDTO<int>>();
         }
 
-        public async Task<bool> AnularVentaAsync(int idVenta, int idEmpleado)
+        public async Task<ApiResultDTO<int>?> AnularVentaAsync(int idVenta, int idEmpleado)
         {
             var response = await _httpClient.PutAsync(
-                $"api/venta/{idVenta}/anular?idEmpleado={idEmpleado}",
+                $"api/Venta/{idVenta}/anular?idEmpleado={idEmpleado}",
                 null
             );
 
-            return response.IsSuccessStatusCode;
+            return await response.Content.ReadFromJsonAsync<ApiResultDTO<int>>();
         }
 
         public async Task<List<PresentacionProductoVentaDTO>> ObtenerPresentacionesPorFraseAsync(string frase)
         {
             var resultado = await _httpClient.GetFromJsonAsync<List<PresentacionProductoVentaDTO>>(
-                $"api/venta/presentaciones?frase={Uri.EscapeDataString(frase)}"
+                $"api/Venta/presentaciones?frase={Uri.EscapeDataString(frase)}"
             );
 
             return resultado ?? new List<PresentacionProductoVentaDTO>();
@@ -47,21 +48,21 @@ namespace FrontendLibreria.Adapters.Venta
             int idPresentacion)
         {
             return await _httpClient.GetFromJsonAsync<PresentacionProductoVentaDTO>(
-                $"api/venta/productos/{idProducto}/presentaciones/{idPresentacion}"
+                $"api/Venta/productos/{idProducto}/presentaciones/{idPresentacion}"
             );
         }
 
         public async Task<byte[]> GenerarComprobantePdfAsync(int idVenta)
         {
             return await _httpClient.GetByteArrayAsync(
-                $"api/venta/{idVenta}/comprobante"
+                $"api/Venta/{idVenta}/comprobante"
             );
         }
 
         public async Task<VentaCompletaDTO?> ObtenerVentaCompletaAsync(int idVenta)
         {
             return await _httpClient.GetFromJsonAsync<VentaCompletaDTO>(
-                $"api/venta/{idVenta}/completa"
+                $"api/Venta/{idVenta}/completa"
             );
         }
     }

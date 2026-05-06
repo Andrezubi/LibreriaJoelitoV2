@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int EstadoVenta { get; set; }
-        public string CiCliente { get; set; } = string.Empty;
+        public int CiCliente { get; set; }
         public string NombreCliente { get; set; } = string.Empty;
         public string NombreEmpleado { get; set; } = string.Empty;
         public DateTime Fecha { get; set; }
