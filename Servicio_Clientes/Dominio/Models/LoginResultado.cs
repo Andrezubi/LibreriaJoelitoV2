@@ -7,5 +7,6 @@ namespace Servicio_Clientes.Dominio.Models
         public string Mensaje { get; set; }
         public string Rol { get; set; }
         public bool DebeCambiarContrasena { get; set; }
+        public int IdUsuario { get; set; }
     }
 }

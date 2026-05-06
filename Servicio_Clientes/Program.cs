@@ -27,6 +27,7 @@ builder.Services.AddTransient<IHasherContrasena, HasherSimple>();
 builder.Services.AddScoped<UsuarioRepository>(provider => {
     return new UsuarioCreadorRepositorio().CrearRepositorio();
 });
+builder.Services.AddScoped<BitacoraRepositorio>();
 
 // Add services to the container.
 builder.Services.AddControllers();

@@ -1,4 +1,4 @@
-﻿namespace FrontendLibreria.DTOs.Servicio2DTOs
+namespace FrontendLibreria.DTOs.Servicio2DTOs
 {
     public class ResultLoginDto
     {
@@ -8,5 +8,6 @@
         public string Rol { get; set; } = string.Empty;
         public bool MustChangePassword { get; set; }
         public string Mensaje { get; set; } = string.Empty;
+        public int IdUsuario { get; set; }
     }
 }

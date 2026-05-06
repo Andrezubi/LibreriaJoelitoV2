@@ -2,19 +2,32 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Servicio_Clientes.Aplicacion.Servicios;
 using Servicio_Clientes.Dominio.Models;
+using Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts;
 using System.Data;
 
 namespace Servicio_Clientes.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsuariosController : ControllerBase
     {
         private readonly UsuarioServicio _usuarioServicio;
+        private readonly BitacoraRepositorio _bitacoraRepo;
 
-        public UsuariosController(UsuarioServicio usuarioServicio)
+        public UsuariosController(UsuarioServicio usuarioServicio, BitacoraRepositorio bitacoraRepo)
         {
             _usuarioServicio = usuarioServicio;
+            _bitacoraRepo = bitacoraRepo;
+        }
+
+        private int GetIdUsuarioFromHeader()
+        {
+            if (Request.Headers.TryGetValue("X-IdUsuario", out var idStr))
+            {
+                if (int.TryParse(idStr, out int id)) return id;
+            }
+            return 0;
         }
 
         [HttpGet]
@@ -53,6 +66,8 @@ namespace Servicio_Clientes.Controllers
 
             if (resultado.EsExito)
             {
+                // AUDITORÍA
+                _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "INSERT", "Usuario", $"Nuevo usuario registrado: {usuario.NombreUsuario}");
                 return Ok(new { mensaje = "Usuario registrado exitosamente." });
             }
 
@@ -67,6 +82,8 @@ namespace Servicio_Clientes.Controllers
 
             if (resultado.EsExito)
             {
+                // AUDITORÍA
+                _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "UPDATE", "Usuario", $"Usuario actualizado ID: {id}");
                 return Ok(new { mensaje = "Usuario actualizado exitosamente." });
             }
 
@@ -83,6 +100,8 @@ namespace Servicio_Clientes.Controllers
 
             if (filasAfectadas > 0)
             {
+                // AUDITORÍA
+                _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "DELETE", "Usuario", $"Usuario eliminado (baja lógica) ID: {id}");
                 return Ok(new { mensaje = "Usuario eliminado exitosamente (baja lógica)." });
             }
 

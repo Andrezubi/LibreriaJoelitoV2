@@ -6,11 +6,23 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<UsuarioServicioAdapter> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UsuarioServicioAdapter(HttpClient httpClient, ILogger<UsuarioServicioAdapter> logger)
+        public UsuarioServicioAdapter(HttpClient httpClient, ILogger<UsuarioServicioAdapter> logger, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
+
+            // Extraer el IdUsuario de los Claims de la sesión actual
+            var idUsuario = _httpContextAccessor.HttpContext?.User?.FindFirst("IdUsuario")?.Value;
+            if (!string.IsNullOrEmpty(idUsuario))
+            {
+                if (_httpClient.DefaultRequestHeaders.Contains("X-IdUsuario"))
+                    _httpClient.DefaultRequestHeaders.Remove("X-IdUsuario");
+
+                _httpClient.DefaultRequestHeaders.Add("X-IdUsuario", idUsuario);
+            }
         }
 
         public async Task<ResultLoginDto> Login(SolicitudLoginDto request)

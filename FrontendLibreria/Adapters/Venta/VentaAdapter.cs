@@ -1,4 +1,4 @@
-﻿using FrontendLibreria.DTOs.VentaDTOs;
+using FrontendLibreria.DTOs.VentaDTOs;
 using System.Net.Http.Json;
 
 namespace FrontendLibreria.Adapters.Venta
@@ -6,10 +6,23 @@ namespace FrontendLibreria.Adapters.Venta
     public class VentaAdapter : IVentaAdapter
     {
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public VentaAdapter(HttpClient httpClient)
+        public VentaAdapter(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
+
+            // Extraer el IdUsuario de los Claims de la sesión actual
+            var idUsuario = _httpContextAccessor.HttpContext?.User?.FindFirst("IdUsuario")?.Value;
+            if (!string.IsNullOrEmpty(idUsuario))
+            {
+                // Limpiar si ya existe para evitar duplicados
+                if (_httpClient.DefaultRequestHeaders.Contains("X-IdUsuario"))
+                    _httpClient.DefaultRequestHeaders.Remove("X-IdUsuario");
+                
+                _httpClient.DefaultRequestHeaders.Add("X-IdUsuario", idUsuario);
+            }
         }
 
         public async Task<List<VentaDTO>> CargarVentasAsync()

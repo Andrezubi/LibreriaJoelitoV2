@@ -56,6 +56,7 @@ namespace FrontendLibreria.Pages.Servicio2Pages
                 new Claim(ClaimTypes.Name, result.NombreUsuario),
                 new Claim(ClaimTypes.Role, result.Rol),
                 new Claim("Token", result.Token),
+                new Claim("IdUsuario", result.IdUsuario.ToString()),
                 new Claim("MustChangePassword", result.MustChangePassword.ToString())
             };
 

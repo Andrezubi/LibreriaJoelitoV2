@@ -192,6 +192,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 loginResultado.Token = _servicioToken.GenerarToken(nombreUsuario, user.Rol, user.Id.ToString());
                 loginResultado.DebeCambiarContrasena = user.DebeCambiarContrasena;
                 loginResultado.Rol = user.Rol;
+                loginResultado.IdUsuario = user.Id;
             }
             else
             {
