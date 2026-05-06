@@ -1,3 +1,5 @@
+using FrontendLibreria.Adapters.Producto;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -11,6 +13,18 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+
+
+builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:VentaServiceUrl"]!);
+});
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

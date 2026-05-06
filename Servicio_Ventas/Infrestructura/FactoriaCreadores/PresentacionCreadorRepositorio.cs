@@ -1,7 +1,8 @@
 ﻿
 
+using LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts;
 using Servicio_Ventas.Aplicacion.Interfaces;
-using Servicio_Ventas.Dominio.;
+
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infraestructura.FactoriaCreadores;
 

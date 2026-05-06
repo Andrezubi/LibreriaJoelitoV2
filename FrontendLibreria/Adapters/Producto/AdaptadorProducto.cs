@@ -54,5 +54,26 @@ namespace FrontendLibreria.Adapters.Producto
             var error = await response.Content.ReadFromJsonAsync<RespuestaErrorApi>();
             return ResultadoApi.Fail(error?.Errores ?? new List<string> { "Error desconocido" });
         }
+
+
+
+        public async Task<ResultadoApi> CrearCategoriaAsync(string nombre, int idUsuario)
+        {
+            var response = await _http.PostAsJsonAsync("api/productos/categorias", new { Nombre = nombre, IdUsuario = idUsuario });
+            if (response.IsSuccessStatusCode) return ResultadoApi.Ok();
+
+            var error = await response.Content.ReadFromJsonAsync<RespuestaErrorApi>();
+            return ResultadoApi.Fail(error?.Errores ?? new List<string> { "Error al crear categoría" });
+        }
+        public async Task<ResultadoApi> CrearProductoAsync(ProductoDto producto,int idPresentacion, int factorConversion,decimal precioVenta)
+        {
+            var response = await _http.PostAsJsonAsync($"api/productos/{idPresentacion}/{factorConversion}/{precioVenta}", producto);
+            if (response.IsSuccessStatusCode) return ResultadoApi.Ok();
+            var error = await response.Content.ReadFromJsonAsync<RespuestaErrorApi>();
+            return ResultadoApi.Fail(error?.Errores ?? new List<string> { "Error desconocido" });
+
+        }
+
+
     }
 }

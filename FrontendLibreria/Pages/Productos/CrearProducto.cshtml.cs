@@ -1,4 +1,6 @@
 
+using FrontendLibreria.Adapters.Producto;
+using FrontendLibreria.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -6,135 +8,117 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data;
 using System.Security.Claims;
 
-namespace LibreriaJoelito.Pages.Productos
+// Pages/Productos/CrearProducto.cshtml.cs
+namespace FrontendLibreria.Pages.Productos
 {
     [Authorize(Roles = "Administrador,Empleado")]
-    public class ProductoCreateModel : PageModel
+    public class CrearProductoModel : PageModel
     {
-        private readonly IConfiguration configuration;
-        public RepositorioBD bd { get; set; } = RepositorioBD.Instancia;
+        private readonly IAdaptadorProducto _productoAdapter;
 
-        [BindProperty] public Producto producto { get; set; }
 
-        // Nuevos campos obligatorios para la Venta
+        public CrearProductoModel(
+            IAdaptadorProducto productoAdapter)
+
+        {
+            _productoAdapter = productoAdapter;
+
+        }
+
+        // Campos del formulario principal
+        [BindProperty] public string Nombre { get; set; } = "";
+        [BindProperty] public int IdCategoria { get; set; }
+        [BindProperty] public int IdMarca { get; set; }
+        [BindProperty] public int Stock { get; set; }
         [BindProperty] public int IdPresentacionSeleccionada { get; set; }
         [BindProperty] public int FactorConversion { get; set; } = 1;
         [BindProperty] public decimal PrecioVenta { get; set; }
 
-        [TempData] public string MensajeExito { get; set; }
+        // Listas para los selects
+        public List<CategoriaDto> Categorias { get; set; } = new();
+        public List<MarcaDto> Marcas { get; set; } = new();
+        public List<PresentacionDto> Presentaciones { get; set; } = new();
 
-        public DataTable CategoriasDataTable { get; set; }
-        public DataTable MarcasDataTable { get; set; }
-        public DataTable PresentacionesDataTable { get; set; }
+        [TempData] public string? MensajeExito { get; set; }
 
-        // Inyectamos la Fachada de Productos y el Servicio de Presentaciones
-        private readonly ProductoServicio productoServicio;
-        private readonly PresentacionServicio _presentacionService;
-
-        public ProductoCreateModel(
-            IConfiguration configuration,
-            ProductoServicio productoServicio,
-            PresentacionServicio presentacionService)
+        public async Task OnGetAsync()
         {
-            this.configuration = configuration;
-            this.productoServicio = productoServicio;
-            this._presentacionService = presentacionService;
+            await CargarListasAsync();
         }
 
-        public void OnGet()
+        public async Task<IActionResult> OnPostAsync()
         {
-            CargarListas();
-        }
+            int idUsuario = ObtenerIdUsuario();
 
-        public IActionResult OnPost()
-        {
-            producto.IdUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
-
-            // Llamamos al servicio con la lógica atómica
-            var result = productoServicio.Insert(producto, IdPresentacionSeleccionada, FactorConversion, PrecioVenta);
-
-            if (result.IsFailure)
+            var result = await _productoAdapter.CrearProductoAsync(new ProductoDto
             {
-                ModelState.AddModelError(string.Empty, string.Join(", ", result.Errors));
-                CargarListas();
+                Nombre = Nombre,
+                IdCategoria = IdCategoria,
+                IdMarca = IdMarca,
+                Stock = Stock,
+                IdUsuario = idUsuario
+            },IdPresentacionSeleccionada,FactorConversion,PrecioVenta);
+
+
+            var result2 = await _productoAdapter.AgregarPresentacionAsync(new SolicitudAgregarPresentacion
+            {
+                IdPresentacion = IdPresentacionSeleccionada,
+                FactorConversion = FactorConversion,
+                PrecioVenta = PrecioVenta,
+                IdUsuario = idUsuario
+
+            });
+
+            if (!result.Success || !result2.Success)
+            {
+                var errores = result.Errors.Concat(result2.Errors);
+                ModelState.AddModelError(string.Empty, string.Join(", ", errores));
+
+                await CargarListasAsync();
                 return Page();
             }
 
             MensajeExito = "El producto y su presentación inicial fueron creados correctamente.";
-            return RedirectToPage("MostrarProductos");
+            return RedirectToPage("IndiceProductos");
         }
 
-        private void CargarListas()
+        // Handler — crear categoría rápida desde el modal
+        public async Task<JsonResult> OnPostCrearCategoriaAsync([FromBody] NombreRequest data)
         {
-            CategoriasDataTable = LoadCategorias();
-            MarcasDataTable = LoadMarcas();
-            // ¡Uso correcto del servicio en el PageModel!
-            PresentacionesDataTable = _presentacionService.GetAll();
+            if (string.IsNullOrWhiteSpace(data.Nombre))
+                return new JsonResult(new { ok = false, mensaje = "El nombre es obligatorio" });
+
+            var result = await _productoAdapter.CrearCategoriaAsync(data.Nombre.Trim(), ObtenerIdUsuario());
+
+            if (!result.Success)
+                return new JsonResult(new { ok = false, mensaje = result.Errors.FirstOrDefault() });
+
+            return new JsonResult(new { ok = true });
         }
 
-        // --- LÓGICA HARDCODEADA DE CATEGORÍA Y MARCA (Como lo solicitaste) ---
-        DataTable LoadCategorias()
+        
+
+        // Helpers privados
+        private async Task CargarListasAsync()
         {
-            string query = @"SELECT Id, Nombre FROM categoria WHERE estado = 1 ORDER BY Nombre";
-            MySqlCommand cmd = new MySqlCommand(query);
-            return bd.ExecuteReturningDataTable(cmd);
+            var categoriasTask = _productoAdapter.GetCategoriasAsync();
+            var marcasTask = _productoAdapter.GetMarcasAsync();
+            var presentacionesTask = _productoAdapter.GetPresentacionesAsync();
+
+            await Task.WhenAll(categoriasTask, marcasTask, presentacionesTask);
+
+            Categorias = categoriasTask.Result;
+            Marcas = marcasTask.Result;
+            Presentaciones = presentacionesTask.Result;
         }
 
-        DataTable LoadMarcas()
-        {
-            string query = @"SELECT Id, Nombre FROM marca WHERE estado = 1 ORDER BY Nombre";
-            MySqlCommand cmd = new MySqlCommand(query);
-            return bd.ExecuteReturningDataTable(cmd);
-        }
+        private int ObtenerIdUsuario()
+            => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+    }
 
-        public class NombreSimple { public string Nombre { get; set; } }
-
-        [ValidateAntiForgeryToken]
-        public JsonResult OnPostCrearCategoria([FromBody] NombreSimple data)
-        {
-            data.Nombre = data.Nombre?.Trim();
-            if (string.IsNullOrWhiteSpace(data.Nombre)) return new JsonResult(new { ok = false, mensaje = "Nombre vacio" });
-
-            try
-            {
-                var errors = ExtraValidator.ValidarNombreCategoria(data.Nombre);
-                if (errors.Any()) return new JsonResult(new { success = false, message = errors.First().ErrorMessage });
-
-                string query = "INSERT INTO categoria (Nombre, IdUsuario) VALUES (@nombre, @idUsuario);";
-                MySqlCommand cmd = new MySqlCommand(query);
-                cmd.Parameters.AddWithValue("@nombre", data.Nombre);
-                cmd.Parameters.AddWithValue("@idUsuario", int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1"));
-                bd.ExecuteNonQuery(cmd);
-                LoadCategorias();
-                return new JsonResult(new { ok = true });
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult(new { ok = false, mensaje = ex.Message });
-            }
-        }
-
-        [ValidateAntiForgeryToken]
-        public JsonResult OnPostCrearMarca([FromBody] NombreSimple data)
-        {
-            if (string.IsNullOrWhiteSpace(data.Nombre)) return new JsonResult(new { ok = false, mensaje = "Nombre vacio" });
-
-            try
-            {
-                var errores = ExtraValidator.ValidarNombreMarca(data.Nombre);
-                if (errores.Any()) return new JsonResult(new { success = false, message = errores.First().ErrorMessage });
-
-                string query = "INSERT INTO marca (Nombre) VALUES (@nombre);";
-                MySqlCommand cmd = new MySqlCommand(query);
-                cmd.Parameters.AddWithValue("@nombre", data.Nombre);
-                bd.ExecuteNonQuery(cmd);
-                LoadMarcas();
-                return new JsonResult(new { ok = true });
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult(new { ok = false, mensaje = ex.Message });
-            }
-        }
+    // DTO local para los modales de creación rápida
+    public class NombreRequest
+    {
+        public string Nombre { get; set; } = "";
     }
 }

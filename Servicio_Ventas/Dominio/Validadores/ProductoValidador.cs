@@ -1,11 +1,11 @@
-﻿using LibreriaJoelito.Dominio.Models;
+﻿
 using MySql.Data.MySqlClient;
 using MySqlX.XDevAPI;
 using Servicio_Ventas.Dominio.Modelos;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace LibreriaJoelito.Dominio.Validators
+namespace Servicio_Ventas.Dominio.Validadores
 {
     public  class ProductoValidador
     {

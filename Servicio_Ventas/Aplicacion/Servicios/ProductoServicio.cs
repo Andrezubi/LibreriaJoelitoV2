@@ -1,8 +1,8 @@
 ﻿
-using LibreriaJoelito.Dominio.Validators;
 using LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
+using Servicio_Ventas.Dominio.Validadores;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -76,7 +76,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
         }
 
         // ---> EL NUEVO MÉTODO PARA AGREGAR PRESENTACIONES <---
-        public Result AsociarNuevaPresentacion(int idProducto, int idPresentacion, int factor, decimal precio, int idUsuario)
+        public Result AsociarNuevaPresentacion(int idProducto, int idPresentacion, int factor, decimal precio, int ?idUsuario)
         {
             try
             {
