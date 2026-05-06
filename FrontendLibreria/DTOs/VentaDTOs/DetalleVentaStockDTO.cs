@@ -1,4 +1,4 @@
-﻿namespace Servicio_Ventas.Aplicacion.DTOs
+﻿namespace FrontendLibreria.DTOs.VentaDTOs
 {
     public class DetalleVentaStockDTO
     {
