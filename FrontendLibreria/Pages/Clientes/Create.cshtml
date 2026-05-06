@@ -1,58 +1,47 @@
 @page
-@model LibreriaJoelito.Pages.Clientes.CreateModel
+@model FrontendLibreria.Pages.Clientes.CrearClienteModel
 @{
     ViewData["Title"] = "Nuevo Cliente";
 }
 
 <div class="form-container">
+
     <div class="form-header">
         Nuevo Cliente
     </div>
 
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
     <form method="post">
+
         <div class="form-group mb-3">
-            <label asp-for="_cliente.Nombre" class="form-label font-weight-bold">Nombre</label>
-            <input asp-for="_cliente.Nombre" class="form-control" placeholder="Ej: Juan" required />
-            <span asp-validation-for="_cliente.Nombre" class="text-danger"></span>
-        </div>
-
-        <div class="row">
-            <div class="col-md-6 form-group mb-3">
-                <label asp-for="_cliente.ApellidoPaterno" class="form-label">Apellido Paterno</label>
-                <input asp-for="_cliente.ApellidoPaterno" class="form-control" placeholder="Ej: Pérez" required />
-                <span asp-validation-for="_cliente.ApellidoPaterno" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-6 form-group mb-3">
-                <label asp-for="_cliente.ApellidoMaterno" class="form-label">Apellido Materno (Opcional)</label>
-                <input asp-for="_cliente.ApellidoMaterno" class="form-control" placeholder="Ej: López" />
-                <span asp-validation-for="_cliente.ApellidoMaterno" class="text-danger"></span>
-            </div>
+            <label>Razón Social</label>
+            <input asp-for="RazonSocial" type="text" required class="form-control" placeholder="Ej: Juan Pérez López" />
+            <span asp-validation-for="RazonSocial" class="text-danger"></span>
         </div>
 
         <div class="row">
             <div class="col-md-8 form-group mb-3">
-                <label asp-for="_cliente.Ci" class="form-label font-weight-bold">Carnet de Identidad</label>
-                <input asp-for="_cliente.Ci" class="form-control" placeholder="Ej: 1234567" required />
-                <span asp-validation-for="_cliente.Ci" class="text-danger"></span>
+                <label>Carnet de Identidad</label>
+                <input asp-for="Ci" type="text" required class="form-control" placeholder="Ej: 1234567" />
+                <span asp-validation-for="Ci" class="text-danger"></span>
             </div>
-
             <div class="col-md-4 form-group mb-3">
-                <label asp-for="_cliente.Complemento" class="form-label">Complemento</label>
-                <input asp-for="_cliente.Complemento" class="form-control" placeholder="Ej: 1A" />
-                <span asp-validation-for="_cliente.Complemento" class="text-danger"></span>
+                <label>Complemento</label>
+                <input asp-for="Complemento" type="text" class="form-control" placeholder="Ej: 1A" />
+                <span asp-validation-for="Complemento" class="text-danger"></span>
             </div>
         </div>
 
         <div class="form-group mb-3">
-            <label asp-for="_cliente.Email" class="form-label">Correo Electrónico</label>
-            <input asp-for="_cliente.Email" type="email" class="form-control" placeholder="juan@ejemplo.com" />
-            <span asp-validation-for="_cliente.Email" class="text-danger"></span>
+            <label>Correo Electrónico</label>
+            <input asp-for="Email" type="email" class="form-control" placeholder="juan@ejemplo.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
-        <div class="form-group mb-3">
+        <div class="form-group mb-4">
             <div class="form-check">
-                <input asp-for="_cliente.ClienteFrecuente" class="form-check-input" type="checkbox" id="checkFrecuente" />
+                <input asp-for="ClienteFrecuente" class="form-check-input" type="checkbox" id="checkFrecuente" />
                 <label class="form-check-label" for="checkFrecuente">Es Cliente Frecuente</label>
             </div>
         </div>
@@ -61,5 +50,6 @@
             <button type="submit" class="btn btn-sistema">Registrar Cliente</button>
             <a asp-page="ClientesGet" class="btn btn-cancelar ms-2">Cancelar y Volver</a>
         </div>
+
     </form>
 </div>

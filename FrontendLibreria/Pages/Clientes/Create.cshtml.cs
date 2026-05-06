@@ -1,71 +1,66 @@
-using LibreriaJoelito.Aplicacion.Interfaces;
-using LibreriaJoelito.Aplicacion.Servicios;
-using LibreriaJoelito.Dominio.Models;
-using LibreriaJoelito.Dominio.Validators;
-using LibreriaJoelito.Infraestructura.FactoryCreators;
-using LibreriaJoelito.Infraestructura.Persistencia.FactoryProducts;
+using FrontendLibreria.Adapters.Cliente;
+using FrontendLibreria.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
-namespace LibreriaJoelito.Pages.Clientes
+namespace FrontendLibreria.Pages.Clientes
 {
     [Authorize(Roles = "Administrador,Empleado")]
-    public class CreateModel : PageModel
+    public class CrearClienteModel : PageModel
     {
-        private readonly ClienteServicio clienteServicio;
-        private readonly ClienteValidator clienteValidator;
+        private readonly IAdaptadorCliente _clienteAdapter;
 
-        public CreateModel(ClienteServicio clienteServicio, ClienteValidator clienteValidator)
+        public CrearClienteModel(IAdaptadorCliente clienteAdapter)
         {
-            this.clienteServicio = clienteServicio;
-            this.clienteValidator = clienteValidator;
+            _clienteAdapter = clienteAdapter;
         }
 
-        [BindProperty]
-        public Cliente _cliente { get; set; } = new();
+        [BindProperty] public string RazonSocial { get; set; } = "";
+        [BindProperty] public string Ci { get; set; } = "";
+        [BindProperty] public string? Complemento { get; set; }
+        [BindProperty] public string? Email { get; set; }
+        [BindProperty] public bool ClienteFrecuente { get; set; }
 
-        public void OnGet()
+        [TempData] public string? MensajeExito { get; set; }
+
+        public void OnGet() { }
+
+        public async Task<IActionResult> OnPostAsync()
         {
-        }
+            int idUsuario = ObtenerIdUsuario();
 
-        public IActionResult OnPost()
-        {
-            // Normalización
-            _cliente.Nombre = clienteValidator.NormalizarTexto(_cliente.Nombre);
-            _cliente.ApellidoPaterno = clienteValidator.NormalizarTexto(_cliente.ApellidoPaterno);
-            _cliente.ApellidoMaterno = clienteValidator.NormalizarTexto(_cliente.ApellidoMaterno);
-            _cliente.IdUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var result = await _clienteAdapter.InsertarAsync(new ClienteDto
+            {
+                RazonSocial = Normalizar(RazonSocial)!,
+                Ci = Ci,
+                Complemento = Complemento,
+                Email = Email,
+                ClienteFrecuente = ClienteFrecuente,
+                IdUsuario = idUsuario
+            });
 
-            var result = clienteServicio.Insert(_cliente);
-
-            if (result.IsFailure)
+            if (!result.Success)
             {
                 foreach (var error in result.Errors)
-                {
-                    var parts = error.Split(':', 2);
-
-                    if (parts.Length == 2)
-                    {
-                        var field = parts[0].Trim();
-                        var message = parts[1].Trim();
-
-                        ModelState.AddModelError(field, message);
-                    }
-                    else
-                    {
-                        ModelState.AddModelError(string.Empty, error);
-                    }
-                }
+                    ModelState.AddModelError(string.Empty, error);
 
                 return Page();
             }
 
-            TempData["MensajeExito"] =
-                $"Cliente '{_cliente.Nombre} {_cliente.ApellidoPaterno}' creado exitosamente.";
-
+            MensajeExito = $"Cliente '{RazonSocial}' creado exitosamente.";
             return RedirectToPage("ClientesGet");
+        }
+
+        private int ObtenerIdUsuario()
+            => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+
+        private static string? Normalizar(string? texto)
+        {
+            if (string.IsNullOrWhiteSpace(texto)) return texto;
+            return System.Globalization.CultureInfo.CurrentCulture.TextInfo
+                .ToTitleCase(texto.Trim().ToLower());
         }
     }
 }

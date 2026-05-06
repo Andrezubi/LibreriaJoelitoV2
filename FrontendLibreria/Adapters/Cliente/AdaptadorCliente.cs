@@ -10,7 +10,13 @@ namespace FrontendLibreria.Adapters.Cliente
         {
             _http = http;
         }
-
+        public async Task<ResultadoApi> InsertarAsync(ClienteDto cliente)
+        {
+            var response = await _http.PostAsJsonAsync("api/clientes", cliente);
+            if (response.IsSuccessStatusCode) return ResultadoApi.Ok();
+            var error = await response.Content.ReadFromJsonAsync<RespuestaErrorApi>();
+            return ResultadoApi.Fail(error?.Errores ?? new List<string> { "Error desconocido" });
+        }
         public async Task<List<ClienteDto>> ObtenerTodoAsync()
         {
             var response = await _http.GetAsync("api/clientes");
