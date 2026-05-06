@@ -14,8 +14,8 @@ namespace Servicio_Clientes.Dominio.Models
         public DateOnly FechaNacimiento { get; set; }
         public DateOnly FechaIngreso { get; set; }
 
-        public string NombreUsuario { get; set; }
-        public string Contrasena { get; set; }
+        public string? NombreUsuario { get; set; }
+        public string? Contrasena { get; set; }
         public string Rol { get; set; }
         public int IdUsuario { get; set; }
 

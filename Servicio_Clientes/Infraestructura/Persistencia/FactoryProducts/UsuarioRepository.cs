@@ -25,7 +25,8 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                     Username,
                     Password,
                     MustChangePassword,
-                    IdUsuario
+                    IdUsuario,
+                    Estado
                 ) VALUES (
                     @nombre,
                     @apellidoPaterno,
@@ -41,7 +42,8 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                     @username,
                     @password,
                     @mustChangePassword,
-                    @idusuario
+                    @idusuario,
+                    1
                 );";
 
             MySqlCommand command = new MySqlCommand(query);
@@ -107,10 +109,10 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 
         public DataTable ObtenerTodo()
         {
-            string query = @"SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci, Complemento, DATE_FORMAT(FechaNacimiento, '%Y-%m-%d') AS FechaNacimiento, Email, DireccionDomicilio, Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso
+            string query = @"SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci, Complemento, DATE_FORMAT(FechaNacimiento, '%Y-%m-%d') AS FechaNacimiento, Email, DireccionDomicilio, Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso, Username
                     FROM Usuario
-                    WHERE estado = 1
-                    ORDER BY 2;";
+                    WHERE Estado = 1
+                    ORDER BY Nombre ASC;";
             MySqlCommand command = new MySqlCommand(query);
             return ExecuteReturningDataTable(command);
         }

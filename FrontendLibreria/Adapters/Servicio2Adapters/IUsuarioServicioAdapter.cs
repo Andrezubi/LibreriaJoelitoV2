@@ -1,4 +1,4 @@
-﻿using FrontendLibreria.DTOs.Servicio2DTOs;
+using FrontendLibreria.DTOs.Servicio2DTOs;
 
 namespace FrontendLibreria.Adapters.Servicio2Adapters
 {
@@ -6,5 +6,8 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
     {
         Task<ResultLoginDto> Login(SolicitudLoginDto request);
         Task<bool> EsUsuarioEliminado(string nombreUsuario);
+        Task<List<UsuarioDto>> ObtenerTodos();
+        Task<bool> Eliminar(int id);
+        Task<(bool Exito, List<string> Errores)> Insertar(SolicitudCrearUsuarioDto request);
     }
 }

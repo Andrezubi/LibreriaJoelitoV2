@@ -54,6 +54,13 @@ namespace Servicio_Clientes.Aplicacion.Servicios
                 return Resultado.Failure("empleado.Ci: El empleado con ese CI ya existe.");
             }
 
+            // Establecer valores por defecto si no vienen del frontend
+            if (usuario.FechaIngreso == default)
+                usuario.FechaIngreso = DateOnly.FromDateTime(DateTime.Today);
+            
+            if (usuario.IdUsuario == 0)
+                usuario.IdUsuario = 1; // ID del administrador por defecto
+
             // Generar credenciales
             string nombreUsuarioPlano = GenerarNombreUsuario(usuario.Nombre, usuario.ApellidoPaterno);
             string contrasenaPlana = GenerarContrasena(10); // Generar contraseña de 10 caracteres
