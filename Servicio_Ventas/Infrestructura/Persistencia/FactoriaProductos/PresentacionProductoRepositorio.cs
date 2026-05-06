@@ -59,12 +59,12 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             cmd.Parameters.AddWithValue("@idPresentacion", idPresentacion);
             var result = new PresentacionProductoDto();
 
-            var reader = ExecuteReader(cmd);
-
-            while (reader.Read())
+            using (var reader = ExecuteReader(cmd))
             {
+                if (!reader.Read())
+                    return null; 
 
-                result = new PresentacionProductoDto
+                return new PresentacionProductoDto
                 {
                     IdProducto = reader.GetInt32("IdProducto"),
                     IdPresentacion = reader.GetInt32("IdPresentacion"),
@@ -108,22 +108,24 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             List<PresentacionProductoDto> result= new List<PresentacionProductoDto>();
 
-            var reader = ExecuteReader(cmd);
-
-            while (reader.Read())
+            using (var reader = ExecuteReader(cmd))
             {
 
-                result.Add(new PresentacionProductoDto
+                while (reader.Read())
                 {
-                    IdProducto = reader.GetInt32("IdProducto"),
-                    IdPresentacion = reader.GetInt32("IdPresentacion"),
-                    Precio = reader.GetDecimal("Precio"),
-                    FactorConversion = reader.GetInt32("FactorConversion"),
-                    Producto = reader["Producto"].ToString(),
-                    Presentacion = reader["Presentacion"].ToString(),
-                    Marca = reader["Marca"].ToString(),
-                    Descripcion = reader["Descripcion"].ToString()
-                });
+
+                    result.Add(new PresentacionProductoDto
+                    {
+                        IdProducto = reader.GetInt32("IdProducto"),
+                        IdPresentacion = reader.GetInt32("IdPresentacion"),
+                        Precio = reader.GetDecimal("Precio"),
+                        FactorConversion = reader.GetInt32("FactorConversion"),
+                        Producto = reader["Producto"].ToString(),
+                        Presentacion = reader["Presentacion"].ToString(),
+                        Marca = reader["Marca"].ToString(),
+                        Descripcion = reader["Descripcion"].ToString()
+                    });
+                }
             }
             return result;
         }

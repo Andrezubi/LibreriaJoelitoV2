@@ -27,8 +27,7 @@ namespace Servicio_Ventas.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_productoServicio.ObtenerTodo());
-
+        public IActionResult GetAll() => Ok(_productoServicio.ObtenerProductosDetallados());
         [HttpGet("categorias")]
         public IActionResult GetCategorias() {
 

@@ -1,4 +1,5 @@
 ﻿
+using FrontendLibreria.DTOs;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Dominio.Validadores;
@@ -32,6 +33,10 @@ namespace Servicio_Ventas.Aplicacion.Servicios
         {
             return productoRepositorio.ObtenerTodo();
         }
+        public List<ProductoDto> ObtenerProductosDetallados()
+        {
+            return productoRepositorio.ObtenerDetallado();
+        }
 
         public Producto ObtenerPorId(int id)
         {
@@ -54,6 +59,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                     if (nuevoIdProducto <= 0) throw new Exception("Error al insertar el producto principal.");
 
                     // 3. VALIDACIÓN DE DUPLICADOS (Opcional aquí, pero recomendada)
+                    Console.WriteLine($"idProducto: {nuevoIdProducto}            idPresentacion:{idPresentacion}");
                     var existente = presentacionProductoRepositorio.ObtenerPorIds(nuevoIdProducto, idPresentacion);
                     if (existente != null)
                         return Result<int>.Failure("Esta combinación de producto y presentación ya existe.");

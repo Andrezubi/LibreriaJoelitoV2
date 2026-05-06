@@ -32,22 +32,22 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             MySqlCommand cmd = new MySqlCommand(query);
             //return ExecuteReturningDataTable(cmd);
 
-            var reader = ExecuteReader(cmd);
             List<Presentacion> result = new List<Presentacion>();
+            using (var reader = ExecuteReader(cmd)) {
+                while (reader.Read())
+                {
 
-            while (reader.Read())
-            {
-
-                result.Add(
-                    new Presentacion
-                    {
-                        Id = reader.GetInt32("id"),
-                        Nombre = reader["Nombre"].ToString()
-                    }
+                    result.Add(
+                        new Presentacion
+                        {
+                            Id = reader.GetInt32("id"),
+                            Nombre = reader["Nombre"].ToString()
+                        }
 
 
-                    );
+                        );
 
+                }
             }
             return result;
 
