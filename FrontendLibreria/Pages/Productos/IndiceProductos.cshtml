@@ -10,7 +10,7 @@
             <div class="card shadow-sm tabla-card">
                 <div class="card-header d-flex justify-content-between align-items-center tabla-header-custom">
                     <h5 class="mb-0">Lista de Productos</h5>
-                    <a asp-page="ProductoCreate" class="btn btn-sistema btn-sm">
+                    <a asp-page="CrearProducto" class="btn btn-sistema btn-sm">
                         + Nuevo Producto
                     </a>
                 </div>
@@ -57,8 +57,11 @@
                                         <td>@producto.Stock</td>
                                         <td>@producto.FechaRegistro.ToString("dd/MM/yyyy")</td>
                                         <td>
-                                            <button class="btn btn-sistema-danger btn-sm text-white" onclick="abrirModalAgregarPresentacion('@producto.Id', '@producto.Nombre')">Nueva Presentacion</button>
-                                            <a class="btn btn-sistema btn-sm onclick="abrirModalUpdate('@producto.Id','@producto.Nombre','@producto.IdCategoria','@producto.IdMarca','@producto.Stock')">Editar</a>
+                                            <button class="btn btn-sistema-danger btn-sm text-white"
+                                            onclick="abrirModalAgregarPresentacion('@producto.Id', '@producto.Nombre')">
+                                            Nueva Presentacion</button>
+
+                                            <a class="btn btn-sistema btn-sm" onclick="abrirModalUpdate('@producto.Id','@producto.Nombre','@producto.IdCategoria','@producto.IdMarca','@producto.Stock')">Editar</a>
                                             <a data-bs-toggle="modal" data-bs-target="#modalDelete-@producto.Id" class="btn btn-sistema-danger btn-sm">Eliminar</a>
                                         </td>
                                     </tr>
@@ -111,7 +114,7 @@
                             {
                                 @foreach (var presentation in Model.Presentaciones)
                                 {
-                                    <option value="@presentation.Id" data-nombre="@presentation.Nombre.ToString().ToLower()">@presentation.Nombre</option>
+                                    <option value="@presentation.Id" data-nombre="@presentation.Nombre.ToLower()">@presentation.Nombre</option>
                                 }
                             }
                         </select>

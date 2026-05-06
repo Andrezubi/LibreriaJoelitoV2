@@ -1,7 +1,8 @@
 using FrontendLibreria.Adapters.Servicio2Adapters;
 using FrontendLibreria.Adapters.Venta;
 using Microsoft.AspNetCore.Authentication.Cookies;
-
+using FrontendLibreria.Adapters.Producto;
+using FrontendLibreria.Adapters.Cliente;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
@@ -18,6 +19,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
+
+builder.Services.AddHttpClient<IAdaptadorCliente, AdaptadorCliente>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:ServicioVentasUrl"]!);
+});
 
 builder.Services.AddAuthorization();
 
@@ -39,6 +45,15 @@ builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
 
     client.BaseAddress = new Uri(baseUrl);
 });
+builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
 
 var app = builder.Build();
 
@@ -47,6 +62,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

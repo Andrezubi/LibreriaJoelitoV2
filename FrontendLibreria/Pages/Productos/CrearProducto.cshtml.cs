@@ -1,4 +1,6 @@
 
+using FrontendLibreria.Adapters.Producto;
+using FrontendLibreria.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,97 +9,115 @@ using System.Data;
 using System.Security.Claims;
 using Servicio_Ventas.Infrestructura.Persistencia;
 
-namespace LibreriaJoelito.Pages.Productos
+// Pages/Productos/CrearProducto.cshtml.cs
+namespace FrontendLibreria.Pages.Productos
 {
-    [Authorize(Roles = "Administrador,Empleado")]
-    public class ProductoCreateModel : PageModel
+    //[Authorize(Roles = "Administrador,Empleado")]
+    public class CrearProductoModel : PageModel
     {
-        private readonly IConfiguration configuration;
-        public RepositorioBD bd { get; set; } = RepositorioBD.Instancia;
+        private readonly IAdaptadorProducto _productoAdapter;
 
-        [BindProperty] public Producto producto { get; set; }
 
-        // Nuevos campos obligatorios para la Venta
+        public CrearProductoModel(
+            IAdaptadorProducto productoAdapter)
+
+        {
+            _productoAdapter = productoAdapter;
+
+        }
+
+        // Campos del formulario principal
+        [BindProperty] public string Nombre { get; set; } = "";
+        [BindProperty] public int IdCategoria { get; set; }
+        [BindProperty] public int IdMarca { get; set; }
+        [BindProperty] public int Stock { get; set; }
         [BindProperty] public int IdPresentacionSeleccionada { get; set; }
         [BindProperty] public int FactorConversion { get; set; } = 1;
         [BindProperty] public decimal PrecioVenta { get; set; }
 
-        [TempData] public string MensajeExito { get; set; }
+        // Listas para los selects
+        public List<CategoriaDto> Categorias { get; set; } = new();
+        public List<MarcaDto> Marcas { get; set; } = new();
+        public List<PresentacionDto> Presentaciones { get; set; } = new();
 
-        public DataTable CategoriasDataTable { get; set; }
-        public DataTable MarcasDataTable { get; set; }
-        public DataTable PresentacionesDataTable { get; set; }
+        [TempData] public string? MensajeExito { get; set; }
 
-        // Inyectamos la Fachada de Productos y el Servicio de Presentaciones
-        // private readonly ProductoServicio productoServicio;
-        // private readonly PresentacionServicio _presentacionService;
-
-        public ProductoCreateModel(
-            IConfiguration configuration)
-            // ProductoServicio productoServicio,
-            // PresentacionServicio presentacionService)
+        public async Task OnGetAsync()
         {
-            this.configuration = configuration;
-            // this.productoServicio = productoServicio;
-            // this._presentacionService = presentacionService;
+            await CargarListasAsync();
         }
 
-        public void OnGet()
+        public async Task<IActionResult> OnPostAsync()
         {
-            CargarListas();
-        }
+            int idUsuario = ObtenerIdUsuario();
 
-        public IActionResult OnPost()
-        {
-            // producto.IdUsuario = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+            var result = await _productoAdapter.CrearProductoAsync(new ProductoDto
+            {
+                Nombre = Nombre,
+                IdCategoria = IdCategoria,
+                IdMarca = IdMarca,
+                Stock = Stock,
+                IdUsuario = idUsuario
+            },IdPresentacionSeleccionada,FactorConversion,PrecioVenta);
 
-            // Llamamos al servicio con la lógica atómica
-            // var result = productoServicio.Insert(producto, IdPresentacionSeleccionada, FactorConversion, PrecioVenta);
 
-            // if (result.IsFailure)
-            // {
-            //     ModelState.AddModelError(string.Empty, string.Join(", ", result.Errors));
-            //     CargarListas();
-            //     return Page();
-            // }
+            
+
+            if (!result.Success )
+            {
+                var errores = result.Errors;
+                ModelState.AddModelError(string.Empty, string.Join(", ", errores));
+
+                await CargarListasAsync();
+                return Page();
+            }
 
             MensajeExito = "El producto y su presentación inicial fueron creados correctamente.";
-            return RedirectToPage("MostrarProductos");
+            return RedirectToPage("IndiceProductos");
         }
 
-        private void CargarListas()
+        // Handler — crear categoría rápida desde el modal
+        public async Task<JsonResult> OnPostCrearCategoriaAsync([FromBody] NombreRequest data)
         {
-            CategoriasDataTable = LoadCategorias();
-            MarcasDataTable = LoadMarcas();
-            // ¡Uso correcto del servicio en el PageModel!
-            // PresentacionesDataTable = _presentacionService.GetAll();
-            PresentacionesDataTable = new DataTable();
+            if (string.IsNullOrWhiteSpace(data.Nombre))
+                return new JsonResult(new { ok = false, mensaje = "El nombre es obligatorio" });
+
+            var result = await _productoAdapter.CrearCategoriaAsync(data.Nombre.Trim(), ObtenerIdUsuario());
+
+            if (!result.Success)
+                return new JsonResult(new { ok = false, mensaje = result.Errors.FirstOrDefault() });
+
+            return new JsonResult(new { ok = true });
         }
 
-        // --- LÓGICA HARDCODEADA DE CATEGORÍA Y MARCA (Como lo solicitaste) ---
-        DataTable LoadCategorias()
+        
+
+        // Helpers privados
+        private async Task CargarListasAsync()
         {
-            return new DataTable();
+            var categoriasTask = _productoAdapter.GetCategoriasAsync();
+            var marcasTask = _productoAdapter.GetMarcasAsync();
+            var presentacionesTask = _productoAdapter.GetPresentacionesAsync();
+
+            await Task.WhenAll(categoriasTask, marcasTask, presentacionesTask);
+
+            Categorias = categoriasTask.Result;
+            Marcas = marcasTask.Result;
+            Presentaciones = presentacionesTask.Result;
         }
 
-        DataTable LoadMarcas()
+        private int ObtenerIdUsuario()
         {
-            return new DataTable();
+            // Usar IdUsuario del claim (que agregamos en InicioSesion) en lugar de NameIdentifier
+            var idClaim = User.FindFirst("IdUsuario")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1";
+            return int.Parse(idClaim);
         }
+    }
 
-        public class NombreSimple { public string Nombre { get; set; } }
-
-        [ValidateAntiForgeryToken]
-        public JsonResult OnPostCrearCategoria([FromBody] NombreSimple data)
-        {
-            return new JsonResult(new { ok = false, mensaje = "Temporalmente deshabilitado" });
-        }
-
-        [ValidateAntiForgeryToken]
-        public JsonResult OnPostCrearMarca([FromBody] NombreSimple data)
-        {
-            return new JsonResult(new { ok = false, mensaje = "Temporalmente deshabilitado" });
-        }
+    // DTO local para los modales de creación rápida
+    public class NombreRequest
+    {
+        public string Nombre { get; set; } = "";
     }
 
     // STUBS TEMPORALES PARA COMPILACIÓN

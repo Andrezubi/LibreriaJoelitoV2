@@ -1,6 +1,6 @@
 ﻿@page
 @Html.AntiForgeryToken()
-@model LibreriaJoelito.Pages.Productos.ProductoCreateModel
+@model FrontendLibreria.Pages.Productos.CrearProductoModel
 @{
     ViewData["Title"] = "Nuevo Producto";
 }
@@ -17,20 +17,20 @@
         
         <div class="form-group mb-3">
             <label>Nombre</label>
-            <input asp-for="@Model.producto.Nombre" type="text" required class="form-control" placeholder="Ej: Lapiz" />
-            <span asp-validation-for="producto.Nombre" class="text-danger"></span>
+            <input asp-for="@Model.Nombre" type="text" required class="form-control" placeholder="Ej: Lapiz" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
         </div>
 
         <div class="form-group mb-3">
             <label>Categoría</label>
-            <select asp-for="@Model.producto.IdCategoria" class="form-control">
+            <select asp-for="@Model.IdCategoria" class="form-control">
                 <option value=0>Elija una categoría</option>
-                @foreach (System.Data.DataRow row in Model.CategoriasDataTable.Rows)
+                @foreach (var categoria in Model.Categorias)
                 {
-                    <option value="@row["Id"]">@row["Nombre"]</option>
+                    <option value="@categoria.Id">@categoria.Nombre</option>
                 }
             </select>
-            <span asp-validation-for="producto.IdCategoria" class="text-danger d-block"></span>
+            <span asp-validation-for="IdCategoria" class="text-danger d-block"></span>
             <button type="button" class="btn btn-sistema-outline btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#modalCategoria">
                 + Nueva Categoría
             </button>
@@ -38,21 +38,21 @@
 
         <div class="form-group mb-3">
             <label>Marca</label>
-            <select asp-for="@Model.producto.IdMarca" class="form-control">
+            <select asp-for="@Model.IdMarca" class="form-control">
                 <option value=0>Elija una marca</option>
-                @foreach (System.Data.DataRow row in Model.MarcasDataTable.Rows)
+                @foreach (var marca in Model.Marcas)
                 {
-                    <option value="@row["Id"]">@row["Nombre"]</option>
+                    <option value="@marca.Id">@marca.Nombre</option>
                 }
             </select>
-            <span asp-validation-for="producto.IdMarca" class="text-danger d-block"></span>
+            <span asp-validation-for="IdMarca" class="text-danger d-block"></span>
             @* Botón de nueva marca comentado según tu código original *@
         </div>
 
         <div class="form-group mb-4">
             <label>Stock Inicial</label>
-            <input asp-for="@Model.producto.Stock" type="number" required class="form-control" placeholder="Ej: 20" />
-            <span asp-validation-for="producto.Stock" class="text-danger"></span>
+            <input asp-for="@Model.Stock" type="number" required class="form-control" placeholder="Ej: 20" />
+            <span asp-validation-for="Stock" class="text-danger"></span>
         </div>
 
         <hr class="mb-4" />
@@ -63,14 +63,11 @@
                 <label>Presentación</label>
                 <select asp-for="IdPresentacionSeleccionada" class="form-control" id="selectPresentacion" required>
                     <option value="">Elija una presentación</option>
-                    @if (Model.PresentacionesDataTable != null)
+                    @foreach (var pres in Model.Presentaciones)
                     {
-                        @foreach (System.Data.DataRow row in Model.PresentacionesDataTable.Rows)
-                        {
-                            <option value="@row["Id"]" data-nombre="@row["Nombre"].ToString().ToLower()">
-                                @row["Nombre"]
-                            </option>
-                        }
+                        <option value="@pres.Id" data-nombre="@pres.Nombre.ToLower()">
+                            @pres.Nombre
+                        </option>
                     }
                 </select>
             </div>
@@ -88,7 +85,7 @@
         </div>
 
         <button type="submit" class="btn btn-sistema" style="margin: 10px 0;">Guardar Producto</button>
-        <a asp-page="MostrarProductos" class="btn btn-cancelar" style="margin: 10px 0;">Volver</a>
+        <a asp-page="IndiceProductos" class="btn btn-cancelar" style="margin: 10px 0;">Volver</a>
     </form>
 </div>
 
