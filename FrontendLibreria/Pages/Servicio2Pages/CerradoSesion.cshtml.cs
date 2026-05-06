@@ -7,9 +7,21 @@ namespace FrontendLibreria.Pages.Servicio2Pages
 {
     public class CerradoSesionModel : PageModel
     {
-        public async Task<IActionResult> OnGetAsync()
+        public void OnGet()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            
+        }
+        public async Task<IActionResult> OnPost()
+        {
+            Console.WriteLine("ANTES LOGOUT: " + User.Identity?.Name);
+
+            Response.Cookies.Delete("AuthToken", new CookieOptions
+            {
+                Path = "/"
+            });
+
+            Console.WriteLine("DESPUÉS LOGOUT: " + User.Identity?.Name);
+
             return RedirectToPage("/Index");
         }
     }
