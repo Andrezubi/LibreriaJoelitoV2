@@ -40,7 +40,6 @@
                             <th>Nombre Completo</th>
                             <th>Email</th>
                             <th>Rol</th>
-                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -65,10 +64,9 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <span class="badge bg-success">Activo</span>
-                                    </td>
-                                    <td>
+                                        
                                         <div class="btn-group">
+                                            
                                             <form method="post" asp-page-handler="Eliminar" asp-route-id="@usuario.Id" 
                                                   onsubmit="return confirm('¿Está seguro de que desea dar de baja a este usuario?');">
                                                 <button type="submit" class="btn-sistema-danger btn-sm">
