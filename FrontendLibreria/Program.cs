@@ -1,7 +1,14 @@
+using FrontendLibreria.Adapters.Cliente;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddHttpClient<IAdaptadorCliente, AdaptadorCliente>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:VentaServiceUrl"]!);
+});
 
 var app = builder.Build();
 

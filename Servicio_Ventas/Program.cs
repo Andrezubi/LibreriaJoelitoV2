@@ -1,8 +1,10 @@
+using FrontendLibreria.Adapters.Cliente;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.FactoriaCreadores;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
-using Servicio_Ventas.Infrestructura.ServiciosExternos;
+using Servicio_Ventas.Infrestructura.ServiciosExternos; 
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,10 @@ builder.Services.AddScoped<VentaRepositorio>(provider => {
 builder.Services.AddScoped<DetalleVentaRepositorio>(provider => {
     return new DetalleVentaCreadorRepositorio().CrearRepositorio();
 });
-
+builder.Services.AddHttpClient<IAdaptadorCliente, AdaptadorCliente>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:VentaServiceUrl"]!);
+});
 // Add services to the container.
 
 builder.Services.AddControllers();
