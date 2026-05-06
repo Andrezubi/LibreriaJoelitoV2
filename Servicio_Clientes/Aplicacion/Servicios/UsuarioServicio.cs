@@ -210,5 +210,47 @@ namespace Servicio_Clientes.Aplicacion.Servicios
             // Si usuario es null -> no existe o está inactivo -> considerarlo eliminado = true
             return usuario == null;
         }
+
+        public Resultado CambiarContrasena(string nombreUsuario, string contrasenaActual, string nuevaContrasena)
+        {
+            // Validar política de contraseña
+            var erroresPolítica = ValidarPoliticaContrasena(nuevaContrasena);
+            if (erroresPolítica.Any())
+                return Resultado.Failure(erroresPolítica);
+
+            // Obtener hash actual de BD
+            var usuario = _usuarioRepositorio.ObtenerDatosLogin(nombreUsuario);
+            if (usuario == null)
+                return Resultado.Failure("Usuario no encontrado.");
+
+            // Verificar contraseña actual sin revelar el hash
+            if (!_encriptador.Verificar(contrasenaActual, usuario.Contrasena))
+                return Resultado.Failure("La contraseña actual es incorrecta.");
+
+            // Hashear nueva contraseña y guardar
+            string nuevoHash = _encriptador.Encriptar(nuevaContrasena);
+            _usuarioRepositorio.CambiarContrasena(nombreUsuario, nuevoHash);
+
+            return Resultado.Success();
+        }
+
+        private List<string> ValidarPoliticaContrasena(string contrasena)
+        {
+            var errores = new List<string>();
+
+            if (contrasena.Length < 8)
+                errores.Add("La contraseña debe tener al menos 8 caracteres.");
+            if (!contrasena.Any(char.IsUpper))
+                errores.Add("La contraseña debe tener al menos 1 letra mayúscula.");
+            if (!contrasena.Any(char.IsLower))
+                errores.Add("La contraseña debe tener al menos 1 letra minúscula.");
+            if (!contrasena.Any(char.IsDigit))
+                errores.Add("La contraseña debe tener al menos 1 número.");
+            if (!contrasena.Any(c => "!@#$%^&*()_+-=[]{}|;':\",./<>?".Contains(c)))
+                errores.Add("La contraseña debe tener al menos 1 carácter especial.");
+
+            return errores;
+        }
+
     }
 }
