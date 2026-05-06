@@ -1,0 +1,566 @@
+@page
+@model FrontendLibreria.Pages.Ventas.RegistrarModel
+@{
+    ViewData["Title"] = "Registrar Venta";
+}
+
+<div class="ventas-page">
+    <div class="content-area">
+        <div class="ventas-card">
+            <h2 class="ventas-titulo">REGISTRO DE VENTA</h2>
+
+            <div class="card p-4 shadow-sm mb-4">
+                <form method="post" id="ventaForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="row g-3 align-items-center bg-light p-3 rounded border">
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Fecha:</label>
+                            <input type="text" class="form-control" value="@DateTime.Now.ToString("dd/MM/yyyy")" disabled>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="ciCliente" class="form-label fw-bold">
+                                CI/NIT Cliente: <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input type="text" id="ciCliente" class="form-control" placeholder="Buscar CI/NIT..." required autocomplete="off">
+                                <span class="input-group-text bg-white">🔍</span>
+                                <div id="ciDropdown" class="dropdown-ci"></div>
+                            </div>
+                            <small id="clienteFeedback" class="form-text text-muted"></small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="nombreCliente" class="form-label fw-bold">Cliente/Razón Social:</label>
+                            <div class="input-group">
+                                <input type="hidden" id="idCliente" name="IdCliente" required>
+                                <input type="text" id="nombreCliente" class="form-control bg-white" readonly placeholder="El nombre aparecerá automáticamente">
+                                <button type="button" class="btn btn-crear" id="btnCrearClienteRapido">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row mb-4 justify-content-center">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <input type="text" id="productoBusqueda" class="form-control"
+                                       placeholder="Buscar producto para vender..." autocomplete="off">
+
+                                <button type="button" class="btn btn-primary" onclick="prepararProducto()">
+                                    🔍
+                                </button>
+
+                                <button type="button" class="btn btn-success" id="btnAñadirLista" disabled onclick="confirmarAñadir()">
+                                    + Añadir a la venta
+                                </button>
+                            </div>
+                            <ul id="listaProductos" class="list-group position-absolute w-50 shadow"
+                                style="z-index: 1050; display: none; max-height: 200px; overflow-y: auto;">
+                            </ul>
+                            <small id="productoFeedback" class="form-text d-block mt-1"></small>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="tablaProductos">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 80px;">Cant.</th>
+                                    <th>Descripción</th>
+                                    <th>P. Unit (Bs)</th>
+                                    <th>Importe (Bs)</th>
+                                    <th style="width: 40px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-secondary">
+                                    <th colspan="3" class="text-end">TOTAL Bs:</th>
+                                    <th id="totalVenta" class="fw-bold">0.00</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="ventas-footer mt-4">
+                        <button type="submit" class="btn btn-guardar" id="btnGuardarVenta">
+                            Registrar Venta
+                        </button>
+                    </div>
+                </form>
+
+                <div class="modal fade" id="modalCliente" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header modal-header-morado">
+                                <h5 class="modal-title">Nuevo Cliente</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-container" style="box-shadow:none; border:none; padding:0;">
+                                    <form id="formClienteModal">
+                                        @Html.AntiForgeryToken()
+                                        <div class="form-group mb-3">
+                                            <label class="form-label fw-bold">Nombre</label>
+                                            <input type="text" id="modalNombre" class="form-control" placeholder="Ej: Juan" required>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Apellido Paterno</label>
+                                                <input type="text" id="modalApellidoP" class="form-control" placeholder="Ej: Pérez" required>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Apellido Materno (Opcional)</label>
+                                                <input type="text" id="modalApellidoM" class="form-control" placeholder="Ej: López">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-8 mb-3">
+                                                <label class="form-label fw-bold">Carnet de Identidad</label>
+                                                <input type="text" id="modalCi" class="form-control" placeholder="Ej: 1234567" required>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">Complemento</label>
+                                                <input type="text" id="modalComplemento" class="form-control" placeholder="Ej: 1A">
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <label class="form-label">Correo Electrónico</label>
+                                            <input type="email" id="modalEmail" class="form-control" placeholder="juan@ejemplo.com">
+                                        </div>
+                                        <div class="form-group mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" id="modalFrecuente" class="form-check-input">
+                                                <label class="form-check-label">Es Cliente Frecuente</label>
+                                            </div>
+                                        </div>
+                                        <small id="modalFeedback" class="text-danger"></small>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-sistema" id="btnGuardarClienteModal">Registrar Cliente</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalConfirmarVenta" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-primary">
+            <div class="modal-header modal-header-morado">
+                <h5 class="modal-title">Confirmar Venta</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <h5 class="mb-3">¿Está seguro de registrar esta venta?</h5>
+                <p class="fs-4 mb-1">Total a cobrar:</p>
+                <p class="fs-2 fw-bold text-success" id="lblTotalConfirmar">0.00 Bs.</p>
+                <small class="text-muted">Revise el monto antes de confirmar la transacción.</small>
+            </div>
+            <div class="modal-footer justify-content-center bg-light">
+                <button type="button" class="btn btn-cancelar me-2" data-bs-dismiss="modal">Revisar de nuevo</button>
+                <button type="button" class="btn btn-sistema" id="btnConfirmarVentaReal">Sí, Registrar Venta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVentaExitosa" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header modal-header-morado">
+                <h5 class="modal-title">¡Operación Exitosa!</h5>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="mb-3">
+                    <span style="font-size: 3rem; color: #198754;">✔</span>
+                </div>
+                <h4 class="text-success mb-2">Venta Registrada</h4>
+                <p class="fs-5 text-muted" id="textoVentaExitosa"></p>
+            </div>
+            <div class="modal-footer justify-content-center bg-light">
+                <button type="button" class="btn btn-cancelar" data-bs-dismiss="modal">Hacer Otra Venta</button>
+                <button type="button" class="btn btn-sistema" id="btnImprimirComprobante">Imprimir Comprobante</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalVentaError" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Error en la Operación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="mb-3">
+                    <span style="font-size: 3rem; color: #dc3545;">✖</span>
+                </div>
+                <h4 class="text-danger mb-2">¡Algo salió mal!</h4>
+                <p class="fs-5 text-muted" id="textoVentaError"></p>
+            </div>
+            <div class="modal-footer justify-content-center bg-light">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        // ── Scope global compartido ──────────────────────────────────────────
+        let productoTemporal = null;
+        let seleccionTemp = null;   // { texto, idProducto, idPresentacion }
+
+        // ── Al cargar el DOM ─────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // CLIENTE ── variables
+            const ciInput = document.getElementById('ciCliente');
+            const nombreInput = document.getElementById('nombreCliente');
+            const idClienteInput = document.getElementById('idCliente');
+            const feedback = document.getElementById('clienteFeedback');
+            const dropdown = document.getElementById('ciDropdown');
+
+            // CLIENTE ── búsqueda parcial con dropdown
+            ciInput.addEventListener('input', function () {
+                const value = this.value.trim();
+                nombreInput.value = '';
+                idClienteInput.value = '';
+
+                if (value.length < 2) { dropdown.style.display = 'none'; return; }
+
+                fetch(`?handler=BuscarClientesParcial&ci=${encodeURIComponent(value)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        dropdown.innerHTML = '';
+                        if (!data.success || data.clientes.length === 0) {
+                            dropdown.style.display = 'none'; return;
+                        }
+                        data.clientes.forEach(c => {
+                            const apellidoM = c.apellidoMaterno ? ' ' + c.apellidoMaterno : '';
+                            const item = document.createElement('div');
+                            item.classList.add('dropdown-item-ci');
+                            item.innerHTML = `<strong>${c.ci}</strong><span>${c.nombre} ${c.apellidoPaterno}${apellidoM}</span>`;
+                            item.addEventListener('click', () => {
+                                ciInput.value = c.ci;
+                                nombreInput.value = `${c.nombre} ${c.apellidoPaterno}${apellidoM}`;
+                                idClienteInput.value = c.id;
+                                dropdown.style.display = 'none';
+                                ciInput.classList.remove('is-invalid');
+                                ciInput.classList.add('is-valid');
+                                feedback.textContent = "Cliente seleccionado.";
+                                feedback.className = "form-text text-success";
+                            });
+                            dropdown.appendChild(item);
+                        });
+                        dropdown.style.display = 'block';
+                    })
+                    .catch(() => { dropdown.style.display = 'none'; });
+            });
+
+            document.addEventListener('click', e => {
+                if (!e.target.closest('.input-group')) dropdown.style.display = 'none';
+            });
+
+            // ─── LÓGICA REFACTORIZADA: INTERCEPTAR EL SUBMIT Y ABRIR MODAL DE CONFIRMACIÓN ───
+            document.getElementById('ventaForm').addEventListener('submit', function (e) {
+                e.preventDefault(); // Detenemos el envío automático
+
+                const idCliente = document.getElementById('idCliente').value;
+                const feedback = document.getElementById('clienteFeedback');
+
+                // 1. Validar cliente
+                if (!idCliente) {
+                    feedback.textContent = "Debe seleccionar un cliente válido.";
+                    feedback.className = "form-text text-danger fw-bold";
+                    document.getElementById('ciCliente').classList.add('is-invalid');
+                    return;
+                }
+
+                // 2. Validar que haya productos
+                const filas = document.querySelectorAll('#tablaProductos tbody tr');
+                if (filas.length === 0) {
+                    document.getElementById('textoVentaError').textContent = "Debe agregar al menos un producto a la venta antes de registrarla.";
+                    const modalError = new bootstrap.Modal(document.getElementById('modalVentaError'));
+                    modalError.show();
+                    return;
+                }
+
+                // 3. Preparar y Mostrar el modal de confirmación
+                const totalActual = document.getElementById('totalVenta').textContent;
+                document.getElementById('lblTotalConfirmar').textContent = totalActual + " Bs.";
+            
+                const modalConfirmar = new bootstrap.Modal(document.getElementById('modalConfirmarVenta'));
+                modalConfirmar.show();
+            });
+
+            // ─── EL VERDADERO ENVÍO A BASE DE DATOS (AL HACER CLIC EN "SÍ, REGISTRAR") ───
+            document.getElementById('btnConfirmarVentaReal').addEventListener('click', function () {
+            
+                const idCliente = document.getElementById('idCliente').value;
+                const filas = document.querySelectorAll('#tablaProductos tbody tr');
+                const detalles = [];
+
+                // Armar detalles leyendo los data-* del <tr>
+                filas.forEach(fila => {
+                    detalles.push({
+                        idProducto: parseInt(fila.dataset.idProducto),
+                        idPresentacion: parseInt(fila.dataset.idPresentacion),
+                        cantidad: parseInt(fila.querySelector('input').value),
+                        precioUnitario: parseFloat(fila.dataset.precio)
+                    });
+                });
+
+                const payload = {
+                    idCliente: parseInt(idCliente),
+                    detalles: detalles
+                };
+
+                const btnConfirmar = this;
+                btnConfirmar.disabled = true;
+                btnConfirmar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+
+                fetch('?handler=RegistrarVenta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(data => {
+                    // Ocultar el modal de confirmación SIEMPRE antes de mostrar el de éxito/error
+                    const modalConfirmar = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarVenta'));
+                    modalConfirmar.hide();
+
+                    if (data.success) {
+                        document.getElementById('textoVentaExitosa').innerHTML = `La venta número <strong>#${data.idVenta}</strong> se ha guardado correctamente.`;
+                        const modalExito = new bootstrap.Modal(document.getElementById('modalVentaExitosa'));
+                        modalExito.show();
+
+                        document.getElementById('btnImprimirComprobante').dataset.idVenta = data.idVenta;
+
+                        // Limpiar el formulario base
+                        document.getElementById('ciCliente').value = '';
+                        document.getElementById('nombreCliente').value = '';
+                        document.getElementById('idCliente').value = '';
+                        document.querySelector('#tablaProductos tbody').innerHTML = '';
+                        document.getElementById('totalVenta').textContent = '0.00';
+                        document.getElementById('ciCliente').classList.remove('is-valid');
+                        document.getElementById('clienteFeedback').textContent = '';
+                    } else {
+                        document.getElementById('textoVentaError').textContent = data.message;
+                        const modalError = new bootstrap.Modal(document.getElementById('modalVentaError'));
+                        modalError.show();
+                    }
+                })
+                .catch(() => {
+                    // Cerrar modal de confirmación si hubo error de red
+                    const modalConfirmar = bootstrap.Modal.getInstance(document.getElementById('modalConfirmarVenta'));
+                    if (modalConfirmar) modalConfirmar.hide();
+
+                    document.getElementById('textoVentaError').textContent = "Error de conexión al registrar la venta. Por favor, verifique su red e intente nuevamente.";
+                    const modalError = new bootstrap.Modal(document.getElementById('modalVentaError'));
+                    modalError.show();
+                })
+                .finally(() => {
+                    // Restaurar el botón de confirmación
+                    btnConfirmar.disabled = false;
+                    btnConfirmar.textContent = "Sí, Registrar Venta";
+                });
+            });
+
+            // MODAL CLIENTE
+            const modal = new bootstrap.Modal(document.getElementById('modalCliente'));
+            const modalCi = document.getElementById('modalCi');
+            const modalNombre = document.getElementById('modalNombre');
+            const modalApellidoP = document.getElementById('modalApellidoP');
+            const modalApellidoM = document.getElementById('modalApellidoM');
+            const modalComplemento = document.getElementById('modalComplemento');
+            const modalEmail = document.getElementById('modalEmail');
+            const modalFrecuente = document.getElementById('modalFrecuente');
+            const modalFeedback = document.getElementById('modalFeedback');
+
+            document.getElementById('btnCrearClienteRapido').addEventListener('click', () => {
+                modalCi.value = ciInput.value;
+                modal.show();
+            });
+
+            document.getElementById('btnGuardarClienteModal').addEventListener('click', () => {
+                fetch('?handler=CrearCliente', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({
+                        Ci: modalCi.value,
+                        Nombre: modalNombre.value,
+                        ApellidoPaterno: modalApellidoP.value,
+                        ApellidoMaterno: modalApellidoM.value,
+                        Complemento: modalComplemento.value,
+                        Email: modalEmail.value,
+                        ClienteFrecuente: modalFrecuente.checked
+                    })
+                })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            const c = data.cliente;
+                            nombreInput.value = `${c.nombre} ${c.apellidoPaterno} ${c.apellidoMaterno || ''}`.trim();
+                            idClienteInput.value = c.id;
+                            ciInput.value = c.ci;
+                            ciInput.classList.add('is-valid');
+                            modal.hide();
+                        } else {
+                            modalFeedback.textContent = data.message;
+                        }
+                    });
+            });
+
+            // PRODUCTOS ── sugerencias en dropdown
+            const inputProducto = document.getElementById('productoBusqueda');
+            const listaSugerencias = document.getElementById('listaProductos');
+
+            inputProducto.addEventListener('input', function () {
+                const term = this.value.trim();
+
+                // Resetear selección al cambiar el texto manualmente
+                seleccionTemp = null;
+                document.getElementById('btnAñadirLista').disabled = true;
+                document.getElementById('productoFeedback').textContent = '';
+
+                if (term.length < 2) { listaSugerencias.style.display = 'none'; return; }
+
+                fetch(`?handler=BuscarNombre&termino=${encodeURIComponent(term)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        listaSugerencias.innerHTML = '';
+                        if (!data || data.length === 0) {
+                            listaSugerencias.style.display = 'none'; return;
+                        }
+                        data.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item list-group-item-action';
+                            li.textContent = item.texto;
+                            li.onclick = () => {
+                                inputProducto.value = item.texto;
+                                // ✅ Guardamos los IDs en la variable global
+                                seleccionTemp = {
+                                    texto: item.texto,
+                                    idProducto: item.idProducto,
+                                    idPresentacion: item.idPresentacion
+                                };
+                                listaSugerencias.style.display = 'none';
+                                prepararProducto();   // llamada directa, ya ve seleccionTemp
+                            };
+                            listaSugerencias.appendChild(li);
+                        });
+                        listaSugerencias.style.display = 'block';
+                    });
+            });
+        }); // fin DOMContentLoaded
+
+        // ── Funciones globales (llamadas desde atributos onclick del HTML) ────
+
+        window.prepararProducto = function () {
+            const feedback = document.getElementById('productoFeedback');
+            const btnAñadir = document.getElementById('btnAñadirLista');
+
+            // ✅ Ahora sí lee la variable global correctamente
+            if (!seleccionTemp) {
+                feedback.textContent = "Selecciona un producto de la lista de sugerencias.";
+                feedback.className = "form-text text-warning";
+                btnAñadir.disabled = true;
+                return;
+            }
+
+            fetch(`?handler=ObtenerDetalleProducto` +
+                `&frase=${encodeURIComponent(seleccionTemp.texto)}` +
+                `&idProducto=${seleccionTemp.idProducto}` +
+                `&idPresentacion=${seleccionTemp.idPresentacion}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        productoTemporal = data.producto;
+                        feedback.textContent = `✔ ${data.producto.nombre} — Bs. ${data.producto.precioUnitario.toFixed(2)}`;
+                        feedback.className = "form-text text-success fw-bold";
+                        btnAñadir.disabled = false;
+                    } else {
+                        productoTemporal = null;
+                        feedback.textContent = data.message || "Producto no encontrado.";
+                        feedback.className = "form-text text-danger";
+                        btnAñadir.disabled = true;
+                    }
+                });
+        };
+
+        window.confirmarAñadir = function () {
+            if (!productoTemporal) return;
+            const tbody = document.querySelector('#tablaProductos tbody');
+            tbody.insertAdjacentHTML('beforeend', `
+            <tr data-id-producto="${productoTemporal.idProducto}"
+                data-id-presentacion="${productoTemporal.idPresentacion}"
+                data-precio="${productoTemporal.precioUnitario}">
+                <td>
+                    <input type="number" class="form-control form-control-sm"
+                           value="1" min="1"
+                           oninput="recalcularTotal()" onchange="recalcularTotal()">
+                </td>
+                <td>${productoTemporal.nombre}</td>
+                <td>${productoTemporal.precioUnitario.toFixed(2)}</td>
+                <td class="importe-col">${productoTemporal.precioUnitario.toFixed(2)}</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm"
+                            onclick="this.closest('tr').remove(); recalcularTotal();">×</button>
+                </td>
+            </tr>`);
+            document.getElementById('productoBusqueda').value = '';
+            document.getElementById('btnAñadirLista').disabled = true;
+            document.getElementById('productoFeedback').textContent = '';
+            seleccionTemp = null;
+            productoTemporal = null;
+            recalcularTotal();
+        };
+
+        function recalcularTotal() {
+            let total = 0;
+            document.querySelectorAll('#tablaProductos tbody tr').forEach(fila => {
+                const cantidad = parseFloat(fila.querySelector('input').value) || 0;
+                const precio = parseFloat(fila.cells[2].textContent) || 0;
+                fila.cells[3].textContent = (cantidad * precio).toFixed(2);
+                total += cantidad * precio;
+            });
+            const etiqueta = document.getElementById('totalVenta');
+            if (etiqueta) etiqueta.textContent = total.toFixed(2);
+        }
+
+        // Impresión del Comprobante
+        document.getElementById('btnImprimirComprobante').addEventListener('click', function () {
+            const idVenta = this.dataset.idVenta;
+            if (idVenta) {
+                window.open(`?handler=ImprimirComprobante&idVenta=${idVenta}`, '_blank');
+                const modalExito = bootstrap.Modal.getInstance(document.getElementById('modalVentaExitosa'));
+                modalExito.hide();
+            } else {
+                alert("Error al intentar imprimir el comprobante: ID de venta no encontrado.");
+            }
+        });
+    </script>
+}

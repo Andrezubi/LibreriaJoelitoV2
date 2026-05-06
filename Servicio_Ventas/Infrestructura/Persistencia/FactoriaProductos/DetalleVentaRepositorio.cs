@@ -1,5 +1,5 @@
 using MySql.Data.MySqlClient;
-using Servicio_Ventas.Aplicacion.DTOs;
+using Servicio_Ventas.Aplicacion.DTOs.ServicioVentaDTOs;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using System.Data;
@@ -99,7 +99,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             return resultado;
         }
 
-        public DataTable ObtenerDetalleExtraPorIdVenta(int idVenta)
+        public List<DetalleVentaExtraDTO> ObtenerDetalleExtraPorIdVenta(int idVenta)
         {
             string consulta = @"SELECT dv.IdVenta AS IdVenta, pr.Nombre AS NombreProducto, prs.Nombre AS NombrePresentacion, 
                                     dv.Cantidad AS Cantidad, dv.PrecioUnitario AS PrecioUnitario, dv.Subtotal AS Subtotal, 
@@ -112,7 +112,23 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             comando.Parameters.AddWithValue("@idVenta", idVenta);
 
-            return ExecuteReturningDataTable(comando);
+            var resultado = new List<DetalleVentaExtraDTO>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                resultado.Add(new DetalleVentaExtraDTO
+                {
+                    IdVenta = reader.GetInt32("IdVenta"),
+                    Producto = reader.GetString("NombreProducto"),
+                    Presentacion = reader.GetString("NombrePresentacion"),
+                    Cantidad = reader.GetInt32("Cantidad"),
+                    PrecioUnitario = reader.GetDecimal("PrecioUnitario"),
+                    Subtotal = reader.GetDecimal("Subtotal")
+                });
+            }
+
+            return resultado;
         }
 
         public int EliminarPorIdVenta(int idVenta)

@@ -1,10 +1,15 @@
+<<<<<<< HEAD
 using FrontendLibreria.Adapters.Servicio2Adapters;
 using Microsoft.AspNetCore.Authentication.Cookies;
+=======
+using FrontendLibreria.Adapters.Venta;
+>>>>>>> 3534f9c8a07f506031f1663c4b83a351de9c3fa8
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 
+<<<<<<< HEAD
 // ── Autenticación con Cookie HttpOnly ──────────────────────────────────────
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -27,6 +32,21 @@ builder.Services.AddHttpClient<IUsuarioServicioAdapter, UsuarioServicioAdapter>(
                                  ?? "https://localhost:7002");
 });
 
+=======
+
+//Inyectar el servicio de HttpClient para consumir la API
+builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
+
+
+>>>>>>> 3534f9c8a07f506031f1663c4b83a351de9c3fa8
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
