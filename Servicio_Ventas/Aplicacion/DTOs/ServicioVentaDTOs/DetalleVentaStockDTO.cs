@@ -1,4 +1,4 @@
-﻿namespace Servicio_Ventas.Aplicacion.DTOs
+﻿namespace Servicio_Ventas.Aplicacion.DTOs.ServicioVentaDTOs
 {
     public class DetalleVentaStockDTO
     {

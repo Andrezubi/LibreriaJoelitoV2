@@ -1,6 +1,8 @@
+using MySql.Data.MySqlClient;
+using Servicio_Ventas.Aplicacion.DTOs;
+using Servicio_Ventas.Aplicacion.DTOs.ServicioVentaDTOs;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
-using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
@@ -62,67 +64,131 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             return result;
         }
 
-        public DataRow ObtenerPorId(int id)
+        public Venta? ObtenerPorId(int id)
         {
-            string consulta = @"SELECT  Id, IdCliente, Fecha, Total, FechaRegistro, FechaUltimaActualizacion, IdUsuario
-                                FROM venta
-                                WHERE Estado=1 and Id=@id
-                                ORDER BY 3";
+            string consulta = @"SELECT Id, IdCliente, Fecha, Total, FechaRegistro, FechaUltimaActualizacion, IdUsuario
+                        FROM venta
+                        WHERE Estado = 1 AND Id = @id
+                        ORDER BY 3";
 
             MySqlCommand comando = new MySqlCommand(consulta);
             comando.Parameters.AddWithValue("@id", id);
 
-            return ExecuteReturningDataRow(comando);
+            var reader = ExecuteReader(comando);
+
+            if (!reader.Read())
+                return null;
+
+            return new Venta
+            {
+                Id = reader.GetInt32("Id"),
+                IdCliente = reader.GetInt32("IdCliente"),
+                Fecha = reader.GetDateTime("Fecha"),
+                Total = reader.GetDecimal("Total"),
+                FechaRegistro = reader.GetDateTime("FechaRegistro"),
+                FechaUltimaActualizacion = reader.IsDBNull(reader.GetOrdinal("FechaUltimaActualizacion"))
+                    ? null
+                    : reader.GetDateTime("FechaUltimaActualizacion"),
+                IdUsuario = reader.GetInt32("IdUsuario")
+            };
         }
 
-        public DataRow ObtenerCabeceraVentaPorId(int id)
+        public VentaCabeceraDTO? ObtenerCabeceraVentaPorId(int id)
         {
             string consulta = @"SELECT v.Id,
-                                   v.Estado AS EstadoVenta,
-                                   c.Ci AS CiCliente,
-                                   c.Nombre AS NombreCliente,
-                                   u.Nombre AS NombreEmpleado,
-                                   v.Fecha,
-                                   v.Total
-                                FROM venta v
-                                INNER JOIN cliente c ON v.IdCliente = c.Id
-                                INNER JOIN usuario u ON v.IdUsuario = u.Id
-                                WHERE v.Estado=1 and v.Id=@id
-                                ORDER BY v.Fecha DESC";
+                               v.Estado AS EstadoVenta,
+                               c.Ci AS CiCliente,
+                               c.Nombre AS NombreCliente,
+                               u.Nombre AS NombreEmpleado,
+                               v.Fecha,
+                               v.Total
+                        FROM venta v
+                        INNER JOIN cliente c ON v.IdCliente = c.Id
+                        INNER JOIN usuario u ON v.IdUsuario = u.Id
+                        WHERE v.Estado = 1 AND v.Id = @id
+                        ORDER BY v.Fecha DESC";
 
             MySqlCommand comando = new MySqlCommand(consulta);
             comando.Parameters.AddWithValue("@id", id);
 
-            return ExecuteReturningDataRow(comando);
+            var reader = ExecuteReader(comando);
+
+            if (!reader.Read())
+                return null;
+
+            return new VentaCabeceraDTO
+            {
+                Id = reader.GetInt32("Id"),
+                EstadoVenta = reader.GetInt32("EstadoVenta"),
+                CiCliente = reader.GetInt32("CiCliente"),
+                NombreCliente = reader.GetString("NombreCliente"),
+                NombreEmpleado = reader.GetString("NombreEmpleado"),
+                Fecha = reader.GetDateTime("Fecha"),
+                Total = reader.GetDecimal("Total")
+            };
         }
 
-        public DataTable ObtenerPorFecha(DateTime fechaInicio, DateTime fechaFin)
+        public List<Venta> ObtenerPorFecha(DateTime fechaInicio, DateTime fechaFin)
         {
-            string consulta = @"SELECT  Id, IdCliente, Fecha, Total, FechaRegistro, IdUsuario
-                                FROM venta
-                                WHERE Estado=1
-                                    AND Fecha BETWEEN @fechaInicio AND @fechaFin
-                                ORDER BY 3";
-            MySqlCommand comando = new MySqlCommand(consulta);
+            string consulta = @"SELECT Id, IdCliente, Fecha, Total, FechaRegistro, IdUsuario, estado
+                        FROM venta
+                        WHERE Estado = 1
+                            AND Fecha BETWEEN @fechaInicio AND @fechaFin
+                        ORDER BY 3";
 
+            MySqlCommand comando = new MySqlCommand(consulta);
             comando.Parameters.AddWithValue("@fechaInicio", fechaInicio);
             comando.Parameters.AddWithValue("@fechaFin", fechaFin);
 
-            return ExecuteReturningDataTable(comando);
+            var ventas = new List<Venta>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                ventas.Add(new Venta
+                {
+                    Id = reader.GetInt32("Id"),
+                    IdCliente = reader.GetInt32("IdCliente"),
+                    Fecha = reader.GetDateTime("Fecha"),
+                    Total = reader.GetDecimal("Total"),
+                    FechaRegistro = reader.GetDateTime("FechaRegistro"),
+                    FechaUltimaActualizacion = null,
+                    IdUsuario = reader.GetInt32("IdUsuario"),
+                });
+            }
+
+            return ventas;
         }
 
-        public DataTable ObtenerPorIdCliente(int idCliente)
+        public List<Venta> ObtenerPorIdCliente(int idCliente)
         {
-            string consulta = @"SELECT  Id, IdCliente, Fecha, Total, FechaRegistro, IdUsuario
-                                FROM venta
-                                WHERE Estado=1 
-                                    AND IdCliente=@idCliente
-                                ORDER BY 3";
-            MySqlCommand comando = new MySqlCommand(consulta);
+            string consulta = @"SELECT Id, IdCliente, Fecha, Total, FechaRegistro, IdUsuario
+                        FROM venta
+                        WHERE Estado = 1 
+                            AND IdCliente = @idCliente
+                        ORDER BY 3";
 
+            MySqlCommand comando = new MySqlCommand(consulta);
             comando.Parameters.AddWithValue("@idCliente", idCliente);
 
-            return ExecuteReturningDataTable(comando);
+            var ventas = new List<Venta>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                ventas.Add(new Venta
+                {
+                    Id = reader.GetInt32("Id"),
+                    IdCliente = reader.GetInt32("IdCliente"),
+                    Fecha = reader.GetDateTime("Fecha"),
+                    Total = reader.GetDecimal("Total"),
+                    FechaRegistro = reader.GetDateTime("FechaRegistro"),
+                    FechaUltimaActualizacion = null,
+                    IdUsuario = reader.GetInt32("IdUsuario")
+                });
+            }
+
+            return ventas;
         }
 
         public int Actualizar(Venta venta)
@@ -183,7 +249,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             return ExecuteReturningDataTable(comando);
         }
 
-        public DataTable CargarVentas()
+        public List<VentaDTO> CargarVentas()
         {
             string consulta = @"SELECT v.Id,
                                     v.Estado AS EstadoVenta,
@@ -197,7 +263,22 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             MySqlCommand comando = new MySqlCommand(consulta);
 
-            return ExecuteReturningDataTable(comando);
+            var resultado = new List<VentaDTO>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                resultado.Add(new VentaDTO
+                {
+                Id = reader.GetInt32("Id"),
+                Estado = reader.GetInt32("EstadoVenta"),
+                CiCliente = reader.GetInt32("CiCliente"),
+                NombreCliente = reader.GetString("NombreCliente"),
+                Fecha = reader.GetDateTime("Fecha")
+             });
+             }
+
+            return resultado;
         }
     }
 }

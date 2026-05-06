@@ -1,5 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
-using Servicio_Ventas.Aplicacion.DTOs;
+using Servicio_Ventas.Aplicacion.DTOs.ServicioVentaDTOs;
 using Servicio_Ventas.Aplicacion.Results;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.Persistencia;

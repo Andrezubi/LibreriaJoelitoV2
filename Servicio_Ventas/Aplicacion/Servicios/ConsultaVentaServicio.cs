@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
+using Servicio_Ventas.Aplicacion.DTOs;
+using Servicio_Ventas.Aplicacion.DTOs.ServicioVentaDTOs;
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Results;
+using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using System.Data;
@@ -28,38 +31,41 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             _pdfServicio = pdfServicio;
         }
 
-        public DataTable getPresentacionProductosByFrase(string frase)
+        public List<PresentacionProductoVentaDTO> getPresentacionProductosByFrase(string frase)
         {
             //return _presentaProdRepositorio.obtenerPresentacionProductoDetallado(frase);
             throw new NotImplementedException();
         }
 
-        public DataTable CargarVentas()
+        public List<VentaDTO> CargarVentas()
         {
             return _ventaRepositorio.CargarVentas();
         }
 
-        public JsonResult getPresentacionProductoByIds(int idProducto, int idPresentacion)
+        public Result<PresentacionProductoVentaDTO> GetPresentacionProductoByIds(int idProducto,int idPresentacion)
         {
-            //DataRow fila = _presentaProdRepositorio.GetByIds(idProducto, idPresentacion);
-            DataRow fila = GetByIds(idProducto, idPresentacion);
-
-            if (fila != null)
+            try
             {
-                return new JsonResult(new
-                {
-                    success = true,
-                    producto = new
-                    {
-                        idProducto = idProducto,
-                        idPresentacion = idPresentacion,
-                        nombre = fila["Descripcion"].ToString(),
-                        precioUnitario = Convert.ToDecimal(fila["Precio"])
-                    }
-                });
-            }
+                //DataRow fila = _presentaProdRepositorio.GetByIds(idProducto, idPresentacion);
+                DataRow fila = GetByIds(idProducto, idPresentacion);
 
-            return new JsonResult(new { success = false });
+                if (fila == null)
+                    return Result<PresentacionProductoVentaDTO>.Failure("No se encontró la presentación del producto.");
+
+                var producto = new PresentacionProductoVentaDTO
+                {
+                    IdProducto = idProducto,
+                    IdPresentacion = idPresentacion,
+                    Nombre = fila["Descripcion"].ToString() ?? string.Empty,
+                    PrecioUnitario = Convert.ToDecimal(fila["Precio"])
+                };
+
+                return Result<PresentacionProductoVentaDTO>.Success(producto);
+            }
+            catch (Exception ex)
+            {
+                return Result<PresentacionProductoVentaDTO>.Failure($"Error al obtener la presentación del producto: {ex.Message}");
+            }
         }
 
         public Result<byte[]> GenerarComprobantePdf(int idVenta)
@@ -83,15 +89,29 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             }
         }
 
-        public (DataRow venta, DataTable detalles) ObtenerVentaCompleta(int idVenta)
+        public Result<VentaCompletaDTO> ObtenerVentaCompleta(int idVenta)
         {
-            var ventaFila = _ventaRepositorio.ObtenerCabeceraVentaPorId(idVenta);
-            if (ventaFila == null)
-                throw new Exception("No se encontró la venta.");
+            try
+            {
+                VentaCabeceraDTO? venta = _ventaRepositorio.ObtenerCabeceraVentaPorId(idVenta);
 
-            var detalles = _detalleVentaRepositorio.ObtenerDetalleExtraPorIdVenta(idVenta);
+                if (venta == null)
+                    return Result<VentaCompletaDTO>.Failure("No se encontró la venta.");
 
-            return (ventaFila, detalles);
+                List<DetalleVentaExtraDTO> detalles = _detalleVentaRepositorio.ObtenerDetalleExtraPorIdVenta(idVenta);
+
+                var ventaCompleta = new VentaCompletaDTO
+                {
+                    Venta = venta,
+                    Detalles = detalles
+                };
+
+                return Result<VentaCompletaDTO>.Success(ventaCompleta);
+            }
+            catch (Exception ex)
+            {
+                return Result<VentaCompletaDTO>.Failure($"Error al obtener la venta completa: {ex.Message}");
+            }
         }
 
         // TODO: Mover a PresentacionProductoRepository

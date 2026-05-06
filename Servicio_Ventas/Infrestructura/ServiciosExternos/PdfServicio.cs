@@ -34,10 +34,10 @@ namespace Servicio_Ventas.Infrestructura.ServiciosExternos
                     pagina.Margin(2, Unit.Centimetre);
                     pagina.DefaultTextStyle(x => x.FontSize(11).FontFamily(Fonts.Arial));
 
-                    // --- DISEÑO VISUAL (Igual al anterior pero encapsulado aquí) ---
+                    // --- DISEÑO VISUAL ---
                     pagina.Header().Column(col => {
                         col.Item().Row(fila => {
-                            string rutaLogo = Path.Combine(_env.WebRootPath, "img", "logo-lib.png");
+                            string rutaLogo = Path.Combine(_env.ContentRootPath, "Recursos", "Imagenes", "logo-lib.png");
                             fila.ConstantItem(80).Height(80).Border(1).AlignCenter().AlignMiddle().Image(rutaLogo);
                             fila.RelativeItem().PaddingLeft(20).AlignMiddle().Text("COMPROBANTE DE VENTA").FontSize(24).Bold();
                         });
