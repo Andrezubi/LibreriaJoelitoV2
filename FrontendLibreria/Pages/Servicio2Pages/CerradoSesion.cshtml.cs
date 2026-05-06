@@ -13,16 +13,11 @@ namespace FrontendLibreria.Pages.Servicio2Pages
         }
         public async Task<IActionResult> OnPost()
         {
-            Console.WriteLine("ANTES LOGOUT: " + User.Identity?.Name);
+            // Comando oficial para cerrar sesión y borrar la cookie de seguridad
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
-            Response.Cookies.Delete("AuthToken", new CookieOptions
-            {
-                Path = "/"
-            });
-
-            Console.WriteLine("DESPUÉS LOGOUT: " + User.Identity?.Name);
-
-            return RedirectToPage("/Index");
+            // Redirigir a la pantalla de login
+            return RedirectToPage("/Servicio2Pages/InicioSesion");
         }
     }
 }
