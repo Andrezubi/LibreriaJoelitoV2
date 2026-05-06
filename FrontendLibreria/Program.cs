@@ -35,12 +35,44 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();   // ← debe ir ANTES de Authorization
 app.UseAuthorization();
+
+// Filtro global: bloquea navegación si MustChangePassword = true
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value ?? "";
+    var user = context.User;
+
+    bool estaAutenticado = user.Identity?.IsAuthenticated == true;
+    bool debeCambiar = user.FindFirst("MustChangePassword")?.Value == "True";
+
+    // Rutas permitidas aunque deba cambiar contraseña
+    bool esRutaPermitida =
+        path.StartsWith("/Usuarios/CambiarContrasena", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/Usuarios/Logout", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/Servicio2/InicioSesion", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/css", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/js", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/img", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase);
+
+    if (estaAutenticado && debeCambiar && !esRutaPermitida)
+    {
+        context.Response.Redirect("/Usuarios/CambiarContrasena");
+        return;
+    }
+
+    await next();
+});
+
 
 app.MapRazorPages();
 
