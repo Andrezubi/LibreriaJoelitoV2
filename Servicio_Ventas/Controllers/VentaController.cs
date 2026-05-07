@@ -116,7 +116,7 @@ namespace Servicio_Ventas.Controllers
             if (resultado == null)
                 return NoContent();
 
-            return Ok(resultado.Value);
+            return Ok(resultado);
         }
     }
 }

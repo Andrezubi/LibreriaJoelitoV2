@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using FrontendLibreria.DTOs.VentaDTOs;
+using FrontendLibreria.Adapters.Venta;
 
 namespace FrontendLibreria.Pages.Reportes
 {
