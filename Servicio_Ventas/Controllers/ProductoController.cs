@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Servicio_Ventas.Aplicacion.DTOs;
@@ -13,7 +14,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Servicio_Ventas.Controllers
 {
     // Controllers/ProductosController.cs
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ProductoController : ControllerBase

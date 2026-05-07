@@ -1,4 +1,5 @@
 using FrontendLibreria.DTOs.VentaDTOs;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace FrontendLibreria.Adapters.Venta
@@ -13,15 +14,22 @@ namespace FrontendLibreria.Adapters.Venta
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
 
-            // Extraer el IdUsuario de los Claims de la sesión actual
             var idUsuario = _httpContextAccessor.HttpContext?.User?.FindFirst("IdUsuario")?.Value;
+
             if (!string.IsNullOrEmpty(idUsuario))
             {
-                // Limpiar si ya existe para evitar duplicados
                 if (_httpClient.DefaultRequestHeaders.Contains("X-IdUsuario"))
                     _httpClient.DefaultRequestHeaders.Remove("X-IdUsuario");
-                
+
                 _httpClient.DefaultRequestHeaders.Add("X-IdUsuario", idUsuario);
+            }
+
+            var token = _httpContextAccessor.HttpContext?.User?.FindFirst("Token")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
             }
         }
 
@@ -83,11 +91,10 @@ namespace FrontendLibreria.Adapters.Venta
         {
             try
             {
-                // Consume el endpoint de reporte en tu API de Ventas
                 var reporte = await _httpClient.GetFromJsonAsync<List<Reporte1DTO>>("api/Venta/reporte-servicios");
                 return reporte ?? new List<Reporte1DTO>();
             }
-            catch (Exception)
+            catch
             {
                 return new List<Reporte1DTO>();
             }
