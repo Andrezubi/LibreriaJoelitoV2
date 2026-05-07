@@ -2,13 +2,14 @@ using FrontendLibreria.Adapters.Cliente;
 using FrontendLibreria.Adapters.Venta;
 using FrontendLibreria.DTOs;
 using FrontendLibreria.DTOs.VentaDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Security.Claims;
 
 namespace FrontendLibreria.Pages.Ventas
 {
-    //[Authorize(Roles = "Administrador,Empleado")]
+    [Authorize(Roles = "Administrador,Empleado")]
     public class RegistrarModel : PageModel
     {
         private readonly IVentaAdapter _ventaAdapter;
@@ -90,19 +91,8 @@ namespace FrontendLibreria.Pages.Ventas
                 });
             }
 
-            //string? usuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            //if (!int.TryParse(usuarioClaim, out int idUsuario))
-            //{
-            //    return new JsonResult(new
-            //    {
-            //        success = false,
-            //        message = "No se pudo identificar al usuario actual."
-            //    });
-            //}
-
-            var idUsuario = 1; // Reemplaza con el ID del usuario actual
-
+            var idUsuario = ObtenerIdUsuario(); // Reemplaza con el ID del usuario actual
             cliente.Estado = true;
             cliente.FechaRegistro = DateTime.Now;
             cliente.IdUsuario = idUsuario;
@@ -252,18 +242,8 @@ namespace FrontendLibreria.Pages.Ventas
             if (dto.IdCliente <= 0)
                 return new JsonResult(new { success = false, message = "Cliente no válido." });
 
-            //string? usuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            //if (!int.TryParse(usuarioClaim, out int idUsuario))
-            //{
-            //    return new JsonResult(new
-            //    {
-            //        success = false,
-            //        message = "No se pudo identificar al usuario actual."
-            //    });
-            //}
-
-            var idUsuario = 1; // Reemplaza con el ID del usuario actual
+            var idUsuario = ObtenerIdUsuario(); // Reemplaza con el ID del usuario actual
             decimal total = dto.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
 
             var request = new RegistrarVentaRequestDTO
@@ -300,6 +280,15 @@ namespace FrontendLibreria.Pages.Ventas
                 success = false,
                 message = mensajeError
             });
+        }
+
+        private int ObtenerIdUsuario()
+        {
+            var idClaim = User.FindFirst("IdUsuario")?.Value
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? "0";
+
+            return int.TryParse(idClaim, out var id) ? id : 0;
         }
     }
 }

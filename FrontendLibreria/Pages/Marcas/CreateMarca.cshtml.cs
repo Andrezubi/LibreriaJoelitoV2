@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace FrontendLibreria.Pages.Marcas
 {
-   // [Authorize(Roles = "Administrador,Empleado")]
+    [Authorize(Roles = "Administrador,Empleado")]
     public class CrearMarcaModel : PageModel
     {
         private readonly IAdaptadorMarca _marcaAdapter;
@@ -50,8 +50,17 @@ namespace FrontendLibreria.Pages.Marcas
             return RedirectToPage("VerMarcas");
         }
 
+        /// <summary>
+        /// Obtiene el ID del usuario autenticado desde los claims de la sesión.
+        /// </summary>
         private int ObtenerIdUsuario()
-            => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+        {
+            var idClaim = User.FindFirst("IdUsuario")?.Value 
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                ?? "0";
+            
+            return int.TryParse(idClaim, out var id) ? id : 0;
+        }
 
         private static string? Normalizar(string? texto)
         {

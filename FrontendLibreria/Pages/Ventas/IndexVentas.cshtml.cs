@@ -1,4 +1,4 @@
-using FrontendLibreria.Adapters.Venta;
+﻿using FrontendLibreria.Adapters.Venta;
 using FrontendLibreria.DTOs.VentaDTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +30,7 @@ namespace FrontendLibreria.Pages.Ventas
         public async Task<IActionResult> OnGetExportarPdfAsync(int idVenta)
         {
             if (idVenta <= 0)
-                return BadRequest("ID de venta inv�lido.");
+                return BadRequest("ID de venta inválido.");
 
             try
             {
@@ -62,14 +62,8 @@ namespace FrontendLibreria.Pages.Ventas
             if (idVenta <= 0)
                 return RedirectToPage();
 
-            //string? empleadoClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            //if (!int.TryParse(empleadoClaim, out int idEmpleado))
-            //{
-            //    MensajeExito = "No se pudo identificar al empleado actual.";
-            //    return RedirectToPage();
-            //}
-            var idEmpleado = 1; // Reemplaza con el ID del empleado actual
+            // ✅ Extraer el IdEmpleado del token de autenticación
+            int idEmpleado = ObtenerIdUsuario();
 
             var resultado = await _ventaAdapter.AnularVentaAsync(idVenta, idEmpleado);
 
@@ -100,7 +94,7 @@ namespace FrontendLibreria.Pages.Ventas
                     return new JsonResult(new
                     {
                         success = false,
-                        message = "No se encontr� la venta."
+                        message = "No se encontró la venta."
                     });
                 }
 
@@ -134,6 +128,18 @@ namespace FrontendLibreria.Pages.Ventas
                     message = ex.Message
                 });
             }
+        }
+
+        /// <summary>
+        /// Obtiene el ID del usuario autenticado desde los claims de la sesión.
+        /// </summary>
+        private int ObtenerIdUsuario()
+        {
+            var idClaim = User.FindFirst("IdUsuario")?.Value 
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                ?? "0";
+            
+            return int.TryParse(idClaim, out var id) ? id : 0;
         }
     }
 }

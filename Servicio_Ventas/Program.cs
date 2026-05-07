@@ -21,24 +21,35 @@ builder.Services.AddSwaggerGen();
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 builder.Services.AddScoped<IPdfServicio, PdfServicio>();
+
 builder.Services.AddScoped<VentaRepositorio>(provider => {
     return new VentaCreadorRepositorio().CrearRepositorio();
 });
+
 builder.Services.AddScoped<DetalleVentaRepositorio>(provider => {
     return new DetalleVentaCreadorRepositorio().CrearRepositorio();
 });
+
 builder.Services.AddScoped<ProductoRepositorio>(provider => {
     return new ProductoCreadorRepositorio().CrearRepositorio();
 });
+
 builder.Services.AddScoped<PresentacionRepositorio>(provider => {
     return new PresentacionCreadorRepositorio().CrearRepositorio();
 });
+
 builder.Services.AddScoped<PresentacionProductoRepositorio>(provider => {
     return new PresentacionProductoCreadorRepositorio().CrearRepositorio();
 });
+
 builder.Services.AddScoped<ClienteRepositorio>(provider => {
     return new ClienteCreadorRepositorio().CrearRepositorio();
 });
+
+builder.Services.AddScoped<MarcaRepositorio>(provider => {
+    return new MarcaCreadorRepositorio().CrearRepositorio();
+});
+
 builder.Services.AddScoped<BitacoraRepositorio>();
 
 
@@ -50,15 +61,16 @@ builder.Services.AddScoped<ConsultaVentaServicio>();
 builder.Services.AddScoped<GestionInventarioServicio>();
 builder.Services.AddScoped<PresentacionServicio>();
 builder.Services.AddScoped<ProductoServicio>();
+builder.Services.AddScoped<ClienteServicio>();
+builder.Services.AddScoped<MarcaServicio>();
 
 
 
 //Inyeccion Validadores
 builder.Services.AddScoped<ProductoValidador>();
+builder.Services.AddScoped<ClienteValidador>();
+builder.Services.AddScoped<MarcaValidador>();
 
-
-builder.Services.AddScoped<ClienteServicio>();
-builder.Services.AddScoped<ClienteValidador>(); 
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -121,6 +133,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger"; // optional but explicit
     });
 }
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
