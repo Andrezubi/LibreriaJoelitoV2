@@ -1,6 +1,7 @@
 using FrontendLibreria.Adapters.Producto;
 using FrontendLibreria.Adapters.Cliente;
 using FrontendLibreria.Adapters.Venta;
+using FrontendLibreria.Adapters.Marca;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -22,6 +23,16 @@ builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
     client.BaseAddress = new Uri(baseUrl);
 });
 builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
+
+builder.Services.AddHttpClient<IAdaptadorMarca, AdaptadorMarca>(client =>
 {
     string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
 

@@ -1,14 +1,12 @@
 
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Servicios;
-using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Dominio.Validadores;
 using Servicio_Ventas.Infrestructura.FactoriaCreadores;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using Servicio_Ventas.Infrestructura.ServiciosExternos;
-using Servicio_Ventas.Dominio.Validadores;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,8 +33,12 @@ builder.Services.AddScoped<PresentacionRepositorio>(provider => {
 });
 builder.Services.AddScoped<PresentacionProductoRepositorio>(provider => {
     return new PresentacionProductoCreadorRepositorio().CrearRepositorio();
+});
 builder.Services.AddScoped<ClienteRepositorio>(provider => {
     return new ClienteCreadorRepositorio().CrearRepositorio();
+});
+builder.Services.AddScoped<MarcaRepositorio>(provider => {
+    return new MarcaCreadorRepositorio().CrearRepositorio();
 });
 
 
@@ -47,14 +49,13 @@ builder.Services.AddScoped<ConsultaVentaServicio>();
 builder.Services.AddScoped<GestionInventarioServicio>();
 builder.Services.AddScoped<PresentacionServicio>();
 builder.Services.AddScoped<ProductoServicio>();
-
+builder.Services.AddScoped<ClienteServicio>();
+builder.Services.AddScoped<MarcaServicio>();
 
 
 //Inyeccion Validadores
 builder.Services.AddScoped<ProductoValidador>();
-
-
-builder.Services.AddScoped<ClienteServicio>();
+builder.Services.AddScoped<MarcaValidador>();
 builder.Services.AddScoped<ClienteValidador>(); 
 // Add services to the container.
 
