@@ -68,9 +68,12 @@
                                         <span class="badge bg-success">Activo</span>
                                     </td>
                                     <td>
-                                        <div class="btn-group">
+                                        <div class="d-flex align-items-center">
+                                            <button type="button" class="btn-sistema btn-sm me-2" onclick="abrirModalEditar(@usuario.Id)">
+                                                Editar
+                                            </button>
                                             <form method="post" asp-page-handler="Eliminar" asp-route-id="@usuario.Id" 
-                                                  onsubmit="return confirm('¿Está seguro de que desea dar de baja a este usuario?');">
+                                                  onsubmit="return confirm('¿Está seguro de que desea dar de baja a este usuario?');" style="display:inline-block;">
                                                 <button type="submit" class="btn-sistema-danger btn-sm">
                                                     Eliminar
                                                 </button>
@@ -86,3 +89,142 @@
         </div>
     </div>
 </div>
+
+<!-- Modal de Edición -->
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Editar">
+                <div class="modal-header" style="background-color: var(--primary-color); color: white;">
+                    <h5 class="modal-title" id="modalEditarLabel">Editar Usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    @if (Model.ErroresValidacion != null && Model.ErroresValidacion.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <p class="mb-1"><strong>Por favor corrija los siguientes errores:</strong></p>
+                            <ul class="mb-0">
+                                @foreach (var error in Model.ErroresValidacion)
+                                {
+                                    <li>@error</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <input type="hidden" asp-for="IdEditar" id="edit-id" />
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre</label>
+                            <input asp-for="UsuarioEditar.Nombre" class="form-control" id="edit-nombre" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Apellido Paterno</label>
+                            <input asp-for="UsuarioEditar.ApellidoPaterno" class="form-control" id="edit-apPaterno" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Apellido Materno</label>
+                            <input asp-for="UsuarioEditar.ApellidoMaterno" class="form-control" id="edit-apMaterno" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras" />
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <label class="form-label">CI</label>
+                            <input asp-for="UsuarioEditar.Ci" class="form-control" id="edit-ci" required pattern="\d{6,11}" title="Debe contener entre 6 y 11 dígitos" />
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Complemento</label>
+                            <input asp-for="UsuarioEditar.Complemento" class="form-control" id="edit-complemento" pattern="\d[A-Za-z]" title="Formato requerido: 1A" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input asp-for="UsuarioEditar.Email" type="email" class="form-control" id="edit-email" required />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono</label>
+                            <input asp-for="UsuarioEditar.Telefono" class="form-control" id="edit-telefono" required pattern="[1-46-8][0-9]{7}" title="Debe tener 8 dígitos y no iniciar con 0, 5 o 9" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Rol</label>
+                            <select asp-for="UsuarioEditar.Rol" class="form-select" id="edit-rol" required>
+                                <option value="Empleado">Empleado</option>
+                                <option value="Administrador">Administrador</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Fecha de Nacimiento</label>
+                            <input asp-for="UsuarioEditar.FechaNacimiento" type="date" class="form-control" id="edit-fechaNac" required />
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Dirección Domicilio</label>
+                            <input asp-for="UsuarioEditar.DireccionDomicilio" class="form-control" id="edit-direccion" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-sistema">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function abrirModalEditar(id) {
+            // Obtener los datos del usuario por API local (Razor Page Handler)
+            fetch(`?handler=ObtenerUsuario&id=${id}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Error en red');
+                return res.json();
+            })
+            .then(data => {
+                document.getElementById('edit-id').value = data.id;
+                document.getElementById('edit-nombre').value = data.nombre;
+                document.getElementById('edit-apPaterno').value = data.apellidoPaterno;
+                document.getElementById('edit-apMaterno').value = data.apellidoMaterno || '';
+                document.getElementById('edit-ci').value = data.ci;
+                document.getElementById('edit-complemento').value = data.complemento || '';
+                document.getElementById('edit-email').value = data.email;
+                document.getElementById('edit-telefono').value = data.telefono || '';
+                document.getElementById('edit-rol').value = data.rol;
+                
+                // Formatear fecha para el input date (YYYY-MM-DD)
+                if(data.fechaNacimiento) {
+                    const partes = data.fechaNacimiento.split('/'); // Asume DD/MM/YYYY o similar
+                    if(partes.length === 3) {
+                        // Intentar armar YYYY-MM-DD
+                        document.getElementById('edit-fechaNac').value = `${partes[2]}-${partes[1].padStart(2, '0')}-${partes[0].padStart(2, '0')}`;
+                    } else {
+                        document.getElementById('edit-fechaNac').value = data.fechaNacimiento.split('T')[0];
+                    }
+                }
+
+                document.getElementById('edit-direccion').value = data.direccionDomicilio || '';
+
+                var myModal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
+                myModal.show();
+            })
+            .catch(err => {
+                console.error("Error al obtener usuario:", err);
+                alert("No se pudieron cargar los datos del usuario.");
+            });
+        }
+
+        // Si hay errores de validación, reabrir el modal automáticamente
+        @if (Model.ErroresValidacion != null && Model.ErroresValidacion.Any())
+        {
+            <text>
+            document.addEventListener("DOMContentLoaded", function() {
+                var myModal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
+                myModal.show();
+            });
+            </text>
+        }
+    </script>
+}

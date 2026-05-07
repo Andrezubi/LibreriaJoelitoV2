@@ -9,5 +9,7 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
         Task<List<UsuarioDto>> ObtenerTodos();
         Task<bool> Eliminar(int id);
         Task<(bool Exito, List<string> Errores)> Insertar(SolicitudCrearUsuarioDto request);
+        Task<UsuarioDto?> ObtenerPorId(int id);
+        Task<(bool Exito, List<string> Errores)> Actualizar(int id, SolicitudCrearUsuarioDto request);
     }
 }

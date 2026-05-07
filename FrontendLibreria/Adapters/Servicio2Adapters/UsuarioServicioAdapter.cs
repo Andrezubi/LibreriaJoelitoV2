@@ -185,5 +185,90 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
                 return (false, new List<string> { $"Error crítico: {ex.Message}" });
             }
         }
+
+        public async Task<UsuarioDto?> ObtenerPorId(int id)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"/api/usuarios/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<UsuarioDto>();
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al obtener usuario por id {Id}", id);
+                return null;
+            }
+        }
+
+        public async Task<(bool Exito, List<string> Errores)> Actualizar(int id, SolicitudCrearUsuarioDto request)
+        {
+            try
+            {
+                string fechaNac = request.FechaNacimiento ?? "";
+                if (DateTime.TryParse(fechaNac, out var fechaParsed))
+                {
+                    fechaNac = fechaParsed.ToString("yyyy-MM-dd");
+                }
+
+                var payload = new
+                {
+                    Nombre = request.Nombre,
+                    ApellidoPaterno = request.ApellidoPaterno,
+                    ApellidoMaterno = request.ApellidoMaterno,
+                    Ci = request.Ci,
+                    Complemento = request.Complemento,
+                    Email = request.Email,
+                    Telefono = request.Telefono,
+                    Rol = request.Rol,
+                    DireccionDomicilio = request.DireccionDomicilio ?? "Dirección no especificada",
+                    FechaNacimiento = fechaNac
+                };
+
+                var response = await _httpClient.PutAsJsonAsync($"/api/usuarios/{id}", payload);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    return (true, new List<string>());
+                }
+
+                var content = await response.Content.ReadAsStringAsync();
+                var errores = new List<string>();
+
+                try 
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(content);
+                    var root = doc.RootElement;
+
+                    if (root.TryGetProperty("errores", out var erroresProp) && erroresProp.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        foreach (var err in erroresProp.EnumerateArray())
+                            errores.Add(err.GetString() ?? "");
+                    }
+                    else if (root.TryGetProperty("errors", out var validationErrors) && validationErrors.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        foreach (var prop in validationErrors.EnumerateObject())
+                        {
+                            foreach (var err in prop.Value.EnumerateArray())
+                                errores.Add($"{prop.Name}: {err.GetString()}");
+                        }
+                    }
+                }
+                catch 
+                {
+                    errores.Add("Error de validación en los datos.");
+                }
+
+                return (false, errores.Any() ? errores : new List<string> { "Error desconocido en el servidor." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al actualizar usuario");
+                return (false, new List<string> { $"Error crítico: {ex.Message}" });
+            }
+        }
     }
 }

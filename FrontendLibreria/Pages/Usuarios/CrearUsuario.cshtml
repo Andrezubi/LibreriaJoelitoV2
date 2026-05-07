@@ -24,24 +24,24 @@
             <form method="post" class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label">Nombre</label>
-                    <input asp-for="NuevoUsuario.Nombre" class="form-control" required />
+                    <input asp-for="NuevoUsuario.Nombre" class="form-control" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Apellido Paterno</label>
-                    <input asp-for="NuevoUsuario.ApellidoPaterno" class="form-control" required />
+                    <input asp-for="NuevoUsuario.ApellidoPaterno" class="form-control" required pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Apellido Materno</label>
-                    <input asp-for="NuevoUsuario.ApellidoMaterno" class="form-control" />
+                    <input asp-for="NuevoUsuario.ApellidoMaterno" class="form-control" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]+" title="Solo se permiten letras" />
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label">CI</label>
-                    <input asp-for="NuevoUsuario.Ci" class="form-control" required />
+                    <input asp-for="NuevoUsuario.Ci" class="form-control" required pattern="\d{6,11}" title="Debe contener entre 6 y 11 dígitos" />
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Complemento</label>
-                    <input asp-for="NuevoUsuario.Complemento" class="form-control" />
+                    <input asp-for="NuevoUsuario.Complemento" class="form-control" pattern="\d[A-Za-z]" title="Formato requerido: 1A" />
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Email</label>
@@ -50,7 +50,7 @@
 
                 <div class="col-md-4">
                     <label class="form-label">Teléfono</label>
-                    <input asp-for="NuevoUsuario.Telefono" class="form-control" />
+                    <input asp-for="NuevoUsuario.Telefono" class="form-control" required pattern="[1-46-8][0-9]{7}" title="Debe tener 8 dígitos y no iniciar con 0, 5 o 9" />
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Rol</label>

@@ -34,6 +34,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
 
         public async Task<Resultado> InsertarAsync(Usuario usuario)
         {
+            NormalizarDatos(usuario);
             var validaciones = ValidadorEmpleado.Validar(usuario);
 
             if (validaciones.Any())
@@ -99,6 +100,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
 
         public Resultado Actualizar(Usuario usuario)
         {
+            NormalizarDatos(usuario);
             var validaciones = ValidadorEmpleado.Validar(usuario);
 
             if (validaciones.Any())
@@ -121,6 +123,23 @@ namespace Servicio_Clientes.Aplicacion.Servicios
         public int Eliminar(Usuario usuario)
         {
             return _usuarioRepositorio.Eliminar(usuario);
+        }
+
+        private void NormalizarDatos(Usuario usuario)
+        {
+            var textInfo = System.Globalization.CultureInfo.CurrentCulture.TextInfo;
+
+            if (!string.IsNullOrWhiteSpace(usuario.Nombre))
+                usuario.Nombre = textInfo.ToTitleCase(usuario.Nombre.Trim().ToLower());
+
+            if (!string.IsNullOrWhiteSpace(usuario.ApellidoPaterno))
+                usuario.ApellidoPaterno = textInfo.ToTitleCase(usuario.ApellidoPaterno.Trim().ToLower());
+
+            if (!string.IsNullOrWhiteSpace(usuario.ApellidoMaterno))
+                usuario.ApellidoMaterno = textInfo.ToTitleCase(usuario.ApellidoMaterno.Trim().ToLower());
+
+            if (!string.IsNullOrWhiteSpace(usuario.Complemento))
+                usuario.Complemento = usuario.Complemento.Trim().ToUpper();
         }
 
         public string GenerarNombreUsuario(string nombre, string apellidoPaterno)

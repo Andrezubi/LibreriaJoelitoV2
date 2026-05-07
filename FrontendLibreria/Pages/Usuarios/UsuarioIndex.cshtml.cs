@@ -24,6 +24,14 @@ namespace FrontendLibreria.Pages.Usuarios
         [TempData]
         public string? ErrorMessage { get; set; }
 
+        [BindProperty]
+        public SolicitudCrearUsuarioDto UsuarioEditar { get; set; } = new();
+
+        [BindProperty]
+        public int IdEditar { get; set; }
+
+        public List<string> ErroresValidacion { get; set; } = new();
+
         public async Task OnGetAsync()
         {
             Usuarios = await _usuarioAdapter.ObtenerTodos();
@@ -42,6 +50,27 @@ namespace FrontendLibreria.Pages.Usuarios
             }
 
             return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostEditarAsync()
+        {
+            var resultado = await _usuarioAdapter.Actualizar(IdEditar, UsuarioEditar);
+            if (resultado.Exito)
+            {
+                SuccessMessage = "Usuario actualizado exitosamente.";
+                return RedirectToPage();
+            }
+
+            ErroresValidacion = resultado.Errores;
+            Usuarios = await _usuarioAdapter.ObtenerTodos();
+            return Page();
+        }
+
+        public async Task<IActionResult> OnGetObtenerUsuarioAsync(int id)
+        {
+            var usuario = await _usuarioAdapter.ObtenerPorId(id);
+            if (usuario == null) return NotFound();
+            return new JsonResult(usuario);
         }
     }
 }

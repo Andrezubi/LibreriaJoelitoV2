@@ -14,6 +14,7 @@ namespace FrontendLibreria.DTOs.Servicio2DTOs
         public string Rol { get; set; } = "";
         public string NombreUsuario { get; set; } = "";
         public bool Estado { get; set; }
+        public string? FechaNacimiento { get; set; }
     }
 
     public class SolicitudCrearUsuarioDto

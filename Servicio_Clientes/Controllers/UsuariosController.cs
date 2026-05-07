@@ -59,6 +59,32 @@ namespace Servicio_Clientes.Controllers
             return Ok(usuarios);
         }
 
+        [HttpGet("{id}")]
+        public IActionResult ObtenerPorId(int id)
+        {
+            var row = _usuarioServicio.ObtenerPorId(id);
+            if (row == null) return NotFound();
+
+            var usuario = new
+            {
+                Id = Convert.ToInt32(row["Id"]),
+                Nombre = row["Nombre"]?.ToString(),
+                ApellidoPaterno = row["ApellidoPaterno"]?.ToString(),
+                ApellidoMaterno = row["ApellidoMaterno"] == DBNull.Value ? null : row["ApellidoMaterno"]?.ToString(),
+                Ci = row["Ci"]?.ToString(),
+                Complemento = row["Complemento"] == DBNull.Value ? null : row["Complemento"]?.ToString(),
+                FechaNacimiento = row["FechaNacimiento"]?.ToString(),
+                Email = row["Email"]?.ToString(),
+                DireccionDomicilio = row["DireccionDomicilio"] == DBNull.Value ? null : row["DireccionDomicilio"]?.ToString(),
+                Rol = row["Rol"]?.ToString(),
+                Telefono = row["Telefono"] == DBNull.Value ? null : row["Telefono"]?.ToString(),
+                FechaIngreso = row["FechaIngreso"]?.ToString(),
+                NombreUsuario = row["Username"]?.ToString()
+            };
+
+            return Ok(usuario);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Insertar([FromBody] Usuario usuario)
         {

@@ -79,6 +79,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                          Telefono = @telefono,
                          FechaNacimiento = @fechaNacimiento,
                          FechaIngreso = @fechaIngreso,
+                         Rol = @rol,
                          FechaUltimaActualizacion = NOW() 
                      WHERE id = @id;";
 
@@ -93,6 +94,7 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
             command.Parameters.AddWithValue("@telefono", t.Telefono);
             command.Parameters.AddWithValue("@fechaNacimiento", t.FechaNacimiento.ToString("yyyy-MM-dd"));
             command.Parameters.AddWithValue("@fechaIngreso", t.FechaIngreso.ToString("yyyy-MM-dd"));
+            command.Parameters.AddWithValue("@rol", t.Rol);
             command.Parameters.AddWithValue("@id", t.Id);
 
             return ExecuteNonQuery(command);
@@ -119,6 +121,17 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
 
         public DataRow? ObtenerPorId(int id)
         {
+            string query = @"SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno, Ci, Complemento, DATE_FORMAT(FechaNacimiento, '%d/%m/%Y') AS FechaNacimiento, Email, DireccionDomicilio, Rol, Telefono, DATE_FORMAT(FechaIngreso, '%Y-%m-%d') AS FechaIngreso, Username
+                    FROM Usuario
+                    WHERE Id = @id AND Estado = 1;";
+            MySqlCommand command = new MySqlCommand(query);
+            command.Parameters.AddWithValue("@id", id);
+            
+            DataTable dt = ExecuteReturningDataTable(command);
+            if (dt.Rows.Count > 0)
+            {
+                return dt.Rows[0];
+            }
             return null;
         }
 

@@ -84,7 +84,7 @@ namespace Servicio_Clientes.Aplicacion.Validators
             !string.IsNullOrEmpty(ci) && ci.All(char.IsDigit) && ci.Length >= 6 && ci.Length <= 11;
 
         private static bool esExtensionCarnetValida(string ext) =>
-            string.IsNullOrEmpty(ext) || ext.Length == 2 && char.IsDigit(ext[0]) && char.IsLetter(ext[1]);
+            string.IsNullOrEmpty(ext) || (ext.Length == 2 && char.IsDigit(ext[0]) && char.IsUpper(ext[1]));
 
         private static bool esFechaNacimientoValida(DateOnly fecha)
         {
