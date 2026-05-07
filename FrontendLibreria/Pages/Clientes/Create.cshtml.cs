@@ -45,7 +45,6 @@ namespace FrontendLibreria.Pages.Clientes
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error);
-
                 return Page();
             }
 
