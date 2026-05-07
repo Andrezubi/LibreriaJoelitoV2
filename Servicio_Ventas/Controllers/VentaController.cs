@@ -107,5 +107,16 @@ namespace Servicio_Ventas.Controllers
 
             return Ok(resultado.Value);
         }
+
+        [HttpGet("reporte-servicios")]
+        public IActionResult ObtenerReporteServicios()
+        {
+            var resultado = _consultaVentaServicio.ObtenerReporteServicios();
+
+            if (resultado == null)
+                return NoContent();
+
+            return Ok(resultado.Value);
+        }
     }
 }

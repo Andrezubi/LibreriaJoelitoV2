@@ -65,5 +65,19 @@ namespace FrontendLibreria.Adapters.Venta
                 $"api/Venta/{idVenta}/completa"
             );
         }
+
+        public async Task<List<Reporte1DTO>> ObtenerReporteServiciosAsync()
+        {
+            try
+            {
+                // Consume el endpoint de reporte en tu API de Ventas
+                var reporte = await _httpClient.GetFromJsonAsync<List<Reporte1DTO>>("api/Venta/reporte-servicios");
+                return reporte ?? new List<Reporte1DTO>();
+            }
+            catch (Exception)
+            {
+                return new List<Reporte1DTO>();
+            }
+        }
     }
 }

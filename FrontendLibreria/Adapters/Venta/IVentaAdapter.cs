@@ -17,5 +17,7 @@ namespace FrontendLibreria.Adapters.Venta
         Task<byte[]> GenerarComprobantePdfAsync(int idVenta);
 
         Task<VentaCompletaDTO?> ObtenerVentaCompletaAsync(int idVenta);
+
+        Task<List<Reporte1DTO>> ObtenerReporteServiciosAsync();
     }
 }
