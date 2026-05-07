@@ -1,14 +1,12 @@
 
 using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Aplicacion.Servicios;
-using Servicio_Ventas.Aplicacion.Interfaces;
 using Servicio_Ventas.Dominio.Modelos;
 using Servicio_Ventas.Dominio.Validadores;
 using Servicio_Ventas.Infrestructura.FactoriaCreadores;
 using Servicio_Ventas.Infrestructura.Persistencia;
 using Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos;
 using Servicio_Ventas.Infrestructura.ServiciosExternos;
-using Servicio_Ventas.Dominio.Validadores;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +33,7 @@ builder.Services.AddScoped<PresentacionRepositorio>(provider => {
 });
 builder.Services.AddScoped<PresentacionProductoRepositorio>(provider => {
     return new PresentacionProductoCreadorRepositorio().CrearRepositorio();
+});
 builder.Services.AddScoped<ClienteRepositorio>(provider => {
     return new ClienteCreadorRepositorio().CrearRepositorio();
 });

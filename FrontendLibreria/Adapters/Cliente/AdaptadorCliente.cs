@@ -43,5 +43,27 @@ namespace FrontendLibreria.Adapters.Cliente
                 ? ResultadoApi.Ok()
                 : ResultadoApi.Fail(new List<string> { "Error al eliminar" });
         }
+
+        public async Task<ClienteDto?> ObtenerPorCiAsync(string ci)
+        {
+            var response = await _http.GetAsync($"api/Cliente/buscar-ci/{Uri.EscapeDataString(ci)}");
+
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                return null;
+
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadFromJsonAsync<ClienteDto>();
+        }
+
+        public async Task<List<ClienteDto>> ObtenerSimilaresPorCiAsync(string ci)
+        {
+            var response = await _http.GetAsync($"api/Cliente/similares-ci/{Uri.EscapeDataString(ci)}");
+
+            if (!response.IsSuccessStatusCode)
+                return new List<ClienteDto>();
+
+            return await response.Content.ReadFromJsonAsync<List<ClienteDto>>() ?? new List<ClienteDto>();
+        }
     }
 }

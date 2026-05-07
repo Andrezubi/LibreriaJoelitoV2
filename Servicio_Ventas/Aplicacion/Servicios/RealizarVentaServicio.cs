@@ -110,7 +110,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
         public DataRow ObtenerPorId(int id)
         {
             MySqlCommand cmd = new MySqlCommand(@"
-                SELECT Id, Nombre, ApellidoPaterno, ApellidoMaterno,
+                SELECT Id, RazonSocial,
                        Ci AS Ci, Complemento, Email, ClienteFrecuente AS ClienteFrecuente, FechaRegistro
                 FROM Cliente
                 WHERE Id = @id AND Estado = 1");
