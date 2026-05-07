@@ -7,16 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Aplicacion\Servicios\" />
-    <Folder Include="Dominio\Modelos\" />
-    <Folder Include="Dominio\Validadores\" />
-    <Folder Include="Infrestructura\Persistencia\FactoriaProductos\" />
-    <Folder Include="Infrestructura\ServiciosExternos\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
     <PackageReference Include="MySql.Data" Version="9.7.0" />
     <PackageReference Include="QuestPDF" Version="2026.2.4" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
   </ItemGroup>
+
 
 </Project>
