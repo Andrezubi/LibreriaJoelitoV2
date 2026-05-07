@@ -33,8 +33,10 @@ builder.Services.AddScoped<ProductoRepositorio>(provider => {
 builder.Services.AddScoped<PresentacionRepositorio>(provider => {
     return new PresentacionCreadorRepositorio().CrearRepositorio();
 });
-builder.Services.AddScoped<PresentacionProductoRepositorio>(provider => {
+builder.Services.AddScoped<PresentacionProductoRepositorio>(provider =>
+{
     return new PresentacionProductoCreadorRepositorio().CrearRepositorio();
+});
 builder.Services.AddScoped<ClienteRepositorio>(provider => {
     return new ClienteCreadorRepositorio().CrearRepositorio();
 });

@@ -49,7 +49,14 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             if (idPresentacion <= 0) return Result<int>.Failure("Debe seleccionar una presentación válida.");
             if (factorConversion <= 0) return Result<int>.Failure("El factor de conversión debe ser mayor a cero.");
             if (precioVenta <= 0) return Result<int>.Failure("El precio de venta debe ser mayor a cero.");
-
+            var validationResults = productoValidador.ValidarProducto(producto);
+            if (validationResults.Any())
+            {
+                var errors = validationResults
+                    .Select(v => $"{v.ErrorMessage}")
+                    .ToList();
+                return Result<int>.Failure(errors);
+            }
             using (var scope = new TransactionScope())
             {
                 try
