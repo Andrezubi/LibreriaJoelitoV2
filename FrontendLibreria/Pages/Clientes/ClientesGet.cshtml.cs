@@ -41,7 +41,10 @@ namespace FrontendLibreria.Pages.Clientes
                 var resultado = await _adaptadorCliente.ActualizarAsync(ClienteEditar);
 
                 if (!resultado.Success)
-                    return new JsonResult(new { success = false, message = resultado.Errors.First() });
+                {
+                    string errorAgrupado = string.Join("<br/>• ", resultado.Errors);
+                    return new JsonResult(new { success = false, message = "• " + errorAgrupado });
+                }
 
                 TempData["MensajeExito"] =
                     $"Cliente '{ClienteEditar.RazonSocial}' actualizado exitosamente.";

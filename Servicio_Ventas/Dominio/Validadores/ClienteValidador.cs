@@ -42,14 +42,32 @@ namespace Servicio_Ventas.Dominio.Validadores
         {
             if (string.IsNullOrWhiteSpace(ci))
             {
-                errores.Add(new ValidationResult("El CI es obligatorio.", new[] { "_cliente.Ci" }));
+                errores.Add(new ValidationResult("El CI es obligatorio."));
+                return;
             }
-            else
+
+            if (!Regex.IsMatch(ci, @"^\d+$"))
             {
-                if (ci.Length < 6 || ci.Length >10)
-                    errores.Add(new ValidationResult("El CI debe tener entre 6 y 10 caracteres.", new[] { "_cliente.Ci" }));
-                if (!Regex.IsMatch(ci, @"^\d+$"))
-                    errores.Add(new ValidationResult("El CI solo puede contener números.", new[] { "_cliente.Ci" }));
+                errores.Add(new ValidationResult("El CI solo puede contener números."));
+                return; 
+            }
+
+            if (ci.Length < 6 || ci.Length > 10)
+            {
+                errores.Add(new ValidationResult("El CI debe tener entre 6 y 10 caracteres."));
+                return;
+            }
+
+            if (Regex.IsMatch(ci, @"^0{3,}"))
+            {
+                errores.Add(new ValidationResult("El CI no es válido."));
+                return;
+            }
+
+            if (long.TryParse(ci, out long valor) && valor < 10000)
+            {
+                errores.Add(new ValidationResult("El CI ingresado no parece válido."));
+                return;
             }
         }
 

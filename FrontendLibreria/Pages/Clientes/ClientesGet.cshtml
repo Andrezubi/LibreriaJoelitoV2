@@ -51,9 +51,9 @@
                                 {
                                     <tr>
                                         <td>@cliente.RazonSocial</td>
-                                        @if (cliente.Complemento != null && !string.IsNullOrEmpty(cliente.Complemento.ToString()))
+                                        @if (!string.IsNullOrWhiteSpace(cliente.Complemento))
                                         {
-                                            <td>(@cliente.Ci + "-" + @cliente.Complemento )</td>
+                                            <td>@($"{cliente.Ci}-{cliente.Complemento}")</td>
                                         }
                                         else
                                         {
