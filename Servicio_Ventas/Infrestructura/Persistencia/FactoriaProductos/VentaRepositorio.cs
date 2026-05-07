@@ -212,11 +212,6 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             return ExecuteNonQuery(comando);
         }
 
-        public bool ExisteDuplicado(Venta venta)
-        {
-            return false;
-        }
-
         public DataTable ObtenerDatosComprobante(int idVenta)
         {
             string consulta = @"SELECT 

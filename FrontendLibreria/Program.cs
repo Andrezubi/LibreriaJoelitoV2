@@ -13,7 +13,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
 
-<<<<<<<<< Temporary merge branch 1
 // ── Autenticación con Cookie HttpOnly ──────────────────────────────────────
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -40,11 +39,13 @@ builder.Services.AddHttpClient<IAdaptadorCliente, AdaptadorCliente>(client => {
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:ServicioVentasUrl"]!);
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:ServicioVentasUrl"]!);
 });
-builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client => {
+builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
 {
-    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
-    if (string.IsNullOrWhiteSpace(baseUrl)) throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
-    client.BaseAddress = new Uri(baseUrl);
+    {
+        string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
+        if (string.IsNullOrWhiteSpace(baseUrl)) throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+        client.BaseAddress = new Uri(baseUrl);
+    }
 });
 
 builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client => {

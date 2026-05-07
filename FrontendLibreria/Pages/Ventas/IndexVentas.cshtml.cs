@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace FrontendLibreria.Pages.Ventas
 {
-    //[Authorize(Roles = "Administrador,Empleado")]
+    [Authorize(Roles = "Administrador,Empleado")]
     public class IndexVentasModel : PageModel
     {
         private readonly IVentaAdapter _ventaAdapter;

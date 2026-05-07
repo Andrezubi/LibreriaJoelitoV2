@@ -24,7 +24,7 @@ namespace Servicio_Clientes.Aplicacion.Servicios
         public byte[] GenerarPdf(DateTime fechaDesde, DateTime fechaHasta, string usuario)
         {
             var datos = _repo.ObtenerVentasPorCategoria(fechaDesde, fechaHasta);
-            var logoPath = Path.Combine(_env.WebRootPath, "img", "logo-lib.png");
+            var logoPath = Path.Combine(_env.ContentRootPath, "Recursos", "Imagenes", "logo-lib.png");
             byte[] logoBytes = File.Exists(logoPath) ? File.ReadAllBytes(logoPath) : Array.Empty<byte>();
             byte[] graficoPng = GenerarGraficoTorta(datos);
 
