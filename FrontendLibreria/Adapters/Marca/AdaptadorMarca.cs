@@ -37,14 +37,11 @@ namespace FrontendLibreria.Adapters.Marca
 
         public async Task<ResultadoApi> EliminarAsync(int id, int idUsuario)
         {
-            var request = new HttpRequestMessage(HttpMethod.Delete, $"api/Marca/{id}")
-            {
-                Content = JsonContent.Create(new { IdUsuario = idUsuario })
-            };
-            var response = await _http.SendAsync(request);
+            var response = await _http.DeleteAsync($"api/Marca/{id}?idUsuario={idUsuario}");
             return response.IsSuccessStatusCode
                 ? ResultadoApi.Ok()
                 : ResultadoApi.Fail(new List<string> { "Error al eliminar" });
         }
+
     }
 }

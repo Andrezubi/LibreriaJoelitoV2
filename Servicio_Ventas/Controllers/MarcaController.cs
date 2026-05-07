@@ -44,10 +44,18 @@ namespace Servicio_Ventas.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Eliminar(int id, [FromBody] Marca marca)
+        public IActionResult Eliminar(int id, [FromQuery] int idUsuario)
         {
-            marca.Id = id;
-            _marcaServicio.Eliminar(marca);
+            var marca = new Marca
+            {
+                Id = id,
+                IdUsuario = idUsuario
+            };
+            var filas = _marcaServicio.Eliminar(marca);
+
+            if (filas == 0)
+                return BadRequest("No se eliminó ningún registro");
+
             return Ok();
         }
     }
