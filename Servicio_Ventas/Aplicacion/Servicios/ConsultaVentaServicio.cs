@@ -196,5 +196,9 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             }
             return resultado;
         }
+        public List<Reporte1DTO> ObtenerReporteServicios()
+        {
+            return _ventaRepositorio.ObtenerReporteServicios();
+        }
     }
 }

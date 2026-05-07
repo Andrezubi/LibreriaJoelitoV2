@@ -1,0 +1,38 @@
+﻿@page
+@model FrontendLibreria.Pages.Servicio2Pages.CerradoSesionModel
+@{
+    ViewData["Title"] = "Cerrar sesión";
+    ViewData["OcultarSidebar"] = true;
+}
+
+<div class="logout-container">
+
+    <div class="logout-card">
+
+        <div class="logout-icon">
+            🔒
+        </div>
+
+        <h3>Cerrar sesión</h3>
+
+        <p>
+            ¿Estás seguro que deseas salir del sistema?
+        </p>
+
+        <form method="post">
+            <div class="logout-buttons">
+
+                <a href="/Index" class="btn-cancelarlog">
+                    Cancelar
+                </a>
+
+                <button type="submit" class="btn-confirmar">
+                    Cerrar sesión
+                </button>
+
+            </div>
+        </form>
+
+    </div>
+
+</div>}

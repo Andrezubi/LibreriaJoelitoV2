@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="utf-8" />
@@ -49,7 +49,7 @@
                         @User.Identity?.Name
                     </span>
 
-                    <form method="get" action="/Usuarios/Logout">
+                    <form method="get" action="/Servicio2Pages/CerradoSesion">
                         <button type="submit" class="btn-logout">Cerrar sesión</button>
                     </form>
                 </div>
@@ -95,7 +95,7 @@
                         </div>
 
                         <div class="collapse submenu" id="menuProductos">
-                            <a href="/Productos/MostrarProductos" class="submenu-item">
+                            <a href="/Productos/IndiceProductos" class="submenu-item">
                                 <img class="menu-icon" src="~/img/prod-lib.svg">
                                 <span>Productos Disponibles</span>
                             </a>
@@ -109,6 +109,9 @@
                                 <img class="menu-icon" src="~/img/categoria-lib.svg">
                                 <span>Categoría</span>
                             </a>
+
+              
+
                         </div>
                     }
 
@@ -126,11 +129,18 @@
                             <img class="menu-icon" src="~/img/emp-lib.svg">
                             <span>Usuarios</span>
                         </a>
+
+                        <!-- REPORTES — fuera del collapse, visible solo para admin -->
+                        <a href="/Servicio2Pages/Reportes/ReporteVentasCategoria" class="menu-item">
+                            <img class="menu-icon" src="~/img/ventas-lib.svg">
+                            <span>Reporte Categorías</span>
+                        </a>
+
                     }
 
                     @if (esAdministrador || esEmpleado)
                     {
-                        <a href="/Ventas/MostrarVentas" class="menu-item">
+                        <a href="/Ventas/IndexVentas" class="menu-item">
                             <img class="menu-icon" src="~/img/ventas-lib.svg">
                             <span>Ventas</span>
                         </a>
@@ -163,7 +173,7 @@
     }
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 
 </body>
 </html>

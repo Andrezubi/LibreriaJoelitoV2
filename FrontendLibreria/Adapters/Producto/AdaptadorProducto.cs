@@ -1,4 +1,4 @@
-﻿using FrontendLibreria.DTOs;
+using FrontendLibreria.DTOs;
 using Microsoft.AspNetCore.Http;
 
 namespace FrontendLibreria.Adapters.Producto
@@ -7,10 +7,26 @@ namespace FrontendLibreria.Adapters.Producto
     public class AdaptadorProducto : IAdaptadorProducto
     {
         private readonly HttpClient _http;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AdaptadorProducto(HttpClient http)
+        public AdaptadorProducto(HttpClient http, IHttpContextAccessor httpContextAccessor)
         {
             _http = http;
+            _httpContextAccessor = httpContextAccessor;
+
+            var idUsuario = _httpContextAccessor.HttpContext?.User?.FindFirst("IdUsuario")?.Value;
+            if (!string.IsNullOrEmpty(idUsuario))
+            {
+                if (_http.DefaultRequestHeaders.Contains("X-IdUsuario"))
+                    _http.DefaultRequestHeaders.Remove("X-IdUsuario");
+                _http.DefaultRequestHeaders.Add("X-IdUsuario", idUsuario);
+            }
+
+            var token = _httpContextAccessor.HttpContext?.User?.FindFirst("Token")?.Value;
+            if (!string.IsNullOrEmpty(token))
+            {
+                _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
         }
 
         public async Task<List<ProductoDto>> GetAllAsync()

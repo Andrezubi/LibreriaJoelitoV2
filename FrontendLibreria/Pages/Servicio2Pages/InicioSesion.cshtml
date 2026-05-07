@@ -1,0 +1,145 @@
+@page
+@model FrontendLibreria.Pages.Servicio2Pages.InicioSesionModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    ViewData["OcultarSidebar"] = true;
+    Layout = "_Layout";
+}
+
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <div class="login-logo"></div>
+        <h2 class="login-title">LIBRERÍA JOELITO</h2>
+        <p class="login-subtitle">Sistema de Gestión</p>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="login-error">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <form method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="login-field">
+                <label for="NombreUsuario">Usuario</label>
+                <input type="text" id="NombreUsuario" name="NombreUsuario"
+                       value="@Model.NombreUsuario"
+                       placeholder="Ingrese su usuario" autocomplete="username" required />
+            </div>
+
+            <div class="login-field">
+                <label for="Contrasena">Contraseña</label>
+                <input type="password" id="Contrasena" name="Contrasena"
+                       placeholder="Ingrese su contraseña" autocomplete="current-password" required />
+            </div>
+
+            <button type="submit" class="btn-login-submit">Ingresar</button>
+        </form>
+
+    </div>
+</div>
+
+<style>
+    .login-wrapper {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--color-bg, #f4f6fb);
+    }
+
+    .login-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 32px rgba(0,0,0,0.10);
+        padding: 48px 40px 40px 40px;
+        width: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-logo {
+        width: 72px;
+        height: 72px;
+        background: url('/img/logo-lib.png') center/contain no-repeat;
+        margin-bottom: 12px;
+    }
+
+    .login-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 1.4rem;
+        color: #1a237e;
+        margin: 0;
+        letter-spacing: 1px;
+    }
+
+    .login-subtitle {
+        color: #888;
+        font-size: 0.9rem;
+        margin-bottom: 28px;
+    }
+
+    .login-error {
+        background: #fdecea;
+        color: #c62828;
+        border-radius: 8px;
+        padding: 10px 16px;
+        width: 100%;
+        font-size: 0.9rem;
+        margin-bottom: 16px;
+        text-align: center;
+    }
+
+    .login-field {
+        width: 100%;
+        margin-bottom: 18px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .login-field label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #333;
+        margin-bottom: 6px;
+    }
+
+    .login-field input {
+        border: 1.5px solid #d0d7e2;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.97rem;
+        outline: none;
+        transition: border-color 0.2s;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .login-field input:focus {
+        border-color: #1a237e;
+    }
+
+    .btn-login-submit {
+        width: 100%;
+        background: #1a237e;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        font-family: 'Poppins', sans-serif;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: background 0.2s;
+    }
+
+    .btn-login-submit:hover {
+        background: #283593;
+    }
+</style>
