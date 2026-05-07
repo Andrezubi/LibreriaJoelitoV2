@@ -28,7 +28,7 @@ namespace Servicio_Ventas.Infrestructura.ServiciosExternos
 
             string rutaLogo = Path.Combine(_env.ContentRootPath, "Recursos", "Imagenes", "logo-lib.png");
             string nombreEmpleado = cabecera["NombreEmpleado"].ToString() ?? string.Empty;
-            string razonSocial = $"{cabecera["ClienteNombre"]} {cabecera["ApellidoPaterno"]}".Trim();
+            string razonSocial = cabecera["RS"].ToString() ?? string.Empty;
 
             string colorPrincipal = "#7B2CBF";
             string colorSecundario = "#9D4EDD";

@@ -1,38 +1,16 @@
-<<<<<<< HEAD
-using FrontendLibreria.Adapters.Servicio2Adapters;
-using Microsoft.AspNetCore.Authentication.Cookies;
-=======
+using FrontendLibreria.Adapters.Producto;
+using FrontendLibreria.Adapters.Cliente;
 using FrontendLibreria.Adapters.Venta;
->>>>>>> 3534f9c8a07f506031f1663c4b83a351de9c3fa8
-
+using FrontendLibreria.Adapters.Marca;
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 builder.Services.AddRazorPages();
 
-<<<<<<< HEAD
-// ── Autenticación con Cookie HttpOnly ──────────────────────────────────────
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    .AddCookie(options =>
-    {
-        options.LoginPath = "/Servicio2/InicioSesion";  // ✅ Coincide con @page en InicioSesion.cshtml
-        options.LogoutPath = "/Usuarios/Logout";
-        options.AccessDeniedPath = "/Servicio2/InicioSesion";  // ✅ Sincronizado
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.ExpireTimeSpan = TimeSpan.FromHours(8);
-    });
-
-builder.Services.AddAuthorization();
-
-// ── Adapter hacia Servicio 2 ───────────────────────────────────────────────
-builder.Services.AddHttpClient<IUsuarioServicioAdapter, UsuarioServicioAdapter>(client =>
+builder.Services.AddHttpClient<IAdaptadorCliente, AdaptadorCliente>(client =>
 {
-    // URL del Servicio 2 (puerto 7002 HTTPS / 5002 HTTP)
-    client.BaseAddress = new Uri(builder.Configuration["UsuarioService:BaseUrl"]
-                                 ?? "https://localhost:7002");
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:ServicioVentasUrl"]!);
 });
-
-=======
 
 //Inyectar el servicio de HttpClient para consumir la API
 builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
@@ -44,56 +22,45 @@ builder.Services.AddHttpClient<IVentaAdapter, VentaAdapter>(client =>
 
     client.BaseAddress = new Uri(baseUrl);
 });
+builder.Services.AddHttpClient<IAdaptadorProducto, AdaptadorProducto>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
 
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
 
->>>>>>> 3534f9c8a07f506031f1663c4b83a351de9c3fa8
+    client.BaseAddress = new Uri(baseUrl);
+});
+
+builder.Services.AddHttpClient<IAdaptadorMarca, AdaptadorMarca>(client =>
+{
+    string? baseUrl = builder.Configuration["ApiSettings:ServicioVentasUrl"];
+
+    if (string.IsNullOrWhiteSpace(baseUrl))
+        throw new Exception("No se configuró ApiSettings:ServicioVentasUrl.");
+
+    client.BaseAddress = new Uri(baseUrl);
+});
+
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 
-
-
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+
 app.UseRouting();
 
-app.UseAuthentication();   // ← debe ir ANTES de Authorization
 app.UseAuthorization();
 
-// Filtro global: bloquea navegación si MustChangePassword = true
-app.Use(async (context, next) =>
-{
-    var path = context.Request.Path.Value ?? "";
-    var user = context.User;
-
-    bool estaAutenticado = user.Identity?.IsAuthenticated == true;
-    bool debeCambiar = user.FindFirst("MustChangePassword")?.Value == "True";
-
-    // Rutas permitidas aunque deba cambiar contraseña
-    bool esRutaPermitida =
-        path.StartsWith("/Usuarios/CambiarContrasena", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/Usuarios/Logout", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/Servicio2/InicioSesion", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/css", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/js", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/img", StringComparison.OrdinalIgnoreCase) ||
-        path.StartsWith("/lib", StringComparison.OrdinalIgnoreCase);
-
-    if (estaAutenticado && debeCambiar && !esRutaPermitida)
-    {
-        context.Response.Redirect("/Usuarios/CambiarContrasena");
-        return;
-    }
-
-    await next();
-});
-
-
-app.MapRazorPages();
+app.MapStaticAssets();
+app.MapRazorPages()
+   .WithStaticAssets();
 
 app.Run();
