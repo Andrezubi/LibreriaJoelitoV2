@@ -37,6 +37,9 @@ builder.Services.AddScoped<PresentacionProductoRepositorio>(provider => {
 builder.Services.AddScoped<ClienteRepositorio>(provider => {
     return new ClienteCreadorRepositorio().CrearRepositorio();
 });
+builder.Services.AddScoped<MarcaRepositorio>(provider => {
+    return new MarcaCreadorRepositorio().CrearRepositorio();
+});
 
 
 //Inyeccion Servicios
@@ -46,14 +49,13 @@ builder.Services.AddScoped<ConsultaVentaServicio>();
 builder.Services.AddScoped<GestionInventarioServicio>();
 builder.Services.AddScoped<PresentacionServicio>();
 builder.Services.AddScoped<ProductoServicio>();
-
+builder.Services.AddScoped<ClienteServicio>();
+builder.Services.AddScoped<MarcaServicio>();
 
 
 //Inyeccion Validadores
 builder.Services.AddScoped<ProductoValidador>();
-
-
-builder.Services.AddScoped<ClienteServicio>();
+builder.Services.AddScoped<MarcaValidador>();
 builder.Services.AddScoped<ClienteValidador>(); 
 // Add services to the container.
 
