@@ -1,18 +1,30 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Servicio_Ventas.Aplicacion.Servicios;
 using Servicio_Ventas.Dominio.Modelos;
 
 namespace Servicio_Ventas.Controllers
 {
+    [Microsoft.AspNetCore.Authorization.Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ClienteController : ControllerBase
     {
         private readonly ClienteServicio _clienteServicio;
+        private readonly Infrestructura.Persistencia.FactoriaProductos.BitacoraRepositorio _bitacoraRepo;
 
-        public ClienteController(ClienteServicio clienteServicio)
+        public ClienteController(ClienteServicio clienteServicio, Infrestructura.Persistencia.FactoriaProductos.BitacoraRepositorio bitacoraRepo)
         {
             _clienteServicio = clienteServicio;
+            _bitacoraRepo = bitacoraRepo;
+        }
+
+        private int GetIdUsuarioFromHeader()
+        {
+            if (Request.Headers.TryGetValue("X-IdUsuario", out var idStr))
+            {
+                if (int.TryParse(idStr, out int id)) return id;
+            }
+            return 0;
         }
 
         [HttpGet]
@@ -43,6 +55,9 @@ namespace Servicio_Ventas.Controllers
         {
             var result = _clienteServicio.Insertar(cliente);
             if (result.IsFailure) return BadRequest(new { errores = result.Errors });
+
+            // AUDITORÍA
+            _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "INSERT", "Cliente", $"Nuevo cliente registrado con ID: {result.Value}");
             return Ok(new { success = true, id = result.Value });
         }
 
@@ -52,6 +67,9 @@ namespace Servicio_Ventas.Controllers
             cliente.Id = id;
             var result = _clienteServicio.Actualizar(cliente);
             if (result.IsFailure) return BadRequest(new { errores = result.Errors });
+
+            // AUDITORÍA
+            _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "UPDATE", "Cliente", $"Cliente actualizado ID: {id}");
             return Ok(new { success = true });
         }
 
@@ -60,6 +78,9 @@ namespace Servicio_Ventas.Controllers
         {
             cliente.Id = id;
             _clienteServicio.Eliminar(cliente);
+
+            // AUDITORÍA
+            _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "DELETE", "Cliente", $"Cliente eliminado ID: {id}");
             return Ok();
         }
     }

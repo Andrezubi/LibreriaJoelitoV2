@@ -23,6 +23,13 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
 
                 _httpClient.DefaultRequestHeaders.Add("X-IdUsuario", idUsuario);
             }
+
+            // Extraer el Token JWT y enviarlo en la cabecera Authorization
+            var token = _httpContextAccessor.HttpContext?.User?.FindFirst("Token")?.Value;
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
         }
 
         public async Task<ResultLoginDto> Login(SolicitudLoginDto request)

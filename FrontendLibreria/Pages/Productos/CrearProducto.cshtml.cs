@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 using System.Data;
 using System.Security.Claims;
-using Servicio_Ventas.Infrestructura.Persistencia;
 
 // Pages/Productos/CrearProducto.cshtml.cs
 namespace FrontendLibreria.Pages.Productos
