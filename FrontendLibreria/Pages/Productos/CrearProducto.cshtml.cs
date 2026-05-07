@@ -60,12 +60,14 @@ namespace FrontendLibreria.Pages.Productos
             },IdPresentacionSeleccionada,FactorConversion,PrecioVenta);
 
 
-            
 
-            if (!result.Success )
+
+            if (!result.Success)
             {
-                var errores = result.Errors;
-                ModelState.AddModelError(string.Empty, string.Join(", ", errores));
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
 
                 await CargarListasAsync();
                 return Page();
