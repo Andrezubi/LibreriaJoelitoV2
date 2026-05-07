@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Servicio_Clientes.Aplicacion.Interfaces;
 using Servicio_Clientes.Aplicacion.Servicios;
@@ -66,6 +67,34 @@ namespace Servicio_Clientes.Controllers
             var usuario = await Task.Run(() => _usuarioRepo.ObtenerDatosLogin(nombreUsuario));
             // Si usuario es null -> no existe o está inactivo -> considerarlo eliminado = true
             return Ok(usuario == null ? true : false);
+        }
+
+       
+
+        [HttpPost("cambiar-contrasena")]
+        [Authorize]
+        public IActionResult CambiarContrasena([FromBody] CambiarContrasenaPeticion request)
+        {
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.ContrasenaActual) ||
+                string.IsNullOrWhiteSpace(request.NuevaContrasena) ||
+                string.IsNullOrWhiteSpace(request.ConfirmacionContrasena))
+                return BadRequest(new { mensaje = "Todos los campos son requeridos." });
+
+            if (request.NuevaContrasena != request.ConfirmacionContrasena)
+                return BadRequest(new { mensaje = "La nueva contraseña y su confirmación no coinciden." });
+
+            // Obtener username del JWT
+            var nombreUsuario = User.Identity?.Name;
+            if (string.IsNullOrEmpty(nombreUsuario))
+                return Unauthorized(new { mensaje = "Sesión inválida." });
+
+            var resultado = _usuarioServicio.CambiarContrasena(nombreUsuario, request.ContrasenaActual, request.NuevaContrasena);
+
+            if (!resultado.EsExito)
+                return BadRequest(new { errores = resultado.Errores });
+
+            return Ok(new { mensaje = "Contraseña actualizada correctamente." });
         }
     }
 

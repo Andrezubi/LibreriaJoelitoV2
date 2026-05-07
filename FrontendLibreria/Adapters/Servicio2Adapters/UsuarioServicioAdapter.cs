@@ -211,5 +211,65 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
                 return null;
             }
         }
+
+        public async Task<(bool Exito, List<string> Errores)> CambiarContrasena(
+    string contrasenaActual,
+    string nuevaContrasena,
+    string confirmacion,
+    string token)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, "/api/auth/cambiar-contrasena")
+                {
+                    Content = JsonContent.Create(new
+                    {
+                        ContrasenaActual = contrasenaActual,
+                        NuevaContrasena = nuevaContrasena,
+                        ConfirmacionContrasena = confirmacion
+                    })
+                };
+
+                // Enviar el JWT en el header Authorization
+                request.Headers.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                    return (true, new List<string>());
+
+                var content = await response.Content.ReadAsStringAsync();
+                var errores = new List<string>();
+
+                try
+                {
+                    using var doc = System.Text.Json.JsonDocument.Parse(content);
+                    var root = doc.RootElement;
+
+                    if (root.TryGetProperty("errores", out var arr) &&
+                        arr.ValueKind == System.Text.Json.JsonValueKind.Array)
+                    {
+                        foreach (var e in arr.EnumerateArray())
+                            errores.Add(e.GetString() ?? "");
+                    }
+                    else if (root.TryGetProperty("mensaje", out var msg))
+                    {
+                        errores.Add(msg.GetString() ?? "Error desconocido.");
+                    }
+                }
+                catch
+                {
+                    errores.Add("Error al procesar la respuesta del servidor.");
+                }
+
+                return (false, errores);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cambiar contraseña");
+                return (false, new List<string> { "No se pudo conectar con el servicio." });
+            }
+        }
     }
 }

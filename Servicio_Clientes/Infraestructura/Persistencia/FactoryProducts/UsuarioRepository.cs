@@ -186,11 +186,24 @@ namespace Servicio_Clientes.Infraestructura.Persistencia.FactoryProducts
                         Contrasena = reader["Password"].ToString(),
                         Rol = reader["Rol"].ToString(),
                         Id = int.Parse(reader["Id"].ToString() ?? ""),
-                        DebeCambiarContrasena = Convert.ToBoolean(reader["MustChangePassword"])
+                        DebeCambiarContrasena = Convert.ToInt32(reader["MustChangePassword"]) == 1
                     };
                 }
             }
             return null;
+        }
+        public int CambiarContrasena(string nombreUsuario, string nuevoHash)
+        {
+            string query = @"UPDATE Usuario 
+                     SET Password = @password, 
+                         MustChangePassword = 0,
+                         FechaUltimaActualizacion = NOW()
+                     WHERE Username = @username AND Estado = 1";
+
+            MySqlCommand command = new MySqlCommand(query);
+            command.Parameters.AddWithValue("@password", nuevoHash);
+            command.Parameters.AddWithValue("@username", nombreUsuario);
+            return ExecuteNonQuery(command);
         }
     }
 }

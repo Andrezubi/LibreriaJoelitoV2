@@ -98,7 +98,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             string consulta = @"SELECT v.Id,
                                v.Estado AS EstadoVenta,
                                c.Ci AS CiCliente,
-                               c.Nombre AS NombreCliente,
+                               c.RazonSocial AS RS,
                                u.Nombre AS NombreEmpleado,
                                v.Fecha,
                                v.Total
@@ -121,7 +121,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
                 Id = reader.GetInt32("Id"),
                 EstadoVenta = reader.GetInt32("EstadoVenta"),
                 CiCliente = reader.GetInt32("CiCliente"),
-                NombreCliente = reader.GetString("NombreCliente"),
+                NombreCliente = reader.GetString("RS"),
                 NombreEmpleado = reader.GetString("NombreEmpleado"),
                 Fecha = reader.GetDateTime("Fecha"),
                 Total = reader.GetDecimal("Total")
@@ -226,9 +226,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
                                     v.FechaRegistro,
                                     c.Ci, 
                                     c.Complemento, 
-                                    c.Nombre AS ClienteNombre, 
-                                    c.ApellidoPaterno, 
-                                    c.ApellidoMaterno,
+                                    c.RazonSocial as RS,
                                     u.Username AS NombreEmpleado,
                                     dv.Cantidad, 
                                     CONCAT(pr.Nombre, ' de ', p.Nombre, ' ', m.Nombre) AS DescripcionProducto,
@@ -254,7 +252,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             string consulta = @"SELECT v.Id,
                                     v.Estado AS EstadoVenta,
                                     c.Ci AS CiCliente,
-                                    c.Nombre AS NombreCliente,
+                                    c.RazonSocial AS NombreCliente,
                                     v.Fecha
                                 FROM venta v
                                 INNER JOIN cliente c ON v.IdCliente = c.Id
@@ -277,6 +275,50 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
                 Fecha = reader.GetDateTime("Fecha")
              });
              }
+
+            return resultado;
+        }
+        public List<Reporte1DTO> ObtenerReporteServicios()
+        {
+            string consulta = @"
+                        SET @n := 0;
+                        SELECT 
+                            @n := @n + 1 AS Nro,
+                            p.Nombre AS 'Nombre del Servicio',
+                            AVG(dv.PrecioUnitario) AS 'Costo Bs.',
+                            '' AS Descripción, 
+                            c.Nombre AS Categoría,
+                            SUM(dv.Cantidad) AS 'Cantidad Total Vendida'
+                        FROM 
+                            DetalleVenta dv
+                        JOIN 
+                            Producto p ON dv.IdProducto = p.Id
+                        JOIN 
+                            Categoria c ON p.IdCategoria = c.Id
+                        JOIN 
+                            Venta v ON dv.IdVenta = v.Id
+                        GROUP BY 
+                            p.Id, c.Id
+                        ORDER BY 
+                            p.Nombre;";
+
+            MySqlCommand comando = new MySqlCommand(consulta);
+
+            var resultado = new List<Reporte1DTO>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                resultado.Add(new Reporte1DTO
+                {
+                    Nro = Convert.ToInt32(reader["Nro"]),
+                    NombreServicio = reader["Nombre del Servicio"].ToString(),
+                    CostoBs = Convert.ToDecimal(reader["Costo Bs."]),
+                    Descripcion = reader["Descripción"].ToString(),
+                    Categoria = reader["Categoría"].ToString()
+                });
+            }
+            reader.Close();
 
             return resultado;
         }

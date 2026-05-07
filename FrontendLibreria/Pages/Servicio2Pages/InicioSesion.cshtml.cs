@@ -57,7 +57,7 @@ namespace FrontendLibreria.Pages.Servicio2Pages
                 new Claim(ClaimTypes.Role, result.Rol),
                 new Claim("Token", result.Token),
                 new Claim("IdUsuario", result.IdUsuario.ToString()),
-                new Claim("MustChangePassword", result.MustChangePassword.ToString())
+                new Claim("MustChangePassword", result.DebeCambiarContrasena.ToString())
             };
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -70,7 +70,7 @@ namespace FrontendLibreria.Pages.Servicio2Pages
             );
 
             // Forzar cambio de contraseña si es primer login
-            if (result.MustChangePassword)
+            if (result.DebeCambiarContrasena)
                 return RedirectToPage("/Usuarios/CambiarContrasena");
 
             return RedirectToPage("/Index");
