@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 using Servicio_Ventas.Aplicacion.DTOs.ServicioVentaDTOs;
 using Servicio_Ventas.Aplicacion.Servicios;
 
 namespace Servicio_Ventas.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class VentaController : ControllerBase
@@ -106,6 +109,17 @@ namespace Servicio_Ventas.Controllers
                 return NotFound(resultado);
 
             return Ok(resultado.Value);
+        }
+
+        [HttpGet("reporte-servicios")]
+        public IActionResult ObtenerReporteServicios()
+        {
+            var resultado = _consultaVentaServicio.ObtenerReporteServicios();
+
+            if (resultado == null)
+                return NoContent();
+
+            return Ok(resultado);
         }
     }
 }

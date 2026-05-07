@@ -8,5 +8,7 @@ namespace FrontendLibreria.Adapters.Cliente
         Task<List<ClienteDto>> ObtenerTodoAsync();
         Task<ResultadoApi> ActualizarAsync(ClienteDto cliente);
         Task<ResultadoApi> EliminarAsync(int id, int idUsuario);
+        Task<ClienteDto?> ObtenerPorCiAsync(string ci);
+        Task<List<ClienteDto>> ObtenerSimilaresPorCiAsync(string ci);
     }
 }

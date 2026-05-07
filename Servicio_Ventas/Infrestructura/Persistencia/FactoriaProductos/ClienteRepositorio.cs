@@ -77,6 +77,19 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             return result;
         }
 
+        public DataRow ObtenerPorIdDR(int id)
+        {
+            MySqlCommand cmd = new MySqlCommand(@"
+                SELECT Id, RazonSocial,
+                       Ci AS Ci, Complemento, Email, ClienteFrecuente AS ClienteFrecuente, FechaRegistro
+                FROM Cliente
+                WHERE Id = @id AND Estado = 1");
+
+            cmd.Parameters.AddWithValue("@id", id);
+
+            return ExecuteReturningDataRow(cmd);
+        }
+
         public Cliente ObtenerPorCi(string ci)
         {
             MySqlCommand cmd = new MySqlCommand(@"

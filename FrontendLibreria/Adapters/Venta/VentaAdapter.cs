@@ -1,4 +1,5 @@
-﻿using FrontendLibreria.DTOs.VentaDTOs;
+using FrontendLibreria.DTOs.VentaDTOs;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace FrontendLibreria.Adapters.Venta
@@ -6,10 +7,30 @@ namespace FrontendLibreria.Adapters.Venta
     public class VentaAdapter : IVentaAdapter
     {
         private readonly HttpClient _httpClient;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public VentaAdapter(HttpClient httpClient)
+        public VentaAdapter(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
+
+            var idUsuario = _httpContextAccessor.HttpContext?.User?.FindFirst("IdUsuario")?.Value;
+
+            if (!string.IsNullOrEmpty(idUsuario))
+            {
+                if (_httpClient.DefaultRequestHeaders.Contains("X-IdUsuario"))
+                    _httpClient.DefaultRequestHeaders.Remove("X-IdUsuario");
+
+                _httpClient.DefaultRequestHeaders.Add("X-IdUsuario", idUsuario);
+            }
+
+            var token = _httpContextAccessor.HttpContext?.User?.FindFirst("Token")?.Value;
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
         }
 
         public async Task<List<VentaDTO>> CargarVentasAsync()
@@ -64,6 +85,19 @@ namespace FrontendLibreria.Adapters.Venta
             return await _httpClient.GetFromJsonAsync<VentaCompletaDTO>(
                 $"api/Venta/{idVenta}/completa"
             );
+        }
+
+        public async Task<List<Reporte1DTO>> ObtenerReporteServiciosAsync()
+        {
+            try
+            {
+                var reporte = await _httpClient.GetFromJsonAsync<List<Reporte1DTO>>("api/Venta/reporte-servicios");
+                return reporte ?? new List<Reporte1DTO>();
+            }
+            catch
+            {
+                return new List<Reporte1DTO>();
+            }
         }
     }
 }

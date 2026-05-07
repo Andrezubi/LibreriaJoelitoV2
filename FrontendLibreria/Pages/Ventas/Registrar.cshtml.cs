@@ -1,144 +1,140 @@
+using FrontendLibreria.Adapters.Cliente;
 using FrontendLibreria.Adapters.Venta;
+using FrontendLibreria.DTOs;
 using FrontendLibreria.DTOs.VentaDTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Data;
 using System.Security.Claims;
 
 namespace FrontendLibreria.Pages.Ventas
 {
+    [Authorize(Roles = "Administrador,Empleado")]
     public class RegistrarModel : PageModel
     {
-        //private readonly ClienteServicio _clienteServicio;
-        //private readonly ProductoServicio _productoServicio;
         private readonly IVentaAdapter _ventaAdapter;
+        private readonly IAdaptadorCliente _clienteAdapter;
 
         public RegistrarModel(
-            //ClienteServicio clienteServicio,
-            //ProductoServicio productoServicio,
-            IVentaAdapter ventaAdapter)
+            IVentaAdapter ventaAdapter,
+            IAdaptadorCliente clienteAdapter)
         {
-            //_clienteServicio = clienteServicio;
-            //_productoServicio = productoServicio;
             _ventaAdapter = ventaAdapter;
+            _clienteAdapter = clienteAdapter;
         }
 
         public void OnGet()
         {
         }
 
-        // --- HU-03 Role A: Real-time search by CI ---
-        //public JsonResult OnGetBuscarCliente(string ci)
-        //{
-        //    if (string.IsNullOrWhiteSpace(ci))
-        //        return new JsonResult(new { success = false, message = "CI no proporcionado" });
+        public async Task<JsonResult> OnGetBuscarClienteAsync(string ci)
+        {
+            if (string.IsNullOrWhiteSpace(ci))
+                return new JsonResult(new { success = false, message = "CI no proporcionado" });
 
-        //    DataTable clientesSimilares = _clienteServicio.GetAllSimilarId(ci);
-        //    var cliente = _clienteServicio.BuscarPorCi(ci);
+            ClienteDto? cliente = await _clienteAdapter.ObtenerPorCiAsync(ci);
 
-        //    if (cliente != null)
-        //    {
-        //        return new JsonResult(new
-        //        {
-        //            success = true,
-        //            cliente = new
-        //            {
-        //                cliente.Id,
-        //                cliente.Nombre,
-        //                cliente.ApellidoPaterno,
-        //                cliente.ApellidoMaterno
-        //            }
-        //        });
-        //    }
+            if (cliente == null)
+                return new JsonResult(new { success = false, message = "Cliente no encontrado" });
 
-        //    return new JsonResult(new { success = false, message = "Cliente no encontrado" });
-        //}
+            return new JsonResult(new
+            {
+                success = true,
+                cliente = new
+                {
+                    cliente.Id,
+                    cliente.RazonSocial,
+                    cliente.Ci,
+                    cliente.Complemento
+                }
+            });
+        }
+
+        public async Task<JsonResult> OnGetBuscarClientesParcialAsync(string ci)
+        {
+            if (string.IsNullOrWhiteSpace(ci))
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    clientes = new List<object>()
+                });
+            }
+
+            List<ClienteDto> clientes = await _clienteAdapter.ObtenerSimilaresPorCiAsync(ci);
+
+            var lista = clientes.Select(cliente => new
+            {
+                id = cliente.Id,
+                razonSocial = cliente.RazonSocial,
+                ci = cliente.Ci,
+                complemento = cliente.Complemento,
+                ciCompleto = cliente.CiCompleto
+            }).ToList();
+
+            return new JsonResult(new
+            {
+                success = true,
+                clientes = lista
+            });
+        }
 
         //[ValidateAntiForgeryToken]
-        //public JsonResult OnPostCrearCliente([FromBody] Cliente cliente)
-        //{
-        //    if (cliente == null)
-        //    {
-        //        return new JsonResult(new { success = false, message = "Datos inválidos" });
-        //    }
+        public async Task<JsonResult> OnPostCrearClienteAsync([FromBody] ClienteDto cliente)
+        {
+            if (cliente == null)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    message = "Datos inválidos"
+                });
+            }
 
-        //    cliente.Estado = true;
-        //    cliente.FechaRegistro = DateTime.Now;
-        //    cliente.IdUsuario = 1;
 
-        //    var result = _clienteServicio.Insert(cliente);
+            var idUsuario = ObtenerIdUsuario(); // Reemplaza con el ID del usuario actual
+            cliente.Estado = true;
+            cliente.FechaRegistro = DateTime.Now;
+            cliente.IdUsuario = idUsuario;
 
-        //    if (result.IsFailure)
-        //    {
-        //        string fullErrorMessage = "";
+            ResultadoApi resultado = await _clienteAdapter.InsertarAsync(cliente);
 
-        //        foreach (var error in result.Errors)
-        //        {
-        //            var parts = error.Split(':', 2);
+            if (!resultado.Success)
+            {
+                string mensaje = resultado.Errors.Any()
+                    ? string.Join("\n", resultado.Errors)
+                    : "Error al crear cliente.";
 
-        //            if (parts.Length == 2)
-        //            {
-        //                var field = parts[0].Trim();
-        //                var message = parts[1].Trim();
-        //                fullErrorMessage += $"Error in {field}: {message} \n";
-        //            }
-        //            else
-        //            {
-        //                fullErrorMessage += $"Error: {error} \n";
-        //            }
-        //        }
+                return new JsonResult(new
+                {
+                    success = false,
+                    message = mensaje
+                });
+            }
 
-        //        return new JsonResult(new
-        //        {
-        //            success = false,
-        //            message = fullErrorMessage
-        //        });
-        //    }
+            ClienteDto? nuevo = await _clienteAdapter.ObtenerPorCiAsync(cliente.Ci);
 
-        //    var nuevo = _clienteServicio.BuscarPorCi(cliente.Ci);
+            if (nuevo == null)
+            {
+                return new JsonResult(new
+                {
+                    success = false,
+                    message = "Cliente creado, pero no se pudo recuperar desde la API."
+                });
+            }
 
-        //    return new JsonResult(new
-        //    {
-        //        success = true,
-        //        cliente = new
-        //        {
-        //            nuevo.Id,
-        //            nuevo.Nombre,
-        //            nuevo.ApellidoPaterno,
-        //            nuevo.ApellidoMaterno,
-        //            nuevo.Ci
-        //        }
-        //    });
-        //}
-
-        //public JsonResult OnGetBuscarClientesParcial(string ci)
-        //{
-        //    if (string.IsNullOrWhiteSpace(ci))
-        //    {
-        //        return new JsonResult(new { success = false, clientes = new List<object>() });
-        //    }
-
-        //    var tabla = _clienteServicio.GetAllSimilarId(ci);
-        //    var lista = new List<object>();
-
-        //    foreach (DataRow row in tabla.Rows)
-        //    {
-        //        lista.Add(new
-        //        {
-        //            id = Convert.ToInt32(row["Id"]),
-        //            nombre = row["Nombre"].ToString(),
-        //            apellidoPaterno = row["ApellidoPaterno"].ToString(),
-        //            apellidoMaterno = row["ApellidoMaterno"] == DBNull.Value ? null : row["ApellidoMaterno"].ToString(),
-        //            ci = row["Ci"].ToString()
-        //        });
-        //    }
-
-        //    return new JsonResult(new
-        //    {
-        //        success = true,
-        //        clientes = lista
-        //    });
-        //}
+            return new JsonResult(new
+            {
+                success = true,
+                cliente = new
+                {
+                    nuevo.Id,
+                    nuevo.RazonSocial,
+                    nuevo.Ci,
+                    nuevo.Complemento
+                }
+            });
+        }
 
         public async Task<JsonResult> OnGetBuscarNombreAsync(string termino)
         {
@@ -168,7 +164,7 @@ namespace FrontendLibreria.Pages.Ventas
                 return new JsonResult(new
                 {
                     success = false,
-                    message = "El nombre esta vacio."
+                    message = "El nombre está vacío."
                 });
             }
 
@@ -204,9 +200,7 @@ namespace FrontendLibreria.Pages.Ventas
         public async Task<IActionResult> OnGetImprimirComprobanteAsync(int idVenta)
         {
             if (idVenta <= 0)
-            {
                 return BadRequest("ID de venta inválido.");
-            }
 
             try
             {
@@ -239,7 +233,7 @@ namespace FrontendLibreria.Pages.Ventas
             public List<DetalleVentaDTO> Detalles { get; set; } = new List<DetalleVentaDTO>();
         }
 
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<JsonResult> OnPostRegistrarVentaAsync([FromBody] RegistrarVentaDto dto)
         {
             if (dto == null || dto.Detalles == null || !dto.Detalles.Any())
@@ -248,33 +242,24 @@ namespace FrontendLibreria.Pages.Ventas
             if (dto.IdCliente <= 0)
                 return new JsonResult(new { success = false, message = "Cliente no válido." });
 
-            string? usuarioClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!int.TryParse(usuarioClaim, out int idUsuario))
-            {
-                return new JsonResult(new
-                {
-                    success = false,
-                    message = "No se pudo identificar al usuario actual."
-                });
-            }
-
+            var idUsuario = ObtenerIdUsuario(); // Reemplaza con el ID del usuario actual
             decimal total = dto.Detalles.Sum(d => d.Cantidad * d.PrecioUnitario);
 
             var request = new RegistrarVentaRequestDTO
             {
-                Venta = new VentaDTO
+                Venta = new VentaRegistroDTO
                 {
-                    CiCliente = dto.IdCliente,
+                    IdCliente = dto.IdCliente,
                     IdUsuario = idUsuario,
                     Fecha = DateTime.Now,
                     Total = total,
-                    Estado = 1
+                    Estado = true
                 },
                 Detalles = dto.Detalles
             };
 
-            var result = await _ventaAdapter.RegistrarVentaAsync(request);
+            ApiResultDTO<int>? result = await _ventaAdapter.RegistrarVentaAsync(request);
 
             if (result != null && result.IsSuccess)
             {
@@ -295,6 +280,15 @@ namespace FrontendLibreria.Pages.Ventas
                 success = false,
                 message = mensajeError
             });
+        }
+
+        private int ObtenerIdUsuario()
+        {
+            var idClaim = User.FindFirst("IdUsuario")?.Value
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? "0";
+
+            return int.TryParse(idClaim, out var id) ? id : 0;
         }
     }
 }

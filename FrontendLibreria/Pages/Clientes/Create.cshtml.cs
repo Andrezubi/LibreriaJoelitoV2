@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace FrontendLibreria.Pages.Clientes
 {
-    //[Authorize(Roles = "Administrador,Empleado")]
+    [Authorize(Roles = "Administrador,Empleado")]
     public class CrearClienteModel : PageModel
     {
         private readonly IAdaptadorCliente _clienteAdapter;
@@ -53,8 +53,17 @@ namespace FrontendLibreria.Pages.Clientes
             return RedirectToPage("ClientesGet");
         }
 
+        /// <summary>
+        /// Obtiene el ID del usuario autenticado desde los claims de la sesión.
+        /// </summary>
         private int ObtenerIdUsuario()
-            => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+        {
+            var idClaim = User.FindFirst("IdUsuario")?.Value 
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                ?? "0";
+            
+            return int.TryParse(idClaim, out var id) ? id : 0;
+        }
 
         private static string? Normalizar(string? texto)
         {

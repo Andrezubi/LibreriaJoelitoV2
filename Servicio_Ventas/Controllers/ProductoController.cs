@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Servicio_Ventas.Aplicacion.DTOs;
 using Servicio_Ventas.Aplicacion.Results;
@@ -13,18 +14,32 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace Servicio_Ventas.Controllers
 {
     // Controllers/ProductosController.cs
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ProductoController : ControllerBase
     {
         private readonly ProductoServicio _productoServicio;
         private readonly PresentacionServicio _presentacionServicio;
+        private readonly Infrestructura.Persistencia.FactoriaProductos.BitacoraRepositorio _bitacoraRepo;
         
-
-        public ProductoController(ProductoServicio productoServicio, PresentacionServicio presentacionServicio)
+        public ProductoController(
+            ProductoServicio productoServicio, 
+            PresentacionServicio presentacionServicio,
+            Infrestructura.Persistencia.FactoriaProductos.BitacoraRepositorio bitacoraRepo)
         {
             _productoServicio = productoServicio;
             _presentacionServicio = presentacionServicio;
+            _bitacoraRepo = bitacoraRepo;
+        }
+
+        private int GetIdUsuarioFromHeader()
+        {
+            if (Request.Headers.TryGetValue("X-IdUsuario", out var idStr))
+            {
+                if (int.TryParse(idStr, out int id)) return id;
+            }
+            return 0;
         }
 
         [HttpGet]
@@ -90,6 +105,8 @@ namespace Servicio_Ventas.Controllers
                 cmd.Parameters.AddWithValue("@idUsuario",data.IdUsuario);
                 int res=RepositorioBD.Instancia.ExecuteNonQuery(cmd);
                 if (res >= 1) {
+                    // AUDITORÍA
+                    _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "INSERT", "Categoria", $"Nueva categoría creada: {data.Nombre}");
                     return Ok(new { success = true });
                 }
                 return BadRequest(new { errores = "No se ingeso correctamente" });
@@ -110,6 +127,9 @@ namespace Servicio_Ventas.Controllers
         {
             var result = _productoServicio.Insertar(producto,idPresentacion,factorConversion,precioVenta);
             if (result.IsFailure) return BadRequest(new { errores = result.Errors });
+            
+            // AUDITORÍA
+            _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "INSERT", "Producto", $"Nuevo producto registrado con ID: {result.Value}");
             return Ok(new {success=true});
         }
 
@@ -118,6 +138,9 @@ namespace Servicio_Ventas.Controllers
         {
             var result = _productoServicio.Actualizar(producto);
             if (result.IsFailure) return BadRequest(new { errores = result.Errors });
+            
+            // AUDITORÍA
+            _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "UPDATE", "Producto", $"Producto actualizado ID: {id}");
             return Ok(new { success = true });
         }
 
@@ -137,6 +160,8 @@ namespace Servicio_Ventas.Controllers
             if (filas == 0)
                 return BadRequest("No se eliminó ningún registro");
 
+            // AUDITORÍA
+            _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "DELETE", "Producto", $"Producto eliminado (baja lógica) ID: {id}");
             return Ok();
         }
 
@@ -147,6 +172,9 @@ namespace Servicio_Ventas.Controllers
             var result = _productoServicio.AsociarNuevaPresentacion(
                 id, dto.IdPresentacion, dto.FactorConversion, dto.PrecioVenta, dto.IdUsuario);
             if (result.IsFailure) return BadRequest(new { errores = result.Errors });
+
+            // AUDITORÍA
+            _bitacoraRepo.Registrar(GetIdUsuarioFromHeader(), "INSERT", "PresentacionProducto", $"Nueva presentación agregada al producto ID: {id}");
             return Ok();
         }
     }
