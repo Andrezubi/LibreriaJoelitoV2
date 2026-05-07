@@ -7,13 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
     <PackageReference Include="MySql.Data" Version="9.7.0" />
     <PackageReference Include="QuestPDF" Version="2026.2.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FrontendLibreria\FrontendLibreria.csproj" />
-  </ItemGroup>
 
 </Project>

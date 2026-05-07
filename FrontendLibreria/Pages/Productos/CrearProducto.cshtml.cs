@@ -106,12 +106,38 @@ namespace FrontendLibreria.Pages.Productos
         }
 
         private int ObtenerIdUsuario()
-            => int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1");
+        {
+            // Usar IdUsuario del claim (que agregamos en InicioSesion) en lugar de NameIdentifier
+            var idClaim = User.FindFirst("IdUsuario")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "1";
+            return int.Parse(idClaim);
+        }
     }
 
     // DTO local para los modales de creación rápida
     public class NombreRequest
     {
         public string Nombre { get; set; } = "";
+    }
+
+    // STUBS TEMPORALES PARA COMPILACIÓN
+    // El equipo de Ventas refactorizó y eliminó estas clases del backend,
+    // por lo que las definimos aquí temporalmente para que el FrontendLibreria compile
+    // sin tener que borrar todo el HTML de las vistas.
+    public class Producto
+    {
+        public int Id { get; set; }
+        public int IdUsuario { get; set; }
+        public string Nombre { get; set; }
+        public string Descripcion { get; set; }
+        public int IdCategoria { get; set; }
+        public int IdMarca { get; set; }
+        public int Stock { get; set; }
+        public DateTime FechaRegistro { get; set; }
+    }
+    public class ProductoServicio
+    {
+    }
+    public class PresentacionServicio
+    {
     }
 }

@@ -278,5 +278,49 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             return resultado;
         }
+        public List<Reporte1DTO> ObtenerReporteServicios()
+        {
+            string consulta = @"
+                        SET @n := 0;
+                        SELECT 
+                            @n := @n + 1 AS Nro,
+                            p.Nombre AS 'Nombre del Servicio',
+                            AVG(dv.PrecioUnitario) AS 'Costo Bs.',
+                            '' AS Descripción, 
+                            c.Nombre AS Categoría,
+                            SUM(dv.Cantidad) AS 'Cantidad Total Vendida'
+                        FROM 
+                            DetalleVenta dv
+                        JOIN 
+                            Producto p ON dv.IdProducto = p.Id
+                        JOIN 
+                            Categoria c ON p.IdCategoria = c.Id
+                        JOIN 
+                            Venta v ON dv.IdVenta = v.Id
+                        GROUP BY 
+                            p.Id, c.Id
+                        ORDER BY 
+                            p.Nombre;";
+
+            MySqlCommand comando = new MySqlCommand(consulta);
+
+            var resultado = new List<Reporte1DTO>();
+            var reader = ExecuteReader(comando);
+
+            while (reader.Read())
+            {
+                resultado.Add(new Reporte1DTO
+                {
+                    Nro = Convert.ToInt32(reader["Nro"]),
+                    NombreServicio = reader["Nombre del Servicio"].ToString(),
+                    CostoBs = Convert.ToDecimal(reader["Costo Bs."]),
+                    Descripcion = reader["Descripción"].ToString(),
+                    Categoria = reader["Categoría"].ToString()
+                });
+            }
+            reader.Close();
+
+            return resultado;
+        }
     }
 }
