@@ -27,6 +27,12 @@ builder.Services.AddTransient<IHasherContrasena, HasherSimple>();
 builder.Services.AddScoped<UsuarioRepository>(provider => {
     return new UsuarioCreadorRepositorio().CrearRepositorio();
 });
+
+
+// Reporte
+builder.Services.AddScoped<ReporteRepositorio>(provider =>
+    new ReporteCreadorRepositorio().CrearRepositorio());
+
 builder.Services.AddScoped<BitacoraRepositorio>();
 
 // Add services to the container.
@@ -53,6 +59,9 @@ builder.Services.AddScoped<IServicioToken, ServicioToken>();
 
 // Inyección del Servicio de Usuario (fachada)
 builder.Services.AddScoped<UsuarioServicio>();
+
+
+builder.Services.AddScoped<ReporteServicio>();
 
 // AGREGAR AUTENTICACION
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

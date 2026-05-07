@@ -9,5 +9,7 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
         Task<List<UsuarioDto>> ObtenerTodos();
         Task<bool> Eliminar(int id);
         Task<(bool Exito, List<string> Errores)> Insertar(SolicitudCrearUsuarioDto request);
+        Task<byte[]?> GenerarReporteVentasCategoria(
+    DateTime fechaDesde, DateTime fechaHasta, string format, string token);
     }
 }

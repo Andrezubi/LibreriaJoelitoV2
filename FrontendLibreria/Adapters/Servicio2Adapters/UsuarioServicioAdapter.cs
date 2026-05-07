@@ -184,6 +184,32 @@ namespace FrontendLibreria.Adapters.Servicio2Adapters
                 _logger.LogError(ex, "Error al insertar usuario");
                 return (false, new List<string> { $"Error crítico: {ex.Message}" });
             }
+
+
+        }
+
+        public async Task<byte[]?> GenerarReporteVentasCategoria(
+    DateTime fechaDesde, DateTime fechaHasta, string format, string token)
+        {
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    $"/api/reportes/ventas-categoria?fechaDesde={fechaDesde:yyyy-MM-dd}&fechaHasta={fechaHasta:yyyy-MM-dd}&format={format}");
+
+                request.Headers.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _httpClient.SendAsync(request);
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsByteArrayAsync();
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al generar reporte");
+                return null;
+            }
         }
     }
 }
