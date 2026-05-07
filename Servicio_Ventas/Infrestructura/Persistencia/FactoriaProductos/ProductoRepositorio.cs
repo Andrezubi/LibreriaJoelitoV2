@@ -160,7 +160,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
                              SET Stock = Stock + @cantidad, 
                                  FechaUltimaActualizacion = @fechaAhora 
                              WHERE Id = @idProducto;";
-            
+
             MySqlCommand command = new MySqlCommand(query);
             command.Parameters.AddWithValue("@cantidad", cantidad);
             command.Parameters.AddWithValue("@idProducto", idProducto);
@@ -256,6 +256,19 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
             }
             return result;
 
+        }
+
+        public DataRow ObtenerPorIdP(int id)
+        {
+            string query = @"SELECT  Id, Nombre,IdCategoria,IdMarca,Stock,Estado,FechaRegistro,IdUsuario,FechaUltimaActualizacion
+                            FROM producto
+                            WHERE Estado=1 and Id=@id
+                            ORDER BY 3";
+
+            MySqlCommand command = new MySqlCommand(query);
+            command.Parameters.AddWithValue("@id", id);
+
+            return ExecuteReturningDataRow(command);
         }
     }
 }

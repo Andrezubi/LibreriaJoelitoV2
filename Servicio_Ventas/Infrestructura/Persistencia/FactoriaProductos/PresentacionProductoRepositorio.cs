@@ -31,7 +31,7 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
         }
 
 
-        public PresentacionProductoDto? ObtenerPorIds(int idProducto, int idPresentacion)
+        public DataRow? ObtenerPorIds(int idProducto, int idPresentacion)
         {
             string query = @"
                                 SELECT 
@@ -57,26 +57,13 @@ namespace Servicio_Ventas.Infrestructura.Persistencia.FactoriaProductos
 
             cmd.Parameters.AddWithValue("@idProducto", idProducto);
             cmd.Parameters.AddWithValue("@idPresentacion", idPresentacion);
-            var result = new PresentacionProductoDto();
 
-            using (var reader = ExecuteReader(cmd))
-            {
-                if (!reader.Read())
-                    return null; 
+            var dt = ExecuteReturningDataTable(cmd);
 
-                return new PresentacionProductoDto
-                {
-                    IdProducto = reader.GetInt32("IdProducto"),
-                    IdPresentacion = reader.GetInt32("IdPresentacion"),
-                    Precio = reader.GetDecimal("Precio"),
-                    FactorConversion = reader.GetInt32("FactorConversion"),
-                    Producto = reader["Producto"].ToString(),
-                    Presentacion = reader["Presentacion"].ToString(),
-                    Marca = reader["Marca"].ToString(),
-                    Descripcion = reader["Descripcion"].ToString()
-                };
-            }
-            return result;
+            if (dt.Rows.Count > 0)
+                return dt.Rows[0];
+
+            return null;
         }
 
         public List<PresentacionProductoDto> obtenerPresentacionProductoDetallado(string frase)

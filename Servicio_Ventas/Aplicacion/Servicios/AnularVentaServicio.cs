@@ -11,13 +11,16 @@ namespace Servicio_Ventas.Aplicacion.Servicios
     {
         private readonly VentaRepositorio _ventaRepositorio;
         private readonly DetalleVentaRepositorio _detalleVentaRepositorio;
+        private readonly ProductoRepositorio _productoRepositorio;
 
         public AnularVentaServicio(
+            ProductoRepositorio productoRepositorio,
             VentaRepositorio ventaRepositorio,
             DetalleVentaRepositorio detalleVentaRepositorio)
         {
             _ventaRepositorio = ventaRepositorio;
             _detalleVentaRepositorio = detalleVentaRepositorio;
+            _productoRepositorio = productoRepositorio;
         }
 
         public Result<int> AnularVenta(int idVenta, int idEmpleado)
@@ -46,7 +49,7 @@ namespace Servicio_Ventas.Aplicacion.Servicios
                         int idProducto = detalle.IdProducto;
                         int cantidad = Convert.ToInt32(detalle.Cantidad * detalle.FactorConversion);
 
-                        int filasStock = RestaurarStock(idProducto, cantidad);
+                        int filasStock = _productoRepositorio.RestaurarStock(idProducto, cantidad);
 
                         if (filasStock <= 0)
                         {
@@ -83,22 +86,6 @@ namespace Servicio_Ventas.Aplicacion.Servicios
             {
                 return Result<int>.Failure($"Error inesperado al anular: {ex.Message}");
             }
-        }
-
-
-        // TODO: Mover a ProductoRepository
-        public int RestaurarStock(int idProducto, int cantidad)
-        {
-            string query = @"UPDATE producto 
-                             SET Stock = Stock + @cantidad, 
-                                 FechaUltimaActualizacion = @fechaAhora 
-                             WHERE Id = @idProducto;";
-
-            MySqlCommand command = new MySqlCommand(query);
-            command.Parameters.AddWithValue("@cantidad", cantidad);
-            command.Parameters.AddWithValue("@idProducto", idProducto);
-            command.Parameters.AddWithValue("@fechaAhora", DateTime.Now);
-            return RepositorioBD.Instancia.ExecuteNonQuery(command);
         }
     }
 }
